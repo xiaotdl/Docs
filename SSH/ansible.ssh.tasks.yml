@@ -1,0 +1,19 @@
+- set_fact:
+    user: "<user>"
+    pass: "<pass>"
+    host: "{{hostvars['<host>']['ansible_ssh_host']}}"
+
+- name: ssh-keygen - Remove old host fingerprint from local .ssh/known_hosts
+  shell: ssh-keygen -R {{host}}
+  delegate_to: 127.0.0.1
+  become: false
+
+- name: ssh-keygen - Add host fingerprint to local .ssh/known_hosts
+  shell: ssh-keyscan -t rsa -H {{host}} >> ~/.ssh/known_hosts
+  delegate_to: 127.0.0.1
+  become: false
+
+- name: ssh-copy-id - Copy key to remote .ssh/authorized_keys
+  shell: sshpass -p {{pass}} ssh-copy-id {{user}}@{{host}}
+  delegate_to: 127.0.0.1
+  become: false

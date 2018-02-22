@@ -1,0 +1,16 @@
+A Quick-Start Tutorial on Relational Database Design
+https://www.ntu.edu.sg/home/ehchua/programming/sql/Relational_Database_Design.html
+- First Normal Form (1NF):
+    A table is 1NF if every cell contains a single value, not a list of values.
+- Second Normal Form (2NF):
+    A table is 2NF, if it is 1NF and every non-key column is fully dependent on the primary key.
+    Furthermore, if the primary key is made up of several columns, every non-key column shall depend on the entire set and not part of it.
+- Third Normal Form (3NF):
+    A table is 3NF, if it is 2NF and the non-key columns are independent of each others.
+    In other words, the non-key columns are dependent on primary key, only on the primary key and nothing else.
+
+数据库范式 (normalization)
+http://blog.csdn.net/dreamrealised/article/details/10474391
+
+wiki - 数据库规范化
+https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A7%84%E8%8C%83%E5%8C%96

@@ -1,0 +1,11 @@
+Ref: http://stackoverflow.com/a/1406638/2989564
+
+find . -type f | p4 -x - fstat 2>&1 > /dev/null | sed 's/ - no such file.*$//'
+
+>>>
+x@y:z$ find . -type f | p4 -x - fstat 2>&1 > /dev/null | sed 's/ - no such file.*$//'
+./.p4config
+./debug
+./agent/.debug.swo
+./agent/debug
+./agent/config.ini

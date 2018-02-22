@@ -1,0 +1,5 @@
+== concurrency ==
+multiple tasks running interleaved
+
+== parallelism ==
+multiple tasks running at the same time in multiple CPUs

@@ -1,0 +1,37 @@
+Reference:
+https://docs.python.org/2/library/pdb.html#debugger-commands
+https://www.youtube.com/watch?v=bZZTeKPRSLQ
+
+== Two way of entering debug mode ==
+1. run python with debug module
+python -m ipdb test.py
+
+2. insert a breakpoint in file
+import ipdb; ipdb.set_trace() # PYTHON BREAKPOINT
+
+
+== Useful debug commands ==
+h(elp) [command]
+
+w(here) - stack trace
+d(own) - move down in stack trace
+u(p) - move up in stack trace
+
+s(tep) - execute one statement
+n(ext) - execute one line
+unt(il) - continue execution until line number greater than current one
+r(eturn) - continue execution until current function returns
+c(ont(inue)) - continue execution till next breakpoint
+j(ump) lineno
+
+a(rgs) - print arg list of current function
+p expression
+pp expression
+==> e.g. pp vars(obj)
+
+q(uit)
+
+
+== Tip on ignore all breakpoints ==
+ipdb> ipdb.set_trace = lambda: None  # This replaces the set_trace() function!
+ipdb> continue

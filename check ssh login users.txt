@@ -1,0 +1,30 @@
+# Show the login attemps
+$ grep 'New session' /var/log/auth.log
+Jun  1 11:16:13 xili-dev2 systemd-logind[1326]: New session 2 of user xili.
+
+
+$ who
+xili     pts/4        2016-05-19 10:38 (example.com)
+xili     pts/15       2016-06-01 11:16 (example.com)
+
+
+# Show who is logged on and what they are doing.
+$ w
+ 11:19:50 up 13 days, 44 min,  2 users,  load average: 0.01, 0.02, 0.05
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+xili     pts/4    example.com      19May16 16:46   0.54s  0.00s tmux new -s setups
+xili     pts/15   example.com      11:16    5.00s  0.17s  0.00s w
+
+
+# Show a user's activity.
+$ ps -f -U xili
+UID        PID  PPID  C STIME TTY          TIME CMD
+xili      3742  3675  0 May19 ?        00:00:03 sshd: xili@pts/4
+xili      3743  3742  0 May19 pts/4    00:00:00 -bash
+xili      8452  3743  0 May24 pts/4    00:00:00 tmux new -s setups
+xili      8453  8452  0 May24 pts/4    00:00:00 [tmux] <defunct>
+xili      8454     1  0 May24 ?        00:04:58 tmux new -s setups
+xili      8455  8454  0 May24 pts/13   00:00:01 -bash
+xili     18990 18924  0 11:16 ?        00:00:00 sshd: xili@pts/15
+xili     18991 18990  0 11:16 pts/15   00:00:00 -bash
+xili     19096 18991  0 11:20 pts/15   00:00:00 ps -f -U xili

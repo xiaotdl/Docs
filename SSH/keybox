@@ -1,0 +1,240 @@
+#!/bin/bash
+
+# keybox - automagically key a bigip for ssh access -  R.Pope
+#
+# example:  keybox 10.10.10.63 d63 default
+# example:  keybox 10.10.10.63 none default  (to skip the hostname)
+# example:  keybox 10.10.10.63 none default lab (non root user name)
+#
+# notes:
+#  - wants 'expect' available in current path
+#  - assumes your devbox key is ~/.ssh/id_rsa.pub (from # ssh-keygen -t rsa)
+#      - if [ ! -f /root/.ssh/id_rsa ]; then echo -e 'y\n' | ssh-keygen -q -t rsa -N '' -f '/root/.ssh/id_rsa'; fi
+#      - sudo sshpass -p default ssh-copy-id -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa root@10.192.10.52
+#      - sudo scp -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o ForwardX11=no -r root@10.192.10.52:/tmp/123 /tmp/123
+#  - does not touch /etc/hosts
+#
+# results:
+#  - devbox: adds fields to ~.ssh/config to avoid need for root@, don't use
+#    known hosts file, and to add the hostname.  Example:
+#       Host hvic2
+#       HostName 172.31.131.51
+#       StrictHostKeyChecking no
+#       User root
+#       UserKnownHostsFile /dev/null
+#  - bigip:  your devbox id_rsa.pub key ends up in /root/.ssh/authorized_keys
+
+if [ -z "$1" ] || [  -z "$2" ] || [ -z "$3" ] ; then
+    echo "usage: $0 ipaddr hostname passwd [username]"
+    exit
+fi
+
+ipaddr=$1
+hostname=$2
+passwd=$3
+username=$4
+
+TMPDIR="~/.tmp"
+TMPFILE=$TMPDIR/.keybox
+
+
+if [ "${hostname}" = "none" ] ; then
+    nohosts=1
+else
+    nohosts=0
+fi
+
+# use port 22 by default
+port="22"
+
+user="root"
+if [ ! -z "${username}" ] ; then
+    echo "Using username: ${username}"
+    user=${username}
+fi
+
+# checks
+mkdir -p $TMPDIR
+if ! [ -d $TMPDIR ] ; then
+    echo oops: $TMPDIR directory failed??
+    exit
+fi
+
+if ! [ expect  ] ; then
+    echo "oops: expect executable not found in path."
+    exit
+fi
+
+
+
+autoput()
+{
+# args: pwd srcfile ipaddr_and_dstfile
+expect - << EOF
+spawn scp -P $port -o StrictHostKeyChecking=no -q $2 ${user}@$3
+match_max 100000
+set timeout 10
+expect {
+    "*?assword:*" {
+        send -- "$1\r"
+        send -- "\r"
+        exp_continue
+        } "yes/no)?" {
+        send "yes\r"
+        exp_continue
+        } timeout {
+            exit
+        } eof {
+            exit
+        }
+}
+EOF
+}
+
+autoget()
+# args: pwd ipaddr_and_srcfile dstfile
+{
+if [ -f $3 ] ; then
+    echo "  removing $3"
+    rm -f $3
+fi
+expect - << EOF
+spawn scp -P $port -o StrictHostKeyChecking=no -q ${user}@$2 $3
+match_max 100000
+set timeout 10
+expect {
+    "*?assword:*" {
+        send -- "$1\r"
+        send -- "\r"
+        exp_continue
+        } "yes/no)?" {
+        send "yes\r"
+        exp_continue
+        } timeout {
+            exit
+        } eof {
+            exit
+        }
+}
+EOF
+if ! [ -f "$3" ] ; then
+    echo "failed!  file $3 not found"
+    exit
+fi
+}
+
+
+if [ $nohosts -eq 1 ] ; then
+    echo "Skipping ~/.ssh/config"
+else
+    echo "Checking for ${ipaddr}|${hostname} in ~/.ssh/config"
+    if egrep -A5 "^Hostname ${ipaddr}$|^Host ${hostname}$" ~/.ssh/config ; then
+        echo "!! already exists in ~/.ssh/config (you should verify it)"
+    else
+        echo Adding ${hostname} user:$user to ~/.ssh/config
+        echo " "  >> ~/.ssh/config
+        echo Host ${hostname} >> ~/.ssh/config
+        echo HostName ${ipaddr} >> ~/.ssh/config
+        echo StrictHostKeyChecking no >> ~/.ssh/config
+        echo User $user >> ~/.ssh/config
+        echo UserKnownHostsFile /dev/null >> ~/.ssh/config
+    fi
+fi
+
+echo Checking ssh...
+ssh -p $port -o BatchMode=yes ${user}@${ipaddr} echo &> /dev/null
+if [[ $? -eq 0 && "${hostname}" != "none" ]] ; then
+    ssh -p $port -o BatchMode=yes ${user}@${hostname} echo &> /dev/null
+    if [ $? -eq 0 ] ; then
+       echo "keys ok!"
+       exit
+    fi
+fi
+
+echo Remove from known_hosts
+GREP_OPTIONS=-v egrep "^${ipaddr}|^${hostname},|^${hostname} " ~/.ssh/known_hosts > $TMPFILE
+mv $TMPFILE ~/.ssh/known_hosts
+
+if [ -f ~/.ssh/id_rsa.pub ] ; then
+    echo Using ~/.ssh/id_rsa.pub
+else
+    echo Key file not found!  ~/.ssh/id_rsa.pub
+    echo Use \#ssh-keygen -t rsa
+    exit
+fi
+
+
+echo Copying keys...
+autoget ${passwd} ${ipaddr}:/${user}/.ssh/authorized_keys $TMPFILE
+cat ~/.ssh/id_rsa.pub >> $TMPFILE
+autoput ${passwd} $TMPFILE ${ipaddr}:/root/.ssh/authorized_keys
+
+echo Checking login...
+ssh -p $port -o BatchMode=yes ${user}@${ipaddr} echo &> /dev/null
+if [ $? -eq 0 ] ; then
+    echo "ssh -p $port ${user}@${ipaddr} ...ok!"
+else
+    echo "ssh -p $port ${user}@${ipaddr} ...failed!"
+fi
+if [ $nohosts -eq 0 ] ; then
+ssh -p $port -o BatchMode=yes root@${hostname} echo &> /dev/null
+if [ $? -eq 0 ] ; then
+    echo "ssh -p $port ${user}@${hostname} ...ok!"
+else
+    echo "ssh -p $port ${user}@${hostname} ...failed!"
+fi
+fi
+
+# Usage Case:
+# Example. A new harness Atlantis HI is at 10.144.81.213
+# Login requires passwd:
+# [pope@seadev03 staging]$ ssh 10.144.81.213
+# Warning: Permanently added '10.144.81.213' (RSA) to the list of known hosts.
+# Password:
+# My seadev pub key is not in the Atlantis hi authorized_keys:
+# [pope@seadev03 staging]$ cat ~/.ssh/id_rsa.pub
+# ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAu/FWZ0X5ELmE4meMtJdWxhuFz6aU760tltxP2vhWiTSu0/FDrsQMW7ChSIFY6aH++CL1BEAC6RRj/GTGR6JZJRw2NbeBqZh4AxAoc8LBASFxIMSymaxH9qPYBaxiWbvKQDT2z7DvVPnksZ0IRCwNZX4zrzUSMz9HgWNUkIEjWtkHcjZdUCj5+zBS/23fn5P+b0IDDYQypnreH5DnD5nUVyh/5ISdC9yoH8gqjuK/rPJmb1LjYRB7ERNqAgNG1cUYP+KV8IgOOtw6dBy0Z8g7IpR6mcG/BQwaxj5+1icTMaWbpCn30DluKGqblt+GFtjz6vw/Z3x+cuBeCtOjCEnhaw== pope@seapddev
+#
+# [root@hteam-atlantis-hi:Active:Standalone] config # grep pope ~/.ssh/authorized_keys
+# <nada>
+#
+# Run keybox:
+#
+# [pope@seadev03 ~]$ /vol/3/user/pope/bin/keybox
+# usage: /vol/3/user/pope/bin/keybox ipaddr hostname passwd [username]
+#
+# [pope@seadev03 ~]$ keybox 10.144.81.213 hA-hi default
+# Checking for 10.144.81.213|hA-hi in ~/.ssh/config
+# Adding hA-hi user:root to /home/pope/.ssh/config
+# Checking ssh...
+# Remove from known_hosts
+# Using /home/pope/.ssh/id_rsa.pub
+# Copying keys...
+# spawn scp -P 22 -o StrictHostKeyChecking=no -q root@10.144.81.213:/root/.ssh/authorized_keys ~/.tmp/.keybox
+# Password:
+# spawn scp -P 22 -o StrictHostKeyChecking=no -q ~/.tmp/.keybox root@10.144.81.213:/root/.ssh/authorized_keys
+# Password:
+# Checking login...
+# ssh -p 22 root@10.144.81.213 ...ok!
+# ssh -p 22 root@hA-hi ...ok!
+# done.
+#
+# My key is now in Atlantis authorized_keys
+# [root@hteam-atlantis-hi:Active:Standalone] config # grep pope ~/.ssh/authorized_keys
+# ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAu/FWZ0X5ELmE4meMtJdWxhuFz6aU760tltxP2vhWiTSu0/FDrsQMW7ChSIFY6aH++CL1BEAC6RRj/GTGR6JZJRw2NbeBqZh4AxAoc8LBASFxIMSymaxH9qPYBaxiWbvKQDT2z7DvVPnksZ0IRCwNZX4zrzUSMz9HgWNUkIEjWtkHcjZdUCj5+zBS/23fn5P+b0IDDYQypnreH5DnD5nUVyh/5ISdC9yoH8gqjuK/rPJmb1LjYRB7ERNqAgNG1cUYP+KV8IgOOtw6dBy0Z8g7IpR6mcG/BQwaxj5+1icTMaWbpCn30DluKGqblt+GFtjz6vw/Z3x+cuBeCtOjCEnhaw== pope@seapddev
+#
+# The 'hA-hi' host is now in my ~/.ssh/config
+#
+# [pope@seadev03 staging]$ tail -5 ~/.ssh/config
+# Host hA-hi
+# HostName 10.144.81.213
+# StrictHostKeyChecking no
+# User root
+# UserKnownHostsFile /dev/null
+#
+# No password!
+# [pope@seadev03 staging]$ ssh hA-hi
+# Warning: Permanently added '10.144.81.213' (RSA) to the list of known hosts.
+# Last login: Fri Oct 28 10:00:12 2016 from 192.168.24.3
+# [root@hteam-atlantis-hi:Active:Standalone] config #
+#

@@ -1,0 +1,12 @@
+# Ref:
+# Config file options
+#   https://www.reviewboard.org/docs/rbtools/dev/rbt/
+# repo: REPOSITORY, REVIEWBOARD_URL
+#   https://www.reviewboard.org/docs/rbtools/dev/rbt/configuration/repositories/
+# post - TARGET_GROUPS,  TARGET_PEOPLE, BRANCH
+#   https://www.reviewboard.org/docs/rbtools/dev/rbt/commands/post/
+
+# REVIEWBOARD_URL = "https://reviewboard.com"
+# BRANCH = "<your_branch>"
+# TARGET_GROUP = "<your_target_group>"
+# TARGET_PEOPLE = "<your_target_people>"

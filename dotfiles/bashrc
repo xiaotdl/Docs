@@ -1,0 +1,76 @@
+# == alias ==
+# ls =>
+# -a: list all including .file; -A: list all except . and ..; -G: enable colorized output; -l: list in long format.
+alias la='ls -aGl'
+alias ll='ls -Gl'
+alias ltr='ls -AGltr'
+# grep =>
+alias grep='grep --color=auto'
+# ssh =>
+# ignore "@ WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED! @"
+alias ssh='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+# utils =>
+alias json='python -m json.tool'
+
+# == p4 == 
+export P4USER=xili
+export P4PORT=example.com:1999
+export P4CONFIG=.p4config
+
+# == vim ==
+export EDITOR=vim
+
+# == sys path ==
+PATH=$PATH:~/bin
+
+# == colorful PS1 ==
+# Ref: http://stackoverflow.com/a/16715681/2989564
+PROMPT_COMMAND=__prompt_command # Func to gen PS1 after CMDs
+
+__prompt_command() {
+    local EXIT="$?"
+
+    local RST='\e[m'
+
+    local BLK='\e[01;30m'
+    local RED='\e[01;31m'
+    local GRN='\e[01;32m'
+    local YLW='\e[01;33m'
+    local BLU='\e[01;34m'
+    local PNK='\e[01;35m'
+    local RYN='\e[01;36m'
+    local WHT='\e[01;37m'
+
+    STATUS_COLOR=$(if [[ $EXIT == 0 ]]; then
+               echo "${GRN}";
+           else
+               echo "${RED}";
+           fi)
+    USER="${STATUS_COLOR}\u${RST}"
+    AT="${WHT}at${RST}"
+    HOST="${RYN}\h${RST}"
+    IN="${WHT}in${RST}"
+    CWD="${BLU}\w${RST}"
+    EXIT_CODE="${STATUS_COLOR}$EXIT${RST}"
+    CHROOT="${WHT}${debian_chroot:+($debian_chroot)}${RST}"
+    NOW="${YLW}$(date +"%a %b %H:%M %Y %Z")${RST}"
+    UNAME=`uname`
+    MGMT_IP=$(if [[ $UNAME == "Linux" ]]; then
+               echo "${RYN}$(/sbin/ip route get 8.8.8.8 \
+                                | grep 8.8.8.8 \
+                                | sed "s/.*src \([0-9.]*\).*/\1/")${RST}"
+           elif [[ $UNAME == "Darwin" ]]; then
+               echo "${RYN}$(ifconfig $(route get 8.8.8.8 \
+                                | grep interface \
+                                | sed "s/[^:]*: \(.*\)/\1/") \
+                                | grep inet \
+                                | grep -v inet6 \
+                                | sed "s/.*inet \([0-9.]*\) .*/\1/")${RST}"
+           else
+               echo "n/a"
+           fi)
+
+    PS1="$CHROOT$USER $AT $HOST($MGMT_IP) $IN $CWD [$EXIT_CODE]\n"
+    PS1+="🍺 "
+}
+

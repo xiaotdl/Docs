@@ -1,0 +1,109 @@
+DHCP wiki:
+https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol
+
+Easy workflow explanation:
+http://www.krizna.com/ubuntu/setup-dhcp-server-ubuntu-14-04/
+
+Ref:
+https://help.ubuntu.com/lts/serverguide/dhcp.html
+What DHCP server can provide:
+=> common
+- IP adress and subnet mask
+- IP adress of default-gateway
+- IP adresses of the DNS servers
+=> additional
+- Host Name
+- Domain Name
+- Time Server
+- Print Server
+
+
+Ref:
+https://www.unixmen.com/how-to-install-dhcp-server-in-centos-and-ubuntu/
+https://help.ubuntu.com/community/isc-dhcp-server
+
+Ubuntu 15.04 64bit server
+############################
+# Server Side
+############################
+
+Assign static IP before starting isc-dhcp-server service .
+
+== install DHCP server ==
+$ sudo apt-get install isc-dhcp-server
+
+== config ==
+1) choose interface that DHCP server(dhcpd) serve DHCP requests
+$ sudo vim /etc/default/isc-dhcp-server
+INTERFACES="eth0"
+
+2) edit dhcpd.conf
+Set domain-name and domain-name-servers
+$ sudo vim /etc/dhcp/dhcpd.conf
+# option definitions common to all supported networks...
+option domain-name "unixmen.local";
+option domain-name-servers server.unixmen.local;
+
+Uncomment following line if the DHCP server is the official one for the local network.
+# authoritative;
+
+subnet 192.168.1.0 netmask 255.255.255.0 {
+    range 192.168.1.20 192.168.1.30;
+    option domain-name-servers server.unixmen.local;
+    option domain-name "unixmen.local";
+    option routers 192.168.1.1;
+    option broadcast-address 192.168.1.255;
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+
+== Assign a fixed IP address to your client ==
+$ sudo vim /etc/dhcp/dhcpd.conf
+host ubuntu-client {
+    hardware ethernet 00:22:64:4f:e9:3a;
+    fixed-address 192.168.1.15;
+}
+
+== Restart DHCP server ==
+In Ubuntu 15.04:
+$ sudo systemctl restart isc-dhcp-server
+In Ubuntu 14.04 and older systems:
+$ sudo service isc-dhcp-server restart
+
+== Verify ==
+Ref:
+https://askubuntu.com/questions/140126/how-do-i-install-and-configure-a-dhcp-server
+$ sudo netstat -uap
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address State PID/Program name
+udp        0      0 *:bootps                *:*                   4525/dhcpd
+
+== Monitor DHCP leases ==
+$ cat /var/lib/dhcp/dhcpd.leases
+$ grep "^lease" /var/lib/isc-dhcp-server/dhcpd.leases |sort |uniq |wc -l
+
+A python script to parse this file:
+https://askubuntu.com/a/553387
+
+Ubuntu - dhcpd.leases - DHCP client lease database
+http://manpages.ubuntu.com/manpages/zesty/man5/dhcpd.leases.5.html
+
+
+
+############################
+# Client Side
+############################
+1) Go to the client configuration network settings
+and change the IP settings to Automatic (DHCP).
+2) Restart the network or reboot the client system
+to get IP address automatically from the DHCP server.
+3) `sudo ifconfig` check if interface has got IP from DHCP server.
+
+# dump both sides of the DHCP transaction
+$ dhcpdump
+
+
+$ sudo grep dhclient /var/log/syslog
+May 20 18:34:38 [machine_name] dhclient: DHCPREQUEST on eth0 to [DHCP_SERVER_IP] port 67
+May 20 18:34:38 [machine_name] dhclient: DHCPACK from [DHCP_SERVER_IP]
+May 20 18:34:38 [machine_name] dhclient: bound to [client_dhcp_ip] -- renewal in 1517 seconds.

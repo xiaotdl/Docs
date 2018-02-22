@@ -1,0 +1,27 @@
+➜  ~  sudo cpan
+cpan[1]> install Term::ReadKey
+cpan[1]> install Term::ReadLine::Perl
+cpan[1]> install PadWalker
+
+To verify:
+(ite)vagrant@vagrant:~$ perl -de1
+DB<1> p 1
+1
+DB<2> p 1  ( use 'up' to repeat the same cmd)
+1
+
+
+
+If the CPAN client is too old, we might need to install a newer version.
+== Install from cpan shell ==
+  New CPAN.pm version (v2.10) available.
+  [Currently running version is v2.05]
+  You might want to try
+   > install CPAN
+   > reload cpan
+  to both upgrade CPAN.pm and run the new version without leaving
+  the current session.
+== Compile from source ==
+https://metacpan.org/pod/CPAN
+https://metacpan.org/pod/CPAN::Meta::Requirements
+https://github.com/xiaotdl/Docs/blob/master/Perl/Meta.pm.README.template

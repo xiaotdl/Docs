@@ -1,0 +1,47 @@
+Reference: http://perldoc.perl.org/perldebug.html
+
+$perl -d perl_file.pl
+DB<1> use module_name
+DB<2> b module_name::subroutine_name
+DB<3> c # Continue
+…
+DB<5> l # List next window of lines.
+DB<6> . Return to the executed line.
+…
+DB<7> p # Print
+DB<8> x # Dump
+DB<9> x 2 hash/array # Dump with dumpdepth as 2
+…
+DB<x> h # Help menu
+DB<x> h command # Help of the command
+
+
+Debugger command
+To run a program under the debugger  > perl -d program.pl 
+To set a breakpoint at the current line  DB<1> b 
+To set a breakpoint at line 42  DB<1> b 42 
+To continue executing until the next break-point is reached  DB<1> c 
+To continue executing until line 86  DB<1> c 86 
+To continue executing until subroutine foo is called  DB<1>c foo 
+To execute the next statement  DB<1> n 
+To step into any subroutine call that's part of the next statement  DB<1> s 
+To run until the current subroutine returns  DB<1> r 
+To print the contents of a variable  DB<1> p $variable 
+To examine the contents of a variable  DB<1> x $variable 
+To have the debugger watch a variable or expression, and inform you whenever it changes  DB<1>w$variable 
+
+<set a breakpoint>
+1. Insert a breakpoint in code:
+$DB::single = 1;
+
+2. perl -d example.pl
+  DB<2> x \%INC
+…check a list files included.
+  DB<4> f FIT/Runner
+
+
+Ignore long long self obj
+  DB<1> x @_[1 .. $#_]
+0  3831
+1  '[1,]'
+2  'bytes_out'

@@ -1,0 +1,22 @@
+== a powerful diagram generation tool ==
+using code/text based input without need for drawing diagrams manually for hours.
+It supports creating block diagram, FSM, sequence diagram, activity/network diagram …etc. Since most of the design/presentation involves showing FSM, sequence diagrams this tool can be very useful.
+They have lot of examples for complex diagrams, customizations and use different shapes/size.
+ 
+Main Link:
+http://blockdiag.com/en/index.html
+ 
+Online Block/Sequence Diagram Console Demo: (Write and code and see the generated diagram instantly)
+http://blockdiag.com/en/blockdiag/demo.html
+http://blockdiag.com/en/seqdiag/demo.html
+ 
+Block Diagram samples and its source code
+http://blockdiag.com/en/blockdiag/examples.html
+ 
+Sequence Diagram Samples and its source code
+http://blockdiag.com/en/seqdiag/examples.html
+ 
+Activity Diagram
+http://blockdiag.com/en/actdiag/index.html
+ 
+This tools also can be installed & used in linux machines. It has python dependencies.

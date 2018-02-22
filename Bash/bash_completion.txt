@@ -1,0 +1,64 @@
+<Bash completion for mac>
+
+$ brew install bash-completion
+
+$ cat <<EOF >~/.bash_profile
+
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+. $(brew --prefix)/etc/bash_completion
+fi
+EOF
+
+Ref: http://davidalger.com/development/bash-completion-on-os-x-with-brew/
+
+<Bash completion for only ssh>
+Here is a script for Bash Completion that reads the entries from that file:
+
+_ssh() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts=$(grep '^Host' ~/.ssh/config | awk '{print $2}')
+
+    COMPREPLY=( $(compgen -W "$opts" -- ${cur}) )
+    return 0
+}
+complete -F _ssh ssh
+Put that script in /etc/bash_completion.d/ssh and then source it with the following command:
+
+$ source /etc/bash_completion.d/ssh
+
+Ref: http://unix.stackexchange.com/questions/136351/autocomplete-server-names-for-ssh-and-scp
+
+
+
+== ssh auto complete ==
+1. add ssh shortcut into ssh config file
+$ cat .ssh/config 
+Host wweng-scu-dc
+    user wweng
+    HostName linux.dc.engr.scu.edu
+
+2. enable bash auto complete in mac’s bash terminal (relaunch after this change)
+$ echo complete -o default -o nospace -W "$(/usr/bin/env ruby -ne 'puts $_.split(/[,\s]+/)[1..-1].reject{|host| host.match(/\*|\?/)} if $_.match(/^\s*Host\s+/);' < $HOME/.ssh/config)" scp sftp ssh >> ~/.bash_profile
+
+3. enjoy the auto-completion
+$ ssh [tab]
+$ ssh wweng-scu-dc
+
+
+== vim doesn't autocomplete file ==
+https://unix.stackexchange.com/a/146654
+
+== .bashrc bash completion ==
+if ! shopt -oq posix; then
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+        complete -r vim
+    elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+        complete -r vim
+    fi
+fi

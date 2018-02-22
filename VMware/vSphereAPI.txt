@@ -1,0 +1,92 @@
+Ref:
+https://blogs.vmware.com/vsphere/2012/01/whats-the-difference-between-an-api-vs-sdk.html
+== API vs. SDK ==
+API - Application Programming Interface
+	API includes specifications for routines, data structures, object classes, and variables.
+	API provides an interface for users to access underlying platform capabilities and features.
+SDK - Software Development Kit
+	SDK provides a set of tools, helper classes to help users develop and use the API.
+
+Users may bypass the SDK and use API directly, but the SDKs are usually much more friendly
+from a development standpoint.
+
+
+VMware VSphere SDK for (Java, .NET, Perl)
+|
+V
+VMWare vSphere API
+|
+V
+VMware vSphere Platform: vCenter Server/ESX(i) Host
+
+
+== vSphere API ==
+Exposes functionalities of the platform such as host management, virtual machine provisioning,
+monitoring, etc. as Web services API.
+Depending on the feature, certain functionalities of the API will only be available
+at the vCenter Server (e.g. VM Cloning or Storage DRS(Distributed Resource Scheduler)).
+
+
+Ref:
+https://blogs.vmware.com/vsphere/2012/02/introduction-to-the-vsphere-api-part-1.html
+https://blogs.vmware.com/vsphere/2012/02/introduction-to-the-vsphere-api-part-2-object-model.html
+https://blogs.vmware.com/vsphere/2012/05/introduction-to-the-vsphere-api-part-3-inventory-hierarchy.html
+== Intro to vSphere API ==
+
+VMware Documentation:
+https://www.vmware.com/support/pubs/
+
+vSphere API 5.0 Reference Documentation:
+http://pubs.vmware.com/vsphere-50/index.jsp?topic=/com.vmware.wssdk.apiref.doc_50/index.html&single=true
+http://pubs.vmware.com/vsphere-50/index.jsp#com.vmware.wssdk.apiref.doc_50/right-pane.html
+e.g. Datastore Object
+http://pubs.vmware.com/vsphere-50/index.jsp?topic=/com.vmware.wssdk.apiref.doc_50/vim.Datastore.html
+
+== Object Model ==
+vSphere Object Model's structure and relationships
+vSphere API has 3 types of objects:
+	- **Managed Object** => server side object
+	- **Managed Object Reference** => client reference to a **Managed Object**
+    - **Data Object** => contains info about a **Managed Object**, and can also be used to transfer data between client and server
+
+== Inventory Hierarchy ==
+vSphere API organize its entities (Datacenter, HostSystem, VirtualMachine, etc.) in a inventory hierarchy. 
+The inventory hierarchy structure between vCenter Server and ESX(i) host is similiar, but vCenter is more complex.
+
+vSphere Inventory Hierarchy has 4 distinct groupings:
+	- Hosts and Clusters: ESX(i) hosts and vSphere Clusters
+	- VMs and Templates: VMs, vApps, VM Templates (which is just an immutable VM)
+	- Datastores and Datastore Clusters(StoragePod) - as is
+	- Networking - Portgroup, Distributed Port Groups and vSphere Distributed Virtual Switches(VDS)
+
+Folder:
+A folder can contain other folders, or a group of objects of the same type, 
+which means you can create 4 types of folders base on the groupings.
+
+Upon first login, you will be presented with a special managed object singleton => **ServiceInstance**,
+which is the root of the inventory => ServiceInstance.content.rootFolder (e.g. https://10.192.72.20/mob/?moid=group-d1)[1]. 
+subfolder is hooked up through Folder.childEntity(ManagedEntity[]) and Folder.childType(string[]).
+=== vCenter Server Inventory Hierarchy ===
+Traversing from rootFolder =>
+rootFolder/..nestedFoldersOrNone../Datacenter/..nestedFoldersOrNone../HostAndClusterFolder
+                                             /..nestedFoldersOrNone../VMAndTemplateFolder
+                                             /..nestedFoldersOrNone../StorageFolder
+                                             /..nestedFoldersOrNone../NetworkFolder
+=== ESXi Inventory Hierarchy ===
+very similiar to vCenter Server's, with fewer nested folders, and fewer managed object types
+
+
+== Property Collector ==
+An interface in vSphere API to monitor and retrieve properties of managed objects in vSphere inventory.
+
+== Permissions, Roles, and Privileges ==
+Users need to be authorized to use vSphere API.
+This authorization is governed by permissions, roles, and privileges.
+	- A Permission associates a user or group with a role.
+	- A Role is assigned to one or more privileges.
+	- A Privilege defines a basic right (e.g. power on or reset a VM).
+
+
+[1]
+Using the Managed Object Browser(MOB) to Explore the Object Model
+https://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.wssdk.pg.doc_50%2FPG_ChB_Using_MOB.20.2.html

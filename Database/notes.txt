@@ -1,0 +1,46 @@
+== Relational Database Design Process ==
+Step 1: Define the Purpose of the Database (Requirement Analysis)
+Step 2: Gather Data, Organize in tables and Specify the Primary Keys
+Step 3: Create Relationships among Tables
+    - one-to-many
+    - many-to-many
+    - one-to-one
+    == Column Data Types ==
+        integers, floating-point numbers, string (or text), date/time, binary, collection (such as enumeration and set).
+Step 4: Refine & Normalize the Design
+    - add more columns
+    - create a new table for optional data using one-to-one relationship
+    - split a large table into two smaller tables,
+    == Normalization ==
+    1NF, 2NF, 3NF
+    == Integrity Rules ==
+    Entity Integrity Rule => PK cannot be null
+    Referential Integrity Rule => FK must be matched to PK in the parent table
+    Business logic Integrity => column validation rule, e.g. zip code must be 5 digit, etc.
+    == Column Indexing ==
+    Create index (e.g. BTree) on selected column(s) to facilitate data searching and retrieval.
+    An index is a structured file that speeds up data access for SELECT, but may slow down INSERT, UPDATE, and DELETE.
+    Most RDBMS builds index on the primary key automatically.
+
+
+== Database Terms ==
+Table AKA Subject/Entity
+Row AKA Record
+Column AKA Field
+
+
+== Good Database Design ==
+1. Avoid duplicate/redundant data
+As it wastes space and increases the likelihood of errors and inconsistencies.
+2. Ensure correctness and completeness of information
+
+== Design Process ==
+- Determine purpose of the DB
+    how you expect to use it, and who will use it
+- Find and organize the information required
+- Divide the information into tables
+- Turn information items into columns
+- Specify primary keys
+- Set up the table relationships
+- Refine your design
+- Apply the normalization rules

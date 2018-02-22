@@ -1,0 +1,1724 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+    <html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+            <link rel="canonical" href="http://blog.csdn.net/phunxm/article/details/9498829"/>
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>VLAN原理详解 - 曾梦想仗剑走天涯
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="VLAN（Virtual LAN），翻译成中文是“虚拟局域网”。LAN可以是由少数几台家用计算机构成的网络，也可以是数以百计的计算机构成的企业网络。VLAN所指的LAN特指使用路由器分割的网络——也就是广播域。" />
+
+    <meta name="keywords" content="VLAN,Access-Link,Trunk-Link" />
+
+
+    <script src="http://static.blog.csdn.net/scripts/blog_static_head.min.js" type="text/javascript"></script>
+
+
+        <!--new top-->
+
+
+        <!--new top-->
+
+      <!-- ad begin -->
+
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/dark1/css/style.css?v=1.1" />
+
+
+
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/phunxm/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/blue_green.css" />
+
+
+
+
+
+    <link href="http://c.csdnimg.cn/blog/csdn_public_blog_detail.min.css" type="text/css" rel="stylesheet" />
+
+         <link rel="stylesheet" href="http://static.blog.csdn.net/css/csdn_blog_detail.min.css" />
+
+
+
+
+    <!-- 请置于所有广告位代码之前 -->
+            <script src="http://dup.baidustatic.com/js/ds.js"></script>
+
+</head>
+
+
+<body>
+
+
+
+
+    <!-- 广告位开始 -->
+
+    <!-- 广告位结束 -->
+
+
+
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/phunxm">曾梦想仗剑走天涯</a></h2>
+            <h3></h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+
+
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+                <li id="btnContents"><a href="http://blog.csdn.net/phunxm?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/phunxm?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/phunxm/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>
+
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "phunxm";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/phunxm";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' >
+
+
+<a href="http://bss.csdn.net/m/topic/community_IoT/index">
+<font color=red><strong>【CSDN 技术主题月】物联网全栈开发</strong></font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp
+
+<a href=" http://blog.csdn.net/broadview2006/article/details/72901572">
+<font color=blue><strong>【评论送书】每周荐书：JVM、Nginx、小程序</strong></font></a>
+&nbsp;&nbsp;&nbsp;&nbsp
+
+
+<a href="http://blog.csdn.net/blogdevteam/article/details/72956478">
+<font color=red><strong>CSDN日报20170609 ——《我成为程序员是别无选择，但之后却又别有洞天》</strong></font></a>
+
+
+</div>                        </div>
+
+
+
+
+
+
+
+
+
+
+
+<script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+
+            var isBole = false;
+
+
+      var fasrc="http://my.csdn.net/my/favorite/miniadd?t=VLAN%e5%8e%9f%e7%90%86%e8%af%a6%e8%a7%a3&u=http://blog.csdn.net/phunxm/article/details/9498829"
+
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">
+         <span class="ico ico_type_Repost"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/phunxm/article/details/9498829">
+        VLAN原理详解
+        </a></span>
+    </h1>
+</div>
+
+
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href='http://www.csdn.net/tag/VLAN' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">VLAN</a><a href='http://www.csdn.net/tag/Access-Link' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">Access-Link</a><a href='http://www.csdn.net/tag/Trunk-Link' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">Trunk-Link</a><a href='http://www.csdn.net/tag/802.1Q' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">802.1Q</a><a href='http://www.csdn.net/tag/ISL' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">ISL</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2013-07-26 18:05</span>
+            <span class="link_view" title="阅读次数">53527人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(27)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('VLAN%e5%8e%9f%e7%90%86%e8%af%a6%e8%a7%a3','9498829');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(9498829,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;
+            }
+             .embody_c img{
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            try
+            {
+                var lib = eval("("+$("#lib").attr("value")+")");
+                var html = "";
+                if (lib.err == 0) {
+                    $.each(lib.data, function (i) {
+                        var obj = lib.data[i];
+                        //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                        html += ' <a href="' + obj.url + '" target="_blank">';
+                        html += ' <img src="' + obj.logo + '">';
+                        html += ' <em><b>' + obj.name + '</b></em>';
+                        html += ' </a>';
+                    });
+                    if (html != "") {
+                        setTimeout(function () {
+                            $("#lib").html(html);
+                            $("#embody").show();
+                        }, 100);
+                    }
+                }
+            } catch (err)
+            { }
+
+        });
+    </script>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="http://static.blog.csdn.net/images/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label  onclick="GetCategoryArticles('636817','phunxm','top','9498829');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">网络通信/流媒体<em>（31）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/phunxm/article/category/636817"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_636817">
+                            </ul>
+                        </div>
+                    </label>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+<div id="article_content" class="article_content tracking-ad" data-mod=popu_307  data-dsm = "post" >
+
+<p><br>
+</p>
+<h2><span style="font-family:'Microsoft YaHei'; font-size:18px">1.为什么需要VLAN</span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">1.1&nbsp;</span><span style="color:red">什么是</span><span style="color:red">VLAN</span><span style="color:red">？</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">VLAN（Virtual LAN），翻译成中文是“虚拟局域网”。LAN可以是由少数几台家用计算机构成的网络，也可以是数以百计的计算机构成的企业网络。<span style="color:blue">VLAN</span><span style="color:blue">所指的</span><span style="color:blue">LAN</span><span style="color:blue">特指使用路由器<strong>分割</strong>的网络</span><span style="color:blue">——</span><span style="color:blue">也就是广播域</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在此让我们先复习一下广播域的概念。<strong><span style="color:blue">广播域</span></strong><span style="color:blue">，指的是广播帧（目标</span><span style="color:blue">MAC</span><span style="color:blue">地址全部为</span><span style="color:blue">1</span><span style="color:blue">）所能传递到的范围，亦即能够直接通信的范围</span>。严&#26684;地说，并不仅仅是广播帧，多播帧（Multicast
+ Frame）和目标不明的单播帧（Unknown Unicast Frame）也能在同一个广播域中畅行无阻。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">本来，二层交换机只能构建单一的广播域，不过使用VLAN功能后，它能够<strong>将网络分割成多个广播域</strong>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">1.2&nbsp;</span><span style="color:red">未分割广播域时……</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">那么，为什么需要分割广播域呢？那是因为，<span style="color:red">如果仅有一个广播域，有可能会影响到网络整体的传输性能</span>。具体原因，请参看附图加深理解。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174341921" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">图中，是一个由5台二层交换机（交换机1～5）连接了大量客户机构成的网络。假设这时，计算机A需要与计算机B通信。在基于以太网的通信中，必须在数据帧中指定目标MAC地址才能正常通信，因此<span style="color:blue">计算机</span><span style="color:blue">A</span><span style="color:blue">必须先广播</span><span style="color:blue">“</span><span style="color:blue">ARP</span><span style="color:blue">请求（</span><span style="color:blue">ARP
+ Request</span><span style="color:blue">）信息</span><span style="color:blue">”</span><span style="color:blue">，来尝试获取计算机</span><span style="color:blue">B</span><span style="color:blue">的</span><span style="color:blue">MAC</span><span style="color:blue">地址</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机1收到广播帧（ARP请求）后，会将它<strong>转发</strong>给除接收端口外的其他所有端口，也就是Flooding了。接着，交换机2收到广播帧后也会Flooding。交换机3、4、5也还会Flooding。<span style="color:red">最终</span><span style="color:red">ARP</span><span style="color:red">请求会被转发到同一网络中的<strong>所有</strong>客户机上</span>。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174436734" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">请大家注意一下，这个ARP请求原本是为了获得计算机B的MAC地址而发出的。也就是说：<span style="color:blue">只要计算机</span><span style="color:blue">B</span><span style="color:blue">能收到就万事大吉了</span>。可是事实上，数据帧却传遍整个网络，导致所有的计算机都收到了它。如此一来，一方面广播信息消耗了网络整体的带宽，另一方面，收到广播信息的计算机还要消耗一部分CPU时间来对它进行处理。<span style="color:red">造成了网络带宽和</span><span style="color:red">CPU</span><span style="color:red">运算能力的大量<strong>无谓消耗</strong></span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">1.3&nbsp;</span><span style="color:red">广播信息是那么经常发出的吗？</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">读到这里，您也许会问：广播信息真是那么频繁出现的吗？</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">答案是：是的！<span style="color:red">实际上广播帧会非常频繁地出现</span>。利用TCP/IP协议栈通信时，除了前面出现的ARP外，还有可能需要发出DHCP、RIP等很多其他类型的广播信息。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">ARP广播，是在需要与其他主机通信时发出的。当客户机请求DHCP服务器分配IP地址时，就必须发出DHCP的广播。而使用<strong>RIP</strong>作为路由协议时，每隔30秒路由器都会对邻近的其他路由器广播一次路由信息。RIP以外的其他路由协议使用多播传输路由信息，这也会被交换机转发（Flooding）。除了TCP/IP以外，NetBEUI、IPX和Apple
+ Talk等协议也经常需要用到广播。例如在Windows下双击打开“网络计算机”时就会发出广播（多播）信息。（Windows XP除外……）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">总之，广播就在我们身边。下面是一些常见的广播通信：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）ARP请求：建立IP地址和MAC地址的映射关系。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（2）RIP：一种路由协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（3）DHCP：用于自动设定IP地址的协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（4）NetBEUI：Windows下使用的网络协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（5）IPX：NovellNetware使用的网络协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（6）Apple Talk：苹果公司的Macintosh计算机使用的网络协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">如果整个网络只有一个广播域，那么一旦发出广播信息，就会传遍整个网络，并且对网络中的主机带来额外的负担。因此，<span style="color:blue">在设计</span><span style="color:blue">LAN</span><span style="color:blue">时，需要注意如何才能有效地<strong>分割</strong>广播域</span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">1.4&nbsp;</span><span style="color:red">广播域的分割与</span><span style="color:red">VLAN</span><span style="color:red">的必要性</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">分割广播域时，一般都<strong>必须</strong>使用到路由器</span>。使用路由器后，可以以路由器上的网络接口（LAN Interface）为<strong>单位</strong>分割广播域。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">但是，<span style="color:red">通常情况下路由器上不会有太多的网络接口</span>，其数目多在1～4个左右。随着宽带连接的普及，宽带路由器（或者叫IP共享器）变得较为常见，但是需要注意的是，它们上面虽然带着多个（一般为4个左右）连接LAN一侧的网络接口，但那实际上是<u>路由器<strong>内置</strong>的交换机</u>，并不能分割广播域。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">况且使用路由器分割广播域的话，所能分割的个数完全取决于路由器的网络接口个数，使得用户无法自由地根据实际需要分割广播域。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">与路由器相比，<span style="color:blue">二层交换机一般带有多个网络接口</span>。因此如果能使用它分割广播域，那么无疑运用上的灵活性会大大提高。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">用于在二层交换机上分割广播域的技术，就是<strong><span style="color:red">VLAN</span></strong>。<span style="color:blue">通过利用</span><span style="color:blue">VLAN</span><span style="color:blue">，我们可以自由设计广播域的构成，提高网络设计的自由度</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">2.实现VLAN的机制</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">2.1&nbsp;</span><span style="color:red">实现</span><span style="color:red">VLAN</span><span style="color:red">的机制</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在理解了“为什么需要VLAN”之后，接下来让我们来了解一下交换机是如何使用VLAN分割广播域的。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">首先，在一台未设置任何VLAN的二层交换机上，<span style="color:red">任何广播帧都会被转发给除接收端口外的所有其他端口（</span><span style="color:red">Flooding</span><span style="color:red">）</span>。例如，计算机A发送广播信息后，会被转发给端口2、3、4。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174726312" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;这时，如果在交换机上生成红、蓝两个VLAN；同时设置端口1、2属于红色VLAN、端口3、4属于蓝色VLAN。再从A发出广播帧的话，交换机就<strong>只会</strong>把它转发给同属于一个VLAN的其他端口——也就是同属于红色VLAN的端口2，<strong>不会</strong>再转发给属于蓝色VLAN的端口。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">同样，C发送广播信息时，只会被转发给其他属于蓝色VLAN的端口，不会被转发给属于红色VLAN的端口。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174753812" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">就这样，<span style="color:blue">VLAN</span><span style="color:blue">通过<strong>限制</strong>广播帧转发的范围<strong>分割</strong>了广播域</span>。上图中为了便于说明，以红、蓝两色识别不同的VLAN，在实际使用中则是用“<strong>VLAN ID</strong>”来区分的。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">2.2&nbsp;</span><span style="color:red">直观地描述</span><span style="color:red">VLAN</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">如果<span style="color:blue">要更为直观地描述</span><span style="color:blue">VLAN</span><span style="color:blue">的话，我们可以把它理解为将一台交换机在<strong>逻辑上分割成了数台交换机</strong></span>。在一台交换机上生成红、蓝两个VLAN，也可以看作是将一台交换机换做一红一蓝两台虚拟的交换机。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174827609" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在红、蓝两个VLAN之外生成新的VLAN时，可以想象成又添加了新的交换机。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">但是，<span style="color:red">VLAN</span><span style="color:red">生成的<strong>逻辑</strong>上的交换机是<strong>互不相通</strong>的。因此，在交换机上设置</span><span style="color:red">VLAN</span><span style="color:red">后，<u>如果未做其他处理，</u></span><u><span style="color:red">VLAN</span><span style="color:red">间是无法通信的</span></u>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">明明接在同一台交换机上，但却偏偏无法通信——这个事实也许让人难以接受。但它既是VLAN方便易用的特征，又是使VLAN令人难以理解的原因。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">2.3&nbsp;</span><span style="color:red">需要</span><span style="color:red">VLAN</span><span style="color:red">间通信时怎么办</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">那么，当我们需要在不同的VLAN间通信时又该如何是好呢？</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">请大家再次回忆一下：VLAN是广播域。而通常两个广播域之间由路由器连接，广播域之间来往的数据包都是由<strong>路由器中继</strong>的。因此，<span style="color:blue">VLAN</span><span style="color:blue">间的通信也需要路由器提供中继服务，这被称作“</span><strong><span style="color:blue">VLAN</span><span style="color:blue">间路由</span></strong><span style="color:blue">”</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">VLAN间路由，可以使用普通的路由器，也可以使用三层交换机。其中的具体内容，等有机会再细说吧。在这里希望大家先记住不同VLAN间互相通信时需要用到路由功能。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">3.VLAN的访问链接（Access Link）</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">3.1&nbsp;</span><span style="color:red">交换机的端口类型</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机的端口，可以分为以下两种：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）访问链接（Access Link）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（2）汇聚链接（Trunk Link）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来就让我们来依次学习这两种不同端口的特征。这一讲，首先学习“访问链接”。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">3.2&nbsp;</span><span style="color:red">访问链接</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">访问链接，指的是“只属于一个</span><span style="color:blue">VLAN</span><span style="color:blue">，且仅向该</span><span style="color:blue">VLAN</span><span style="color:blue">转发数据帧”的端口</span>。在大多数情况下，<u>访问链接所连的是客户机</u>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">通常设置VLAN的顺序是：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）生成VLAN</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（2）设定访问链接（决定各端口<strong>属于</strong>哪一个VLAN）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">设定访问链接的手法，可以是事先固定的、也可以是根据所连的计算机而动态改变设定。前者被称为“静态VLAN”、后者自然就是“动态VLAN”了。</span></p>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">3.2.1&nbsp;</span><span style="color:red">静态</span><span style="color:red">VLAN</span><span style="color:red">——基于端口</span></span></strong></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">静态VLAN又被称为<span style="color:blue">基于端口的</span><span style="color:blue">VLAN</span>（PortBased VLAN）。顾名思义，就是明确指定各端口属于哪个VLAN的设定方法。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174909406" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">由于需要一个个端口地指定，因此当网络中的计算机数目超过一定数字（比如数百台）后，设定操作就会变得烦杂无比。并且，客户机每次变更所连端口，都必须同时更改该端口所属VLAN的设定——这显然<span style="color:red">不适合那些需要频繁改变拓补结构的网络</span>。</span></p>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">3.2.2&nbsp;</span><span style="color:red">动态</span><span style="color:red">VLAN</span></span></strong></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">另一方面，<span style="color:blue">动态</span><span style="color:blue">VLAN</span><span style="color:blue">则是根据每个端口所连的计算机，随时改变端口所属的</span><span style="color:blue">VLAN</span>。这就可以避免上述的更改设定之类的操作。动态VLAN可以大致分为3类：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）基于MAC地址的VLAN（MAC Based VLAN）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（2）基于子网的VLAN（Subnet Based VLAN）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（3）基于用户的VLAN（User Based VLAN）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">其间的差异，主要在于<span style="color:blue">根据</span><span style="color:blue">OSI</span><span style="color:blue">参照模型哪一层的信息决定端口所属的</span><span style="color:blue">VLAN</span>。</span></p>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">3.2.2.1&nbsp;</span><span style="color:red">基于</span><span style="color:red">MAC</span><span style="color:red">地址的</span><span style="color:red">VLAN</span></span></strong></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><strong><span style="color:blue">基于</span><span style="color:blue">MAC</span><span style="color:blue">地址的</span><span style="color:blue">VLAN</span></strong><span style="color:blue">，就是通过查询并记录端口所连计算机上网卡的</span><span style="color:blue">MAC</span><span style="color:blue">地址来决定端口的所属</span>。假定有一个MAC地址“A”被交换机设定为属于VLAN
+ “10”，那么不论MAC地址为“A”的这台计算机连在交换机哪个端口，该端口都会被划分到VLAN 10中去。计算机连在端口1时，端口1属于VLAN 10；而计算机连在端口2时，则是端口2属于VLAN 10。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726174941218" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">由于是基于MAC地址决定所属VLAN的，因此可以理解为这是一种在OSI的<strong>第二层设定访问链接</strong>的办法。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">但是，<span style="color:red">基于</span><span style="color:red">MAC</span><span style="color:red">地址的</span><span style="color:red">VLAN</span><span style="color:red">，在设定时必须调查所连接的所有计算机的</span><span style="color:red">MAC</span><span style="color:red">地址并加以登录</span>。而且如果计算机交换了网卡，还是需要更改设定。</span></p>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">3.2.2.2&nbsp;</span><span style="color:red">基于</span><span style="color:red">IP</span><span style="color:red">地址的</span><span style="color:red">VLAN</span></span></strong></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><strong><span style="color:blue">基于子网的</span><span style="color:blue">VLAN</span></strong><span style="color:blue">，则是通过所连计算机的</span><span style="color:blue">IP</span><span style="color:blue">地址，来决定端口所属</span><span style="color:blue">VLAN</span><span style="color:blue">的</span>。不像基于MAC地址的VLAN，即使计算机因为交换了网卡或是其他原因导致MAC地址改变，只要它的IP地址不变，就仍可以加入原先设定的VLAN。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175015406" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">因此，与基于MAC地址的VLAN相比，能够更为简便地改变网络结构。IP地址是OSI参照模型中第三层的信息，所以我们可以理解为基于子网的VLAN是一种在OSI的<strong>第三层设定访问链接</strong>的方法。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">基于用户的</span><span style="color:blue">VLAN</span><span style="color:blue">，则是根据交换机各端口所连的计算机上当前登录的用户，来决定该端口属于哪个</span><span style="color:blue">VLAN</span>。这里的用户识别信息，一般是计算机操作系统登录的用户，比如可以是Windows域中使用的用户名。这些用户名信息，属于OSI第四层以上的信息。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">总的来说，决定端口所属VLAN时利用的信息在OSI中的层面越高，就越适于构建灵活多变的网络。</span></p>
+<p><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">4.VLAN的汇聚链接（Trunk Link）</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">4.1&nbsp;</span><span style="color:red">需要设置跨越多台交换机的</span><span style="color:red">VLAN</span><span style="color:red">时……</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">到此为止，我们学习的都是使用单台交换机设置VLAN时的情况。那么，如果需要设置跨越多台交换机的VLAN时又如何呢？</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在规划企业级网络时，很有可能会遇到<span style="color:#0070C0">隶属于同一部门的用户分散在同一座建筑物中的不同楼层的情况</span>，这时可能就需要考虑到如何跨越多台交换机设置VLAN的问题了。假设有如下图所示的网络，且需要将不同楼层的A、C和B、D设置为同一个VLAN。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175059421" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">这时最关键的就是“<span style="color:red">交换机</span><span style="color:red">1</span><span style="color:red">和交换机</span><span style="color:red">2</span><span style="color:red">该如何连接才好呢？</span>”</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">最简单的方法，自然是在<span style="color:blue">交换机</span><span style="color:blue">1</span><span style="color:blue">和交换机</span><span style="color:blue">2</span><span style="color:blue">上各设一个红、蓝</span><span style="color:blue">VLAN</span><span style="color:blue">专用的接口并互联</span>了。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175129312" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">但是，这个办法从<span style="color:red">扩展性和管理效率来看都不好</span>。例如，在现有网络基础上再新建VLAN时，为了让这个VLAN能够互通，就需要在交换机间连接新的网线。建筑物楼层间的纵向布线是比较麻烦的，一般不能由基层管理人员随意进行。并且，VLAN越多，楼层间（严&#26684;地说是交换机间）互联所需的端口也越来越多，交换机端口的利用效率低是对资源的一种浪费、也限制了网络的扩展。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">为了避免这种低效率的连接方式，人们想办法让<span style="color:blue">交换机间互联的网线集中到一根上，这时使用的就是<strong>汇聚链接</strong>（</span><span style="color:blue">Trunk Link</span><span style="color:blue">）</span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">4.2&nbsp;</span><span style="color:red">何谓汇聚链接？</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><strong>汇聚链接</strong>（Trunk Link）指的是<span style="color:blue">能够转发多个不同</span><span style="color:blue">VLAN</span><span style="color:blue">的通信的端口</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">汇聚链路上流通的数据帧，都被附加了用于识别分属于哪个</span><span style="color:blue">VLAN</span><span style="color:blue">的特殊信息</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">现在再让我们回过头来考虑一下刚才那个网络如果采用汇聚链路又会如何呢？用户只需要简单地将交换机间<strong><u>互联</u></strong><u>的端口设定为<strong>汇聚链接</strong></u>就可以了。<span style="color:red">这时使用的网线还是普通的</span><span style="color:red">UTP</span><span style="color:red">线</span>，而不是什么其他的特殊布线。图例中是交换机间互联，因此需要用<strong><a target="_blank" target="_blank" href="http://blog.csdn.net/phunxm/article/details/6016895">交叉线</a></strong>来连接。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来，让我们具体看看汇聚链接是如何<strong>实现</strong>跨越交换机间的VLAN的。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">A发送的数据帧<span style="color:blue">从交换机</span><span style="color:blue">1</span><span style="color:blue">经过汇聚链路到达交换机</span><span style="color:blue">2</span><span style="color:blue">时，在数据帧上<strong>附加</strong>了表示属于红色</span><span style="color:blue">VLAN</span><span style="color:blue">的<strong>标记</strong></span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">交换机</span><span style="color:blue">2</span><span style="color:blue">收到数据帧后，经过检查</span><span style="color:blue">VLAN</span><span style="color:blue">标识发现这个数据帧是属于红色</span><span style="color:blue">VLAN</span><span style="color:blue">的，因此<strong>去除</strong>标记后根据需要将复原的数据帧只转发给其他属于红色</span><span style="color:blue">VLAN</span><span style="color:blue">的端口</span>。这时的转送，是指经过确认目标MAC地址并与<strong>MAC地址列表</strong>比对后只转发给目标MAC地址所连的端口。只有当数据帧是一个广播帧、多播帧或是目标不明的帧时，它<strong>才会</strong>被转发到所有属于红色VLAN的端口。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">蓝色VLAN发送数据帧时的情形也与此相同。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175217593" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">通过汇聚链路时<strong><span style="color:rgb(0,0,255); font-family:'Microsoft YaHei'; font-size:14px">附加的</span><span style="color:blue">VLAN</span></strong><span style="color:blue"><strong>识别信息</strong>，有可能支持标准的</span><span style="color:blue">“</span><span style="color:blue">IEEE
+ 802.1Q</span><span style="color:blue">”</span><span style="color:blue">协议，也可能是</span><span style="color:blue">Cisco</span><span style="color:blue">产品独有的</span><span style="color:blue">“</span><span style="color:blue">ISL</span><span style="color:blue">（</span><span style="color:blue">Inter
+ Switch Link</span><span style="color:blue">）</span><span style="color:blue">”</span>。如果交换机支持这些规&#26684;，那么用户就能够高效率地构筑横跨多台交换机的VLAN。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">另外，汇聚链路上流通着多个VLAN的数据，自然<span style="color:red">负载较重</span>。因此，<span style="color:red">在设定汇聚链接时，有一个<strong>前提</strong>就是必须支持</span><span style="color:red">100Mbps</span><span style="color:red">以上的传输速度</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">另外，默认条件下，汇聚链接会转发交换机上存在的所有VLAN的数据。换一个角度看，可以认为<span style="color:blue">汇聚链接（端口）<strong>同时属于</strong>交换机上<strong>所有</strong>的</span><span style="color:blue">VLAN</span>。由于<span style="color:red">实际应用中很可能并不需要转发所有</span><span style="color:red">VLAN</span><span style="color:red">的数据</span>，因此为了减轻交换机的负载、也为了减少对带宽的浪费，我们可以<span style="color:blue">通过用户设定限制能够经由汇聚链路互联的</span><span style="color:blue">VLAN</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">关于IEEE 802.1Q和ISL的具体内容，将在下一讲中提到。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">4.3&nbsp;</span><span style="color:red">访问链接的总结</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">综上所述，设定访问链接的手法有静态VLAN和动态VLAN两种，其中动态VLAN又可以继续细分成几个小类。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">其中基于子网的VLAN和基于用户的VLAN有可能是网络设备厂商使用独有的协议实现的，不同厂商的设备之间互联有可能出现兼容性问题；因此在选择交换机时，一定要注意事先确认。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">下表总结了静态VLAN和动态VLAN的相关信息。</span></p>
+<table border="1" cellspacing="0" cellpadding="0" width="572">
+<tbody>
+<tr>
+<td width="321" colspan="2">
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px">种类</span></strong></p>
+</td>
+<td>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px">解说</span></strong></p>
+</td>
+</tr>
+<tr>
+<td width="321" colspan="2">
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">静态VLAN（基于端口的VLAN）</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">将交换机的各端口固定指派给VLAN</span></p>
+</td>
+</tr>
+<tr>
+<td rowspan="3">
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">动态VLAN</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">基于MAC地址的VLAN</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">根据各端口所连计算机的MAC地址设定</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">基于子网的VLAN</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">根据各端口所连计算机的IP地址设定</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">基于用户的VLAN</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">根据端口所连计算机上登录用户设定</span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-weight:bold"><span style="font-family:Microsoft YaHei; font-size:18px">5.VLAN的汇聚方式——IEEE802.1Q与ISL</span></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">5.1&nbsp;</span><span style="color:red">汇聚方式</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在交换机的汇聚链接上，可以通过对数据帧附加VLAN信息，构建跨越多台交换机的VLAN。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">附加VLAN信息的方法，最具有代表性的有：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）IEEE 802.1Q</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（2）ISL</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">现在就让我们看看这两种协议分别如何对数据帧附加VLAN信息。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">5.2&nbsp;</span><span style="color:red"><a target="_blank" target="_blank" href="http://zh.wikipedia.org/wiki/IEEE_802.1Q">IEEE 802.1Q</a></span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">IEEE 802.1Q，俗称“Dot One Q”，是经过IEEE认证的对数据帧附加VLAN识别信息的协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在此，请大家先回忆一下以太网数据帧的标准&#26684;式。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">IEEE 802.1Q所附加的VLAN识别信息，<span style="color:blue">位于数据帧中</span><span style="color:blue">“</span><span style="color:blue">发送源</span><span style="color:blue">MAC</span><span style="color:blue">地址”与</span><span style="color:blue">“</span><span style="color:blue">类别域”（</span><span style="color:blue">Type
+ Field</span><span style="color:blue">）之间</span>。具体内容为<strong>2字节</strong>的<a target="_blank" target="_blank" href="http://baike.baidu.com/view/1256597.htm?fromTaglist">TPID</a>（Tag Protocol IDentifier）和<strong>2字节</strong>的TCI（Tag Control Information），共计<strong>4字节</strong>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在数据帧中添加了4字节的内容，那么CRC&#20540;自然也会有所变化。<span style="color:red">这时数据帧上的</span><span style="color:red">CRC</span><span style="color:red">是插入</span><span style="color:red">TPID</span><span style="color:red">、</span><span style="color:red">TCI</span><span style="color:red">后，对包括它们在内的整个数据帧重新计算后所得的&#20540;</span>。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;<img src="http://img.blog.csdn.net/20130726175307937" alt=""></span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">而当数据帧离开汇聚链路时，TPID和TCI会被去除，<span style="color:red">这时还会进行一次</span><span style="color:red">CRC</span><span style="color:red">的重新计算</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">TPID字段在以太网报文中所处位置与不带VLAN Tag的报文中协议类型字段所处位置相同。</span><span style="color:#0000ff">TPID</span><span style="color:blue">的&#20540;</span><span style="color:blue"><strong>固定</strong>为</span><span style="color:blue">0x8100</span>，它标示网络帧承载的802.1Q类型，交换机通过它来<strong>确定</strong>数据帧内附加了基于IEEE
+ 802.1Q的VLAN信息。而实质上的<strong>VLAN ID</strong>，是TCI中的12位元。由于总共有12位，因此最多<span style="color:blue">可供识别</span><span style="color:blue">4096</span><span style="color:blue">个</span><span style="color:blue">VLAN</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">基于IEEE 802.1Q附加的VLAN信息，就像在传递物品时附加的<strong>标签</strong>。因此，它也被称作“<strong><span style="color:blue">标签型</span><span style="color:blue">VLAN</span></strong><span style="color:blue">”（</span><span style="color:blue">Tagging
+ VLAN</span><span style="color:blue">）</span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">5.3&nbsp;</span><span style="color:red">ISL</span><span style="color:red">（</span><span style="color:red">Inter Switch Link</span><span style="color:red">）</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">ISL，是Cisco产品支持的一种与IEEE 802.1Q类&#20284;的、用于在汇聚链路上附加VLAN信息的协议。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">使用ISL后，每个数据帧头部都会被附加26字节的“ISL包头（ISL Header）”，并且在帧尾带上通过对包括ISL包头在内的整个数据帧进行计算后得到的4字节CRC&#20540;。换而言之，就是总共增加了30字节的信息。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在使用ISL的环境下，当数据帧<strong>离开</strong>汇聚链路时，只要简单地<strong>去除</strong>ISL包头和新CRC就可以了。由于原先的数据帧及其CRC都被完整保留，因此无需重新计算CRC。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;<img src="http://img.blog.csdn.net/20130726175338265" alt=""></span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">ISL有如用ISL包头和新CRC将原数据帧整个包裹起来，因此也被称为“<strong><span style="color:blue">封装型</span><span style="color:blue">VLAN</span></strong><span style="color:blue">”</span><span style="color:blue">（</span><span style="color:blue">Encapsulated
+ VLAN</span><span style="color:blue">）</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">需要注意的是，<span style="color:red">不论是</span><span style="color:red">IEEE802.1Q</span><span style="color:red">的“</span><span style="color:red">Tagging VLAN</span><span style="color:red">”</span><span style="color:red">，还是</span><span style="color:red">ISL</span><span style="color:red">的“</span><span style="color:red">Encapsulated
+ VLAN</span><span style="color:red">”</span><span style="color:red">，都不是很严密的称谓</span>。不同的书籍与参考资料中，上述词语有可能被混合使用，因此需要大家在学习时&#26684;外注意。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">并且由于<span style="color:red">ISL</span><span style="color:red">是</span><span style="color:red">Cisco</span><span style="color:red">独有的协议，因此只能用于</span><span style="color:red">Cisco</span><span style="color:red">网络设备之间的互联</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">6.VLAN间路由</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">6.1&nbsp;</span><span style="color:red">VLAN</span><span style="color:red">间路由的必要性</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">根据目前为止学习的知识，我们已经知道两台计算机即使连接在同一台交换机上，<span style="color:red">只要所属的</span><span style="color:red">VLAN</span><span style="color:red">不同就无法直接通信</span>。接下来我们将要学习的就是如何在不同的VLAN间进行路由，使<u>分属不同VLAN的主机能够互相通信</u>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">首先，先来复习一下为什么不同VLAN间不通过路由就无法通信。在LAN内的通信，必须在数据帧头中指定通信目标的MAC地址。而为了获取MAC地址，TCP/IP协议下使用的是<strong>ARP</strong>。ARP解析MAC地址的方法，则是通过广播。也就是说，如果广播报文无法到达，那么就无从解析MAC地址，亦即无法直接通信。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">计算机分属不同的VLAN，也就意味着分属不同的广播域，自然<strong>收不到</strong>彼此的广播报文。因此，属于不同VLAN的计算机之间无法直接互相通信。为了能够在VLAN间通信，需要利用OSI参照模型中<strong>更高一层</strong>——网络层的信息（IP地址）来进行<strong>路由</strong>。关于路由的具体内容，以后有机会再详细解说吧。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">路由功能，一般主要由路由器提供。但在今天的局域网里，我们也经常利用带有路由功能的交换机——<strong>三层交换机</strong>（Layer 3 Switch）来实现。接下来就让我们分别看看使用路由器和三层交换机进行VLAN间路由时的情况。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">6.2&nbsp;</span><span style="color:red">使用路由器进行</span><span style="color:red">VLAN</span><span style="color:red">间路由</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在使用路由器进行VLAN间路由时，与构建横跨多台交换机的VLAN时的情况类&#20284;，我们还是会遇到“<span style="color:blue">该如何连接路由器与交换机</span>”这个问题。路由器和交换机的接线方式，大致有以下两种：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）将路由器与交换机上的每个VLAN分别连接</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（2）不论VLAN有多少个，路由器与交换机都只用一条网线连接</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">最容易想到的，当然还是“把路由器和交换机以VLAN为单位分别用网线连接”了。将交换机上用于和路由器互联的每个端口设为<strong>访问链接</strong>（Access Link），然后分别用网线与路由器上的独立端口互联。如下图所示，交换机上有2个VLAN，那么就需要在交换机上预留2个端口用于与路由器互联；路由器上同样需要有2个端口；两者之间用2条网线分别连接。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175433375" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">如果采用这个办法，大家应该不难想象它的<span style="color:red">扩展性很成问题</span>。每增加一个新的VLAN，都需要消耗路由器的端口和交换机上的访问链接，而且还需要重新布设一条网线。而<span style="color:red">路由器，通常不会带有太多</span><span style="color:red">LAN</span><span style="color:red">接口的</span>。新建VLAN时，为了对应增加的VLAN所需的端口，就必须将路由器升级成带有多个LAN接口的高端产品，这部分成本、还有重新布线所带来的开销，都使得这种接线法成为一种不受欢迎的办法。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">那么，第二种办法“不论VLAN数目多少，都只用一条网线连接路由器与交换机”呢？当<span style="color:blue">使用一条网线连接路由器与交换机、进行</span><span style="color:blue">VLAN</span><span style="color:blue">间路由时，需要用到<strong>汇聚链接</strong></span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">具体实现过程为：首先将用于连接路由器的交换机端口设为<strong>汇聚链接</strong>（Trunk Link），而路由器上的端口也必须支持汇聚链路。双方用于汇聚链路的协议自然也必须相同。<span style="color:blue">接着在路由器上定义对应各个</span><span style="color:blue">VLAN</span><span style="color:blue">的“子接口”（</span><span style="color:blue">Sub
+ Interface</span><span style="color:blue">）</span>。尽管实际与交换机连接的物理端口只有一个，但在理论上我们可以把它分割为多个<strong>虚拟端口</strong>。</span></p>
+<p align="left"><u><span style="font-family:Microsoft YaHei; font-size:14px">VLAN将交换机从<strong>逻辑</strong>上<strong>分割</strong>成了多台，因而用于VLAN间路由的路由器，也必须拥有分别<strong>对应</strong>各个VLAN的<strong>虚拟</strong>接口。</span></u></p>
+<p align="left" style="text-align:center"><u><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175513765" alt=""><br>
+</span></u></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">采用这种方法的话，即使之后在交换机上新建VLAN，仍只需要一条网线连接交换机和路由器。用户只需要在路由器上新设一个对应新VLAN的子接口就可以了。与前面的方法相比，扩展性要强得多，也不用担心需要升级LAN接口数不足的路由器或是重新布线。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">6.3&nbsp;</span><span style="color:red">同一</span><span style="color:red">VLAN</span><span style="color:red">内的通信</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来，我们继续学习使用汇聚链路连接交换机与路由器时，VLAN间路由是如何进行的。如下图所示，为各台计算机以及路由器的子接口设定IP地址。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175604515" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">红色</span><span style="color:blue">VLAN</span><span style="color:blue">（</span><span style="color:blue">VLAN ID=1</span><span style="color:blue">）的网络地址为</span><span style="color:blue">192.168.1.0/24</span><span style="color:blue">，蓝色</span><span style="color:blue">VLAN</span><span style="color:blue">（</span><span style="color:blue">VLAN
+ ID=2</span><span style="color:blue">）的网络地址为</span><span style="color:blue">192.168.2.0/24</span>。各计算机的MAC地址分别为A/B/C/D，路由器汇聚链接端口的MAC地址为R。交换机通过对各端口所连计算机MAC地址的学习，生成如下的MAC地址列表。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+<table border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">端口</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">MAC地址</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">VLAN</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">1</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">A</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">1</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">2</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">B</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">1</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">3</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">C</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">2</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">4</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">D</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">2</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">5</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">－</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">－</span></p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">6</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">R</span></p>
+</td>
+<td>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">汇聚</span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">首先考虑计算机A与同一VLAN内的计算机B之间通信时的情形。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">计算机A发出ARP请求信息，请求解析B的MAC地址。交换机收到数据帧后，检索MAC地址列表中与收信端口<u>同属一个VLAN的表项</u>。结果发现，计算机B连接在端口2上，于是交换机将数据帧转发给端口2，最终计算机B收到该帧。<span style="color:blue">收发信双方同属一个</span><span style="color:blue">VLAN</span><span style="color:blue">之内的通信，一切处理均在交换机<strong>内</strong>完成</span>。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175623656" alt=""><br>
+</span></p>
+<p align="center"></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">6.4&nbsp;</span><span style="color:red">不同</span><span style="color:red">VLAN</span><span style="color:red">间的通信</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来是这一讲的核心内容，不同VLAN间的通信。让我们来考虑一下计算机A与计算机C之间通信时的情况。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175659000" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><strong>计算机</strong>A从通信目标的IP地址（192.168.2.1）得出C与本机不属于同一个网段。因此会向设定的<strong>默认网关</strong>（DefaultGateway，GW）转发数据帧。在发送数据帧之前，需要先用<strong>ARP</strong>获取路由器的MAC地址。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">得到路由器的MAC地址R后，接下来就是按图中所示的步骤发送往C去的数据帧。①的数据帧中，目标<strong>MAC地址</strong>是路由器的地址R、但内含的<strong>目标IP地址</strong>仍是最终要通信的对象C的地址。这一部分的内容，涉及到局域网内经过路由器转发时的通信步骤，有机会再详细解说吧。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机在端口1上收到①的数据帧后，检索MAC地址列表中与端口1同属一个VLAN的表项。由于<span style="color:blue">汇聚链路会被看作<strong>属于所有</strong>的</span><span style="color:blue">VLAN</span>，因此这时交换机的端口6也属于被参照对象。这样交换机就知道往<strong>MAC地址</strong>R发送数据帧，需要经过端口6转发。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">从端口6发送数据帧时，由于它是<strong>汇聚链接</strong>，因此会被<strong>附加</strong>上VLAN识别信息。由于原先是<strong>来自红色</strong>VLAN的数据帧，因此如图中②所示，会被<strong>加上红色</strong>VLAN的识别信息后进入汇聚链路。路由器收到②的数据帧后，<span style="color:blue">确认其</span><span style="color:blue">VLAN</span><span style="color:blue">识别信息，由于它是<strong>属于红色</strong></span><span style="color:blue">VLAN</span><span style="color:blue">的数据帧，因此<strong>交由负责红色</strong></span><span style="color:blue">VLAN</span><span style="color:blue">的子接口接收</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接着，根据路由器内部的<strong>路由表</strong>，判断该向哪里中继。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">由于目标网络192.168.2.0/24是蓝色VLAN，，且该网络通过<strong>子接口</strong>与路由器直连，因此只要从<strong>负责蓝色</strong>VLAN的<strong>子接口转发</strong>就可以了。这时，数据帧的目标MAC地址被<strong>改写</strong>成计算机C的目标地址；并且由于需要<strong>经过汇聚链路转发</strong>，因此被<strong>附加</strong>了属于<strong>蓝色</strong>VLAN的识别信息。这就是图中③的数据帧。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机收到③的数据帧后，根据VLAN标识信息从MAC地址列表中检索属于<u>蓝色VLAN的表项</u>。由于通信目标——计算机C连接在端口3上、且端口3为普通的访问链接，因此交换机会将数据帧<strong>去除</strong>VLAN识别信息后（数据帧④）转发给端口3，最终计算机C才能成功地收到这个数据帧。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">进行</span><span style="color:blue">VLAN</span><span style="color:blue">间通信时，即使通信双方都连接在同一台交换机上，也必须经过：“发送方</span><span style="color:blue">——</span><span style="color:blue">交换机</span><span style="color:blue">——</span><span style="color:blue">路由器</span><span style="color:blue">——</span><span style="color:blue">交换机</span><span style="color:blue">——</span><span style="color:blue">接收方”这样一个流程</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">7.三层交换机</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">7.1&nbsp;</span><span style="color:red">使用路由器进行</span><span style="color:red">VLAN</span><span style="color:red">间路由时的问题</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">现在，我们知道只要能提供VLAN间路由，就能够使分属不同VLAN的计算机互相通信。但是，如果使用路由器进行VLAN间路由的话，<span style="color:red">随着</span><span style="color:red">VLAN</span><span style="color:red">之间流量的不断增加，很可能导致路由器成为整个网络的<strong>瓶颈</strong></span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机使用被称为<strong>ASIC</strong>（ApplicationSpecified Integrated Circuit）的专用硬件芯片处理数据帧的交换操作，在很多机型上都能实现以缆线速度（Wired Speed）交换。而路由器，则基本上是基于软件处理的。即使以缆线速度接收到数据包，也无法在不限速的条件下转发出去，因此会成为速度瓶颈。就VLAN间路由而言，<span style="color:red">流量会<strong>集中</strong>到路由器和交换机<strong>互联</strong>的汇聚链路部分</span>，这一部分尤其特别容易成为速度瓶颈。并且从硬件上看，由于需要分别设置路由器和交换机，<span style="color:red">在一些空间狭小的环境里可能连设置的场所都成问题</span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">7.2&nbsp;</span><span style="color:red">三层交换机（</span><span style="color:red">Layer 3 Switch</span><span style="color:red">）</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">为了解决上述问题，三层交换机应运而生。<span style="color:blue">三层交换机，本质上就是“带有路由功能的（二层）交换机”</span>。路由属于OSI参照模型中第三层网络层的功能，因此带有第三层路由功能的交换机才被称为“三层交换机”。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">关于三层交换机的内部结构，可以参照下面的简图。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175738687" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在一台本体内，分别设置了交换机模块和路由器模块；而内置的路由模块与交换模块相同，<span style="color:blue">使用</span><span style="color:blue">ASIC</span><span style="color:blue">硬件处理路由</span>。因此，与传统的路由器相比，可以实现高速路由。并且，<span style="color:blue">路由与交换模块是汇聚链接的</span>，由于是内部连接，可以确保相当大的带宽。</span></p>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">7.2.1&nbsp;</span><span style="color:red">使用三层交换机进行</span><span style="color:red">VLAN</span><span style="color:red">间路由（</span><span style="color:red">VLAN</span><span style="color:red">内通信）</span></span></strong></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在三层交换机内部数据究竟是怎样传播的呢？基本上，<span style="color:blue">它和使用汇聚链路连接路由器与交换机时的情形相同</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">假设有如下图所示的4台计算机与三层交换机互联。当使用路由器连接时，一般需要在LAN接口上设置对应各VLAN的子接口；而<span style="color:blue">三层交换机则是在内部生成“</span><span style="color:blue">VLAN</span><span style="color:blue">接口”</span>（<span style="color:blue">VLAN
+ Interface</span><span style="color:blue">）</span>。<strong>VLAN接口</strong>，是用于各VLAN收发数据的接口。（<span style="color:red">注：在</span><span style="color:red">Cisco</span><span style="color:red">的</span><span style="color:red">Catalyst</span><span style="color:red">系列交换机上，</span><span style="color:red">VLAN
+ Interface</span><span style="color:red">被称为</span><strong><span style="color:red">SVI</span></strong><span style="color:red">——Switched Virtual Interface</span>）</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175831031" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">为了与使用路由器进行VLAN间路由对比，让我们同样来考虑一下计算机A与计算机B之间通信时的情况。首先是目标地址为B的数据帧被发到交换机；通过检索<strong>同一VLAN的MAC地址列表</strong>发现计算机B连在交换机的端口2上；因此将数据帧转发给端口2。</span></p>
+<p align="left"><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">7.2.2&nbsp;</span><span style="color:red">使用三层交换机进行</span><span style="color:red">VLAN</span><span style="color:red">间路由（</span><span style="color:red">VLAN</span><span style="color:red">间通信）</span></span></strong></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来设想一下计算机A与计算机C间通信时的情形。<span style="color:blue">针对目标</span><span style="color:blue">IP</span><span style="color:blue">地址，计算机</span><span style="color:blue">A</span><span style="color:blue">可以判断出通信对象不属于同一个网络，因此向默认网关发送数据（</span><span style="color:blue">Frame
+ 1</span><span style="color:blue">）</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机通过检索MAC地址列表后，<span style="color:blue">经由内部汇聚链接，将数据帧转发给路由模块。在通过内部汇聚链路时，数据帧被<strong>附加</strong>了属于红色</span><span style="color:blue">VLAN</span><span style="color:blue">的</span><span style="color:blue">VLAN</span><span style="color:blue">识别信息（</span><span style="color:blue">Frame
+ 2</span><span style="color:blue">）</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">路由模块在收到数据帧时，<span style="color:blue">先由数据帧附加的</span><span style="color:blue">VLAN</span><span style="color:blue">识别信息分辨出它属于红色</span><span style="color:blue">VLAN</span><span style="color:blue">，据此判断由红色</span><span style="color:blue">VLAN</span><span style="color:blue">接口负责接收并进行路由处理</span>。因为目标网络192.168.2.0/24是直连路由器的网络、且对应蓝色VLAN；因此，接下来就会从蓝色VLAN接口经由内部汇聚链路<strong>转发</strong>回交换模块。<span style="color:blue">在通过汇聚链路时，这次数据帧被<strong>附加</strong>上属于蓝色</span><span style="color:blue">VLAN</span><span style="color:blue">的识别信息（</span><span style="color:blue">Frame
+ 3</span><span style="color:blue">）</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">交换机收到这个帧后，<span style="color:blue">检索蓝色</span><span style="color:blue">VLAN</span><span style="color:blue">的</span><span style="color:blue">MAC</span><span style="color:blue">地址列表，确认需要将它转发给端口</span><span style="color:blue">3</span>。由于端口3是通常的访问链接，因此转发前会先将VLAN识别信息<strong>去除</strong>（Frame
+ 4）。最终，计算机C成功地收到交换机转发来的数据帧。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175909406" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">整体的流程，与使用外部路由器时的情况十分相&#20284;——<span style="color:red">都需要经过</span>“<span style="color:red">发送方</span><span style="color:red">→</span><span style="color:red">交换模块</span><span style="color:red">→</span><span style="color:red">路由模块</span><span style="color:red">→</span><span style="color:red">交换模块</span><span style="color:red">→</span><span style="color:red">接收方</span>”。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">8.加速VLAN间通信的手段</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">8.1&nbsp;</span><span style="color:red">流（</span><span style="color:red">Flow</span><span style="color:red">）</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">根据到此为止的学习，我们已经知道<span style="color:blue">VLAN</span><span style="color:blue">间路由，必须经过外部的路由器或是三层交换机的<strong>内置</strong>路由模块</span>。但是，有时并不是所有的数据都需要经过路由器（或路由模块）。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">例如，使用FTP（File Transfer Protocol）传输容量为数MB以上的较大的文件时，<span style="color:red">由于</span><span style="color:red">MTU</span><span style="color:red">的限制，</span><span style="color:red">IP</span><span style="color:red">协议会将数据分割成小块后传输、并在接收方重新组合</span>。这些被分割的数据，“发送的目标”是完全相同的。发送目标相同，也就意味着同样的目标IP地址、目标端口号（注：特别强调一下，这里指的是TCP/UDP端口）。自然，源IP地址、源端口号也应该相同。<span style="color:blue">这样一连串的数据流被称为“流”（</span><span style="color:blue">Flow</span><span style="color:blue">）</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">只要将流最初的数据正确地路由以后，后继的数据理应也会被同样地路由</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">据此，<span style="color:blue">后继的数据不再需要路由器进行路由处理；通过省略反复进行的路由操作，可以进一步提高</span><span style="color:blue">VLAN</span><span style="color:blue">间路由的速度</span>。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726175938406" alt=""><br>
+</span></p>
+<p align="center"></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">8.2&nbsp;</span><span style="color:red">加速</span><span style="color:red">VLAN</span><span style="color:red">间路由的机制</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来，让我们具体考虑一下该如何使用三层交换机进行高速VLAN间路由。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">首先，整个流的第一块数据，照常由交换机转发→路由器路由→再次由交换机转发到目标所连端口。这时，<span style="color:blue">将第一块数据路由的结果记录到<strong>缓存</strong>里保存下来</span>。需要记录的信息有：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">（1）目标IP地址</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">（2）</span>源IP地址</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">（3）</span>目标TCP/UDP端口号</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">（4）</span>源TCP/UDP端口号</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">（5）</span>接收端口号（交换机）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">（6）</span>转发端口号（交换机）</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="font-family:'Microsoft YaHei'; font-size:14px">（7）</span>转发目标MAC地址</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">等等。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">同一个流的第二块以后的数据到达交换机后，直接通过查询先前保存在缓存中的信息查出“转发端口号”后就可以转发给目标所连端口了</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">这样一来，就不需要再一次次经由内部路由模块中继，而仅凭交换机内部的<strong>缓存信息</strong>就足以判断应该转发的端口。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">这时，交换机会对数据帧进行由路由器中继时相&#20284;的处理，例如改写MAC地址、IP包头中的TTL和Check Sum校验码信息等。</span></p>
+<p align="center"></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180010687" alt=""><br>
+</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">通过在交换机上缓存路由结果，实现了以缆线速度（Wired Speed）接收发送方传输来数据的数据、并且能够全速路由、转发给接收方。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">需要注意的是，类&#20284;的<span style="color:red">加速</span><span style="color:red">VLAN</span><span style="color:red">间路由的手法多由各厂商独有的技术所实现，并且该功能的称谓也因厂商而异</span>。例如，在Cisco的Catalyst系列交换机上，这种功能被称为“<span style="color:blue">多层交换”（</span><span style="color:blue">Multi
+ Layer Switching</span><span style="color:blue">）</span>。另外，除了三层交换机的内部路由模块，外部路由器中的某些机型也支持类&#20284;的高速VLAN间路由机制。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">9.传统型路由器存在的意义</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">9.1&nbsp;</span><span style="color:red">路由器的必要性</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">三层交换机的价&#26684;，在问世之初非常昂贵，但是现在<span style="color:blue">它们的价&#26684;已经下降了许多</span>。目前国外一些廉价机型的售价，折合成人民币后仅为一万多元，而且还在继续下降中。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">既然三层交换机能够提供比传统型路由器更为高速的路由处理，那么网络中还有使用路由器的必要吗</span>？</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">答案是：“<span style="color:blue">是</span>”。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">使用路由器的必要性，主要表现在以下几个方面：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">（</span><span style="color:blue">1</span><span style="color:blue">）用于与</span><span style="color:blue">WAN</span><span style="color:blue">连接</span></span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">三层交换机终究是“交换机”。也就是说，绝大多数机型<span style="color:red">只配有</span><span style="color:red">LAN</span><span style="color:red">（以太网）接口</span>。在少数高端交换机上也有用于连接WAN的串行接口或是ATM接口，但在大多数情况下，连接WAN还是需要用到路由器。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">（</span><span style="color:blue">2</span><span style="color:blue">）保证网络安全</span></span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在三层交换机上，通过数据包过滤也能确保一定程度的网络安全。但是使用路由器所提供的各种网络安全功能，用户可以构建更为安全可靠的网络。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">路由器提供的网络安全功能中，除了最基本的数据包过滤功能外，还能基于IPSec构建<strong>VPN</strong>（VirtualPrivate Network）、利用RADIUS进行用户认证等等。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">（</span><span style="color:blue">3</span><span style="color:blue">）支持除</span><span style="color:blue">TCP/IP</span><span style="color:blue">以外的异构网络架构</span></span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">尽管TCP/IP已经成为当前网络协议架构的主流，但还有不少网络利用Novell Netware下的IPX/SPX或Macintosh下的AppleTalk等网络协议。三层交换机中，除了部分高端机型外基本上还只支持TCP/IP。因此，<span style="color:blue">在需要使用除</span><span style="color:blue">TCP/IP</span><span style="color:blue">之外其他网络协议的环境下，路由器还是必不可少的</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">注：在少数高端交换机上，也能支持上述路由器的功能。例如</span><span style="color:red">Cisco</span><span style="color:red">的</span><span style="color:red">Catalyst 6500</span><span style="color:red">系列，就可以选择与</span><span style="color:red">WAN</span><span style="color:red">连接的接口模块；还有可选的基于</span><span style="color:red">IPSec</span><span style="color:red">实现</span><span style="color:red">VPN</span><span style="color:red">的模块；并且也能支持</span><span style="color:red">TCP/IP</span><span style="color:red">以外的其他网络协议。</span></span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">9.2&nbsp;</span><span style="color:red">路由器和交换机配合构建</span><span style="color:red">LAN</span><span style="color:red">的实例</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">下面让我们来看一个路由器和交换机搭配构建LAN的实例。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180050656" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">利用在各楼层配置的<span style="color:blue">二层交换机定义</span><span style="color:blue">VLAN</span><span style="color:blue">，连接</span><span style="color:blue">TCP/IP</span><span style="color:blue">客户计算机</span>。各楼层间的<span style="color:blue">VLAN</span><span style="color:blue">间通信，利用三层交换机的高速路由加以实现</span>。如果网络环境要求高可靠性，还可以考虑冗余配置三层交换机。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">与</span><span style="color:blue">WAN</span><span style="color:blue">的连接，则通过带有各种网络接口的路由器进行</span>。并且，通过路由器的数据包过滤和VPN等功能<span style="color:blue">实现网络安全</span>。此外，使用路由器还能支持Novell
+ Netware等TCP/IP之外的网络。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">只有在充分掌握了二层、三层交换机以及传统路由器的基础上，才能做到物竞其用，构筑出高效率、高性价比的网络</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<h2><span style="font-family:'Microsoft YaHei'"><strong><span style="font-size:18px">10.使用VLAN设计局域网</span></strong></span></h2>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">10.1&nbsp;</span><span style="color:red">使用</span><span style="color:red">VLAN</span><span style="color:red">设计局域网的特点</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">通过使用</span><span style="color:blue">VLAN</span><span style="color:blue">构建局域网，用户能够不受物理链路的限制而自由地分割广播域。</span></span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">另外，通过先前提到的路由器与三层交换机提供的VLAN间路由，能够<span style="color:blue">适应灵活多变的网络构成</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">但是，<span style="color:red">由于利用</span><span style="color:red">VLAN</span><span style="color:red">容易导致网络构成复杂化，因此也会造成整个网络的组成难以把握</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">可以这样说，在利用VLAN时，除了有“<span style="color:blue">网络构成灵活多变”</span>这个优点外，还搭配着“<span style="color:blue">网络构成复杂化”</span>这个缺点。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">下面，就让我们来看看具体的实例。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">10.2&nbsp;</span><span style="color:red">不使用</span><span style="color:red">VLAN</span><span style="color:red">的局域网中网络构成的改变</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">假设有如图所示的由1台路由器、2台交换机构成的“不使用VLAN构建”的网络。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180130125" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">图中的路由器，带有2个LAN接口。左侧的网络是192.168.1.0/24，右侧是192.168.2.0/24。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">现在如果想将192.168.1.0/24这个网络上的计算机A转移到192.168.2.0/24上去，就需要<span style="color:red">改变物理连接、将</span><span style="color:red">A</span><span style="color:red">接到右侧的交换机上</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">并且，当需要新增一个地址为192.168.3.0/24的网络时，还要在路由器上再占用一个LAN接口并添置一台交换机。而由于这台路由器上只带了2个LAN接口，因此为了新增网络还必须将路由器升级为带有3个以上LAN接口的产品。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">10.3&nbsp;</span><span style="color:red">使用</span><span style="color:red">VLAN</span><span style="color:red">的局域网中网络构成的改变</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">接下来再假设有一个由1台路由器、2台交换机构成的“使用VLAN”的局域网。交换机与交换机、交换机与路由器之间均为<strong>汇聚链路</strong>；并且假设192.168.1.0/24对应红色VLAN、192.168.2.0/24对应蓝色VLAN。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180206046" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">需要将连接在交换机1上192.168.1.0/24这个网段的计算机A转属192.168.2.0/24时，<span style="color:blue">无需更改物理布线</span>。只要在交换机上生成蓝色VLAN，然后将计算机A所连的端口1加入到蓝色VLAN中去，使它成为访问链接即可。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">然后，根据需要设定计算机A的IP地址、默认网关等信息就可以了。<span style="color:blue">如果</span><span style="color:blue">IP</span><span style="color:blue">地址相关的设定是由</span><span style="color:blue">DHCP</span><span style="color:blue">获取的，那么在客户机方面无需进行任何设定修改，就可以在不同网段间移动</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">利用VLAN后，我们可以在免于改动任何物理布线的前提下，自由进行网络的<strong>逻辑设计</strong>。如果所处的工作环境恰恰需要经常<strong>改变网络布局</strong>，那么利用VLAN的优势就非常明显了。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">并且，当需要新增一个地址为192.168.3.0/24的网段时，也只需要在交换机上新建一个对应192.168.3.0/24的VLAN，并将所需的端口加入它的访问链路就可以了。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:blue">如果网络环境中还需要利用外部路由器，则只要在路由器的汇聚端口上新增一个子接口的设定就可以完成全部操作，而不需要消耗更多的物理接口（</span><span style="color:blue">LAN</span><span style="color:blue">接口）。要使用的是三层交换机内部的路由模块，则只需要新设一个</span><span style="color:blue">VLAN</span><span style="color:blue">接口即可</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">网络环境的成长，往往是难以预测的，很可能经常会出现需要分割现有网络或是增加新网络的情况。<span style="color:blue">而充分活用</span><span style="color:blue">VLAN</span><span style="color:blue">后，就可以轻易地解决这些问题</span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">10.4&nbsp;</span><span style="color:red">利用</span><span style="color:red">VLAN</span><span style="color:red">而导致的网络结构复杂化</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">虽然利用VLAN可以<span style="color:blue">灵活地构建网络</span>，但是同时，它也带来了<span style="color:red">网络结构复杂化</span>的问题。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">特别是由于数据流纵横交错，一旦发生故障时，<span style="color:red">准确定位并排除故障会比较困难</span>。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">为了便于理解数据流向的复杂化，假设有下图所示的网络。计算机A向计算机C发送数据时，数据流的整体走向如下：</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">计算机A→交换机1→路由器→交换机1→交换机2→计算机C</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180236218" alt=""><img src="http://img.blog.csdn.net/20130726180236218" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">首先计算机A向交换机1送出数据（①），其后数据被转发给路由器（②）进行VLAN间路由。路由后的数据，再从汇聚链路返回交换机1（③）。由于通信目标计算机C并不直连在交换机1上，因此还需要经过汇聚链路转发到交换机2（④）。在交换机2上，数据最终被转发到C所连的端口2上，这才完成整个流程（⑤）。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">在这个例子中，仅由2台交换机构成网络，其数据流已经如此复杂，<span style="color:red">如果构建横跨多台交换机的</span><span style="color:red">VLAN</span><span style="color:red">的话，每个数据流的流向显然会更加难以把握</span>。</span></p>
+<h3><strong><span style="font-family:Microsoft YaHei; font-size:14px"><span style="color:red">10.5&nbsp;</span><span style="color:red">网络的逻辑结构与物理结构</span></span></strong></h3>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">为了对应日渐复杂化的数据流，管理员需要从“<span style="color:blue">逻辑结构</span>”与“<span style="color:blue">物理结构</span>”两方面入手，把握好网络的现状。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">物理结构，指的是从物理层和数据链路层观察到的网络的现状，表示了网络的物理布线形态和VLAN的设定等等。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">而逻辑结构，则表示从网络层以上的层面观察到的网络结构。下面我们就试着以路由器为中心分析一个IP网络的逻辑结构。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">还是先前的那个例子，描绘了布线形态和VLAN设定的“物理结构”如下图所示。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180318750" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">分析这个物理结构并转换成以路由器为中心的逻辑结构后，会得到如下的逻辑结构图。当我们需要<span style="color:blue">进行路由或是数据包过滤的设定时，都必须在逻辑结构的基础上进行</span>。</span></p>
+<p align="left" style="text-align:center"><span style="font-family:Microsoft YaHei; font-size:14px"><img src="http://img.blog.csdn.net/20130726180338921" alt=""><br>
+</span></p>
+<p align="center"></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">把握这两种网络结构图的区别是十分重要的，特别是在VLAN和三层交换机大行其道的现代企业级网络当中。</span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+</blockquote>
+<strong><span style="font-family:Microsoft YaHei; font-size:18px">参考：</span></strong><br>
+<blockquote style="margin:0 0 0 40px; border:none; padding:0px">
+<p><span style="font-family:Microsoft YaHei; font-size:14px"><strong>《<a target="_blank" target="_blank" href="http://net.yesky.com/162/9115662.shtml">跟着尚云学VLAN</a>》</strong></span></p>
+<p><span style="font-family:Microsoft YaHei; font-size:14px"><strong>《<a target="_blank" target="_blank" href="http://wenku.baidu.com/view/64e63d630b1c59eef8c7b4c9.html">VLAN原理详解</a>》</strong></span></p>
+<p align="left"><span style="font-family:Microsoft YaHei; font-size:14px">&nbsp;</span></p>
+<p>《<a target="_blank" target="_blank" href="http://wenku.baidu.com/view/d76d011459eef8c75fbfb313.html">VLAN基本原理</a>-ZTE》</p>
+<p>《<a target="_blank" target="_blank" href="http://wenku.baidu.com/view/0ce65b56ad02de80d4d840b7.html">VLAN 技术原理</a>-HW》</p>
+<p>&nbsp;</p>
+<p>《<a target="_blank" target="_blank" href="http://blog.csdn.net/dog250/article/details/8219141">VLAN/Trunk以及三层交换</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://blog.csdn.net/yu_xiaofei/article/details/9335037">虚拟局域网（VLAN）中端口tagged和untagged在多种情况下的作用</a>》</p>
+<p></p>
+<p>《<a target="_blank" target="_blank" href="http://blog.csdn.net/suiyuan19840208/article/details/8221529">Linux 下VLAN数据包&#26684;式及vconfig命令测试</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://blog.csdn.net/dog250/article/details/7354590">Linux实现的IEEE 802.1Q VLAN</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://wenku.baidu.com/view/b684f44fe45c3b3567ec8bf5.html">Linux VLAN知识总结</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://lisa.mindbit.ro/">The LISA Project</a>》</p>
+<p>&nbsp;</p>
+<p>《<a target="_blank" target="_blank" href="http://blog.csdn.net/phunxm/article/details/8811266">WNR3500L&#43;TOMATO网络结构分析</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://bbs.csdn.net/topics/390508832">WC7520如何配置多SSID对应不同VLAN</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://www.cnblogs.com/lome/archive/2011/04/21/2023345.html">话说WAYOS中所谓利用IP VLAN来实现用户隔离的作用分析</a>》</p>
+<p>&nbsp;</p>
+<p>《<a target="_blank" target="_blank" href="http://www.chinadsl.net/forum.php?mod=viewthread&amp;action=printable&amp;tid=57184">H618C刷OpenWrt并支持IPTV VLAN硬件处理的方法</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://fccjxxw.com/m/3368abe3fc4ffe477fb6bb16.html">无线IPTV无线连接以及无法看直播问题解决</a>》</p>
+<p>&nbsp;</p>
+<p>《<a target="_blank" target="_blank" href="http://service.tp-link.com.cn/detail_article_287.html#_Toc343163211">TL-ER6520G某企业网络配置实例</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://service.tp-link.com.cn/detail_article_290.html">如何设置TP-LINK共享上网一体机（网线接入）</a>》</p>
+<p>《<a target="_blank" target="_blank" href="http://service.tp-link.com.cn/detail_article_279.html">TL-SG5428应用——多网段网络规划配置指南</a>》</p>
+<p><br>
+</p>
+</blockquote>
+
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+
+
+
+<!--172.16.140.13-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+
+
+
+
+
+        <div id="digg" ArticleId="9498829" >
+            <dl id="btnDigg" class="digg digg_disable"  onclick="btndigga();">
+
+                 <dt>顶</dt>
+                <dd>21</dd>
+            </dl>
+
+
+            <dl id="btnBury" class="digg digg_disable"  onclick="btnburya();">
+
+                  <dt>踩</dt>
+                <dd>0</dd>
+            </dl>
+
+        </div>
+     <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);" >&nbsp;</a>   </div>
+    <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);" >&nbsp;</a></div>
+    <script type="text/javascript">
+                function btndigga() {
+                    $(".tracking-ad[data-mod='popu_222'] a").click();
+                }
+                function btnburya() {
+                    $(".tracking-ad[data-mod='popu_223'] a").click();
+                }
+            </script>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/phunxm/article/details/9452575';">上一篇</span><a href="/phunxm/article/details/9452575" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">DMA描述符及映射</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/phunxm/article/details/9746951';">下一篇</span><a href="/phunxm/article/details/9746951" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">Transact-SQL数据库基本操作</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+            <div class="similar_article"   >
+                    <h4></h4>
+                    <div class="similar_c"style="margin:20px 0px 0px 0px">
+                        <div class="similar_c_t">
+                          &nbsp;&nbsp;相关文章推荐
+                        </div>
+
+                        <div class="similar_wrap tracking-ad" data-mod="popu_36"  style="max-height:195px;">
+                            <ul class="similar_list fl">
+                            </ul>
+                              <ul class="similar_list fr">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+</div>
+
+     <div>
+
+
+
+
+            <!-- 广告位：PC端-博客内容页-banner1-960*90 -->
+            <script>
+                (function() {
+                    var s = "_" + Math.random().toString(36).slice(2);
+                    document.write('<div id="' + s + '"></div>');
+                    (window.slotbydup=window.slotbydup || []).push({
+                        id: '4228013',
+                        container: s,
+                        size: '0,0',
+                        display: 'inlay-fix'
+                    });
+                })();
+            </script>
+    </div>
+
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>
+             $(function(){
+                 $.get("/phunxm/svc/GetSuggestContent/9498829",function(data){
+                     $("#suggest").html(data);
+                 });
+             });
+         </script>
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+
+
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+
+
+<dl class="blog-ass-articl tracking-ad" id="res-relatived" data-mod="popu_84"  >
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>
+
+
+
+
+
+    <div id="adCollege">
+    </div>
+
+
+
+     <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script>
+     <script type="text/javascript">
+         csdn.position.showEdu({
+             sourceType: "blog",
+             searchType: "detail",
+             searchKey: "9498829",
+                username: "",
+                recordcount: "10",
+                containerId: "adCollege" //容器DIV的id。
+            });
+        </script>
+
+</dl>
+
+
+
+
+
+    <div id="ad_cen">
+                <div>
+                                    <div class="tracking-ad" data-view="true" data-mod="ad_popu_199" data-mtp="43" data-order="114" data-con="ad_content_1843" style="width: 960px; height: 90px;">
+                                             <script type="text/javascript">
+                                                 /*博客内容页下方Banner2-960*90，创建于,2016-11-28*/
+                                                 var cpro_id = "u2831143";
+                                            </script>
+                                            <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script>
+                                   </div>
+                    </div>
+    </div>
+
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '9498829';
+    var commentscount = 27;
+    var islock = false
+</script>
+
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);
+    });
+
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  type='text/javascript'>
+      $(function(){
+              setTimeout(function(){
+                  $.get("/phunxm/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });
+              });
+          },500);
+ </script>
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n;
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));
+                            }
+                        }
+                    });
+                }
+            });
+
+        },200);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }
+
+    var articletitle='VLAN原理详解';
+
+</script>
+
+
+
+
+
+
+
+
+                        <div class="clear">
+                        </div>
+                    </div>
+
+            </div>
+
+           <div id="side">
+
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/phunxm" target="_blank">
+    <img src="http://avatar.csdn.net/9/D/B/1_phunxm.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/phunxm" class="user_name" target="_blank">phunxm</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=phunxm','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>2980696次</span></li>
+    <li>积分：<span>10201</span> </li>
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog7.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：10201 </div>
+        </span>  </li>
+    <li>排名：<span>第1518名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>123篇</span></li>
+    <li>转载：<span>25篇</span></li>
+    <li>译文：<span>3篇</span></li>
+    <li>评论：<span>295条</span></li>
+</ul>
+</ul>
+</div>
+
+
+
+
+<div id="custom_column_40677745" class="panel">
+<ul class="panel_head"><span>个人独立博客</span></ul>
+<ul class="panel_body">
+
+<a href="http://col.dog/" target="_blank">col.dog</a>
+
+</ul>
+</div><div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body" class="form_search">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search csdn-tracking-statistics" target="_blank"  data-mod="popu_306">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+
+
+    $(function () {
+        $("#btnSubmit").unbind("click");
+        $("#btnSubmit").click(function () {
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            if ($("#inputSearch").val() == "") {
+                alert("请录入搜索关键词！");
+                return false;
+            }
+            //var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            var url = "https://www.baidu.com/s?wd=" + encodeURIComponent($("#inputSearch").val()) + "%20site%3Ablog.csdn.net"
+            window.location.href = url;
+        }
+    });
+</script><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">
+                 <li>
+                    <a href="/phunxm/article/category/906537" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">嵌入式开发</a><span>(15)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/1434257" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">VxWorks</a><span>(9)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/1434258" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/636817" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">网络通信/流媒体</a><span>(32)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/636653" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">VC/MFC/Windows</a><span>(21)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/635878" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C/C++基础</a><span>(20)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/691229" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">多线程/分布式/并行/云</a><span>(9)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/636646" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">编程工具&amp;生产效率</a><span>(11)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/656958" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据结构、算法/设计模式</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/706584" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">计算机及网络安全</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/636645" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C#.NET</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/1544261" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据库</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/1771019" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Android</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/1771021" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MacTalk</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/1771023" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">iOS</a><span>(9)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/3116571" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SCM</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/phunxm/article/category/5812655" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">git</a><span>(2)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/phunxm/article/month/2017/06">2017年06月</a><span>(5)</span></li><li><a href="/phunxm/article/month/2016/05">2016年05月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2016/02">2016年02月</a><span>(2)</span></li><li><a href="/phunxm/article/month/2015/11">2015年11月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2015/09">2015年09月</a><span>(3)</span></li><li><a href="/phunxm/article/month/2015/07">2015年07月</a><span>(2)</span></li><li><a href="/phunxm/article/month/2015/05">2015年05月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2015/04">2015年04月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2015/03">2015年03月</a><span>(3)</span></li><li><a href="/phunxm/article/month/2015/02">2015年02月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2015/01">2015年01月</a><span>(3)</span></li><li><a href="/phunxm/article/month/2014/12">2014年12月</a><span>(2)</span></li><li><a href="/phunxm/article/month/2014/11">2014年11月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2014/08">2014年08月</a><span>(2)</span></li><li><a href="/phunxm/article/month/2014/06">2014年06月</a><span>(2)</span></li><li><a href="/phunxm/article/month/2013/12">2013年12月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2013/11">2013年11月</a><span>(6)</span></li><li><a href="/phunxm/article/month/2013/09">2013年09月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2013/08">2013年08月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2013/07">2013年07月</a><span>(5)</span></li><li><a href="/phunxm/article/month/2013/06">2013年06月</a><span>(3)</span></li><li><a href="/phunxm/article/month/2013/05">2013年05月</a><span>(12)</span></li><li><a href="/phunxm/article/month/2013/04">2013年04月</a><span>(3)</span></li><li><a href="/phunxm/article/month/2011/11">2011年11月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2011/10">2011年10月</a><span>(4)</span></li><li><a href="/phunxm/article/month/2011/01">2011年01月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2010/12">2010年12月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2010/11">2010年11月</a><span>(4)</span></li><li><a href="/phunxm/article/month/2010/10">2010年10月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2010/08">2010年08月</a><span>(5)</span></li><li><a href="/phunxm/article/month/2010/07">2010年07月</a><span>(9)</span></li><li><a href="/phunxm/article/month/2010/06">2010年06月</a><span>(3)</span></li><li><a href="/phunxm/article/month/2010/05">2010年05月</a><span>(2)</span></li><li><a href="/phunxm/article/month/2010/04">2010年04月</a><span>(4)</span></li><li><a href="/phunxm/article/month/2010/03">2010年03月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2010/02">2010年02月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2010/01">2010年01月</a><span>(1)</span></li><li><a href="/phunxm/article/month/2009/12">2009年12月</a><span>(50)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/phunxm/article/details/5508762" title="VC操作INI文件">VC操作INI文件</a><span>(1115977)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/42174937" title="iPhone屏幕尺寸、分辨率及适配">iPhone屏幕尺寸、分辨率及适配</a><span>(307236)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/42685597" title="iOS Provisioning Profile(Certificate)与Code Signing详解">iOS Provisioning Profile(Certificate)与Code Signing详解</a><span>(279440)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/38590561" title="Mac OS X上使用Wireshark抓包">Mac OS X上使用Wireshark抓包</a><span>(137377)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/17044337" title="Xcode基本操作">Xcode基本操作</a><span>(112622)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/5836034" title="TCP通信流程解析">TCP通信流程解析</a><span>(77265)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/9498829" title="VLAN原理详解">VLAN原理详解</a><span>(53470)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/5085869" title="WinSock编程基础">WinSock编程基础</a><span>(52049)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/45083335" title="Mac下git通过SSH进行免密码安全连接github">Mac下git通过SSH进行免密码安全连接github</a><span>(30225)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/8913871" title="MIPS中的跳转/分支指令">MIPS中的跳转/分支指令</a><span>(25192)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/phunxm/article/details/42685597" title="iOS Provisioning Profile(Certificate)与Code Signing详解">iOS Provisioning Profile(Certificate)与Code Signing详解</a><span>(36)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/9498829" title="VLAN原理详解">VLAN原理详解</a><span>(27)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/38590561" title="Mac OS X上使用Wireshark抓包">Mac OS X上使用Wireshark抓包</a><span>(22)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/17044337" title="Xcode基本操作">Xcode基本操作</a><span>(19)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/42174937" title="iPhone屏幕尺寸、分辨率及适配">iPhone屏幕尺寸、分辨率及适配</a><span>(17)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/42715145" title="iOS8扩展插件开发配置">iOS8扩展插件开发配置</a><span>(10)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/5836034" title="TCP通信流程解析">TCP通信流程解析</a><span>(10)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/5085869" title="WinSock编程基础">WinSock编程基础</a><span>(9)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/5086080" title="应用层通信协议开发浅析">应用层通信协议开发浅析</a><span>(8)</span>
+</li>
+<li>
+<a href="/phunxm/article/details/5082488" title="VC项目配置基础">VC项目配置基础</a><span>(8)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/turingbooks/article/details/72416875" target="_blank">* 5月书讯：流畅的Python，终于等到你！</a></li>
+<li><a href="http://blog.csdn.net/kimmking/article/details/72886230"
+target="_blank">* JSON最佳实践</a></li>
+<li><a href="http://blog.csdn.net/swingwang/article/details/72887367"target="_blank">* InfiniBand技术和协议架构分析</a></li>
+<li><a href="http://blog.csdn.net/jiangwei0910410003/article/details/72675977"
+target="_blank">* Android 中解决破解签名验证之后导致的登录授权失效问题</a></li>
+<li><a href="http://blog.csdn.net/poem_qianmo/article/details/72857602"
+target="_blank">* 《Real-Time Rendering 3rd》 提炼总结——图形渲染与视觉外观</a></li>
+<li><a href="http://blog.csdn.net/blogdevteam/article/details/72903038"
+target="_blank">* CSDN日报20170607 ——《别混淆你想要什么和能否实现》</a></li>
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+
+         <a href="/phunxm/article/details/9498829#comments">VLAN原理详解</a>
+    <p style="margin:0px;"><a href="/luckforyou" class="user_name">luckforyou</a>:
+感谢分享，写的非常详细和容易理解。知道知识是一个层次，能清楚的讲出来，传道授业解惑，很厉害。
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/42685597#comments">iOS Provisioning Profile(Certificate)与Code Signing详解</a>
+    <p style="margin:0px;"><a href="/TonyDarkGodness" class="user_name">TonyDarkGodness</a>:
+好详细，果断收藏，仔细研究
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/42685597#comments">VLAN原理详解</a>
+    <p style="margin:0px;"><a href="/damiaomiao666" class="user_name">damiaomiao666</a>:
+写的非常好、非常详细、图文并茂。即使是网络小白也能看的懂。。
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/42685597#comments">VLAN原理详解</a>
+    <p style="margin:0px;"><a href="/u010706415" class="user_name">u010706415</a>:
+写的真的很好，学习了很多，博主真厉害
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/8994311#comments">Linux设备驱动模型概述</a>
+    <p style="margin:0px;"><a href="/zhengyuxuan1125" class="user_name">zhengyuxuan1125</a>:
+语言简练且逻辑清晰，可以接着往下写电源管理或者几个总线的架构，估计会一气呵成
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/8994311#comments">Linux设备驱动模型概述</a>
+    <p style="margin:0px;"><a href="/clam_zxf" class="user_name">clam_zxf</a>:
+很少能看到这么偏僻入里的文章
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/5085869#comments">WinSock编程基础</a>
+    <p style="margin:0px;"><a href="/qq_38175979" class="user_name">qq_38175979</a>:
+真的很不错
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/5085869#comments">iOS Provisioning Profile(Certificate)与Code Signing详解</a>
+    <p style="margin:0px;"><a href="/hidlong" class="user_name">hidlong</a>:
+赞攒攒看到博主用了“条分缕析”  更是佩服  厉害了这功底
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/5085869#comments">VLAN原理详解</a>
+    <p style="margin:0px;"><a href="/szm_08220528" class="user_name">szm_08220528</a>:
+写的非常好
+    </p>
+    </li>
+    <li>
+
+         <a href="/phunxm/article/details/9384123#comments">PPPoE拨号流程</a>
+    <p style="margin:0px;"><a href="/qingxp9" class="user_name">qingxp9</a>:
+清晰明了，还带图文，特意登录感谢
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+
+
+                   <!-- 广告位开始 -->                    <!-- 广告位结束 -->
+                   <div class="tracking-ad" data-view="true"  data-mtp="63" data-order="40" data-con="ad_content_1260" style="width: 200px; height: 200px;">
+                         <div id="nav_show_top_stop" style="width: 200px;height: 200px;z-index:1000"><div id="cpro_u2734128"></div></div>
+                   </div>
+    <script type="text/javascript">
+        setTimeout(function () {
+            var naviga_offsetTop = 0;
+            function naviga_stay_top() { var scrollTop = jQuery(document).scrollTop(); if (scrollTop > naviga_offsetTop) { jQuery("#nav_show_top_stop").css({ "position": "fixed" }); jQuery("#nav_show_top_stop").css({ "top": "0px" }); } else { jQuery("#nav_show_top_stop").css({ "position": "fixed" }); jQuery("#nav_show_top_stop").css({ "top": naviga_offsetTop - scrollTop + "px" }); } }
+            function onload_function() { naviga_offsetTop = jQuery("#nav_show_top_stop").position().top; jQuery(window).bind("scroll", naviga_stay_top); jQuery(window).bind("mousewheel", naviga_stay_top); jQuery(document).bind("scroll", naviga_stay_top); jQuery(document).bind("mousewheel", naviga_stay_top); } jQuery(document).ready(onload_function);
+
+        }, 200);
+    </script>
+<script type="text/javascript">(window.cproArray = window.cproArray || []).push({ id: "u2734128" });  </script>
+                    <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+
+           </div>
+
+            <div class="clear">
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript" src="http://passport.csdn.net/content/loginbox/login.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+
+    </div>
+      <!--new top-->
+
+
+
+
+
+
+     <!--new top-->
+
+
+
+
+
+
+
+
+
+
+
+       <script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+          <script type="text/javascript">
+              //$(function () {
+              //    setTimeout(function () {
+              //        var searchtitletags = articletitle + ',' + $("#tags").html();
+              //        searchService({
+              //            index: 'blog',
+              //            query: searchtitletags,
+              //            from: 5,
+              //            size: 5,
+              //            appendTo: '#res',
+              //            url: 'recommend',
+              //            his: 2,
+              //            client: "blog_cf_enhance",
+              //            tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+              //        });
+              //    }, 1000);
+              //});
+
+         </script>
+
+    <script src="http://static.blog.csdn.net/scripts/csdn_blog_detail.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/blog/csdn_public_blog_detail.min.js?20170606001"></script>
+
+    <script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=578543"></script>
+
+
+
+
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+
+
+
+
+
+
+
+    <div class="pop_CA_cover"  style="display:none"></div>
+    <div class="pop pop_CA"  style="display:none">
+          <div class="CA_header">
+            收藏助手
+            <span class="cancel_icon"  id="fapancle"  onclick="$('.pop_CA').hide();$('.pop_CA_cover').hide();"></span>
+          </div>
+          <iframe src="" id="fa" frameborder="0" width="100%" height="360"  scrolling="no" ></iframe>
+    </div>
+
+
+        <script type="text/javascript">
+
+            $(function () {
+                var fromjs = $("#fromjs");
+                if (fromjs.length > 0) {
+                    $("#fromjs .markdown_views pre").addClass("prettyprint");
+                    prettyPrint();
+
+                    $('pre.prettyprint code').each(function () {
+                        var lines = $(this).text().split('\n').length;
+                        var $numbering = $('<ul/>').addClass('pre-numbering').hide();
+                        $(this).addClass('has-numbering').parent().append($numbering);
+                        for (i = 1; i <= lines; i++) {
+                            $numbering.append($('<li/>').text(i));
+                        };
+                        $numbering.fadeIn(1700);
+                    });
+
+                    $('.pre-numbering li').css("color", "#999");
+                }
+            });
+
+            $(".markdown_views a[target!='_blank']").attr("target", "_blank");
+
+            //$(".toc a[target='_blank']").attr("target", "");
+
+            setTimeout(function () {
+                $(".toc a[target='_blank']").attr("target", "");
+            },500);
+
+        </script>
+
+</body>
+</html>
+

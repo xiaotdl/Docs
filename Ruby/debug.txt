@@ -1,0 +1,37 @@
+== find module path ==
+> show-source VagrantPlugins::VSphere::Config
+From: /home/xili/.vagrant.d/gems/gems/vagrant-vsphere-1.6.4/lib/vSphere/config_base.rb @ line 9:
+Class name: VagrantPlugins::VSphere::Config
+
+== gem install ==
+$ vagrant plugin install rb-readline
+$ vagrant plugin install pry
+$ vagrant plugin install pry-nav
+$ vagrant plugin install pry-stack_explorer
+
+If vagrant plugin install hangs:
+We can compile ruby gem at localhost and install with the local gem:
+$ gem build <gem.spec>
+$ vagrant plugin install <ruby.gem>
+git clone https://github.com/ConnorAtherton/rb-readline
+git clone https://github.com/pry/pry
+git clone https://github.com/nixme/pry-nav
+git clone https://github.com/pry/pry-stack_explorer
+
+== pry config ==
+$ cat .pryrc
+Pry.commands.alias_command 'c', 'continue'
+Pry.commands.alias_command 's', 'step'
+Pry.commands.alias_command 'n', 'next'
+Pry.commands.alias_command 'r', 'up'
+Pry.commands.alias_command 'q', '!!!'
+Pry::Commands.command /^$/, "repeat last command" do
+    _pry_.run_command Pry.history.to_a.last
+end
+
+== pry usage ==
+require 'pry'
+
+...
+binding.pry
+...

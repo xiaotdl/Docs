@@ -1,0 +1,11 @@
+{   
+    "cmd" : ["make", "$file_base_name"], 
+    "selector" : "source.c", 
+    "shell": false,
+    "working_dir" : "$file_path", 
+    "variants": [    
+        {   "cmd" : ["./$file_base_name"], 
+            "name": "Run"
+        }  
+    ]
+}

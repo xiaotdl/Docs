@@ -1,0 +1,27 @@
+Ref: https://askubuntu.com/questions/497895/permission-denied-for-rootlocalhost-for-ssh-connection
+
+== ssh with password ==
+$ sudo vim /etc/ssh/sshd_config
+s/PermitRootLogin without-password/PermitRootLogin yes/
+or in later Ubuntu:
+s/PermitRootLogin prohibit-password/PermitRootLogin yes/
+
+# This value should be 'yes' by default. Modify it if not.
+PasswordAuthentication yes
+
+
+$ sudo service ssh restart
+
+$ sudo passwd root
+default
+
+$ ssh root@localhost
+default
+==> :)
+
+
+== ssh with pubkey ==
+$ sudo sh -c 'cat /home/<user>/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys'
+
+$ ssh root@localhost
+==> :)

@@ -1,0 +1,7 @@
+ref: http://tech.shantanugoel.com/2009/03/03/add-directories-recursively-to-perforce-p4-depot.html
+
+Unix/Linux:
+find . -type f -print | p4 -x - add
+
+Windows:
+dir /b /s /a-d | p4 -x - add

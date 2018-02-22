@@ -1,0 +1,26 @@
+== ~/.ssh/known_hosts (Client-Side Files) ==
+This file is local to the user account and contains the known keys for remote hosts. Often these are collected from the hosts when connecting for the first time, but they can be added manually. As with those keys stored in the global file, /etc/ssh/ssh_known_hosts, these keys are used to verify the identity of the remote host, thus protecting against impersonation or man-in-the-middle attacks. With each subsequent connection the key will be compared to the key provided by the remote server. If there is a match, the connection will proceed. If the match fails, ssh(1) will fail with an error message. If there is no key at all listed for that remote host, then the key's fingerprint will be displayed and there will be the option to automatically add the key to the file. This file can be created and edited manually, but if it does not exist it will be created automatically by ssh(1) when it first connects to a remote host.
+
+In short, the known host entry (server-side RSA key fingerprint) make sure client can login to the right server.
+
+
+== unknown host 'yes/no' prompt ==
+user@host:~$ ssh root@10.192.10.136
+The authenticity of host '10.192.10.136 (10.192.10.136)' can't be established.
+RSA key fingerprint is 3f:d8:74:46:21:48:8a:7d:2e:29:7a:90:9a:b4:36:02.
+Are you sure you want to continue connecting (yes/no)?
+
+
+== Solution to skip 'yes/no' known host prompt ==
+# remove old known host entry
+user@host:~$ ssh-keygen -R 10.192.10.136 -f ~/.ssh/known_hosts
+/home/user/.ssh/known_hosts updated.
+Original contents retained as /home/user/.ssh/known_hosts.old
+
+# append server pub key to known_hosts file
+user@host:~$ ssh-keyscan -t rsa -H 10.192.10.136 >> ~/.ssh/known_hosts
+# 10.192.10.136 SSH-2.0-OpenSSH_5.3
+
+# login without 'yes/no' prompt
+user@host:~$ ssh root@10.192.10.136
+Last login: Wed Mar  1 20:04:20 2017 from 10.192.10.141

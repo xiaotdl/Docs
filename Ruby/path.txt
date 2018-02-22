@@ -1,0 +1,2 @@
+$ gem which rbvmomi
+/Library/Ruby/Gems/2.0.0/gems/rbvmomi-1.11.3/lib/rbvmomi.rb

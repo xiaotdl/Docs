@@ -1,0 +1,27 @@
+== OVF Tool Download ==
+1) manual
+ovftool download:
+    https://my.vmware.com/group/vmware/details?downloadGroup=OVFTOOL420&productId=491
+        user: xiaotdl@gmail.com
+        pass: l*******3
+    $ sh VMware*.bundle
+    ...
+
+2) auto
+    $ wget http://10.192.146.142/tools/VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle.sh
+    $ chmod +x VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle.sh
+    $ sudo sh VMware-ovftool-4.1.0-2459827-lin.x86_64.bundle.sh --eulas-agreed --required
+
+== OVF Tool User's Guide ==
+Official User Guide
+    https://www.vmware.com/support/developer/ovf/ovf420/ovftool-420-userguide.pdf
+
+How to Copy VMs Directly Between ESXi Hosts Without Shared Storage - William Lam
+    https://www.virtuallyghetto.com/2012/06/how-to-copy-vms-directly-between-esxi.html
+
+How to Deploy an OVF Located On ESXi Datastore Using ovftool - William Lam
+    https://www.virtuallyghetto.com/2012/03/how-to-deploy-ovf-located-on-esxi.html
+    https://10.192.10.46/folder/bigip-tier2?dcPath=tCloud&dsName=ISCSI%252dVol01
+
+How should I copy my VM templates between vSphere datacenters?
+    https://serverfault.com/questions/570833/how-should-i-copy-my-vm-templates-between-vsphere-datacenters

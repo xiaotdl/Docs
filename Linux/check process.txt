@@ -1,0 +1,47 @@
+# == ps ==
+# -a     Write information for all processes associated with terminals.
+# -e     Show ENV variables.
+# -f     Generate a full listing.
+# -j     BSD job control format. (show more info like PPID, PGID etc.)
+# -x     Show deamon process that has no controlling terminal.
+$ ps axf
+  PID TTY      STAT   TIME COMMAND
+    2 ?        S      1:41 [kthreadd]
+    3 ?        S      2:00  \_ [ksoftirqd/0]
+…
+25041 pts/36   Ss     0:01  \_ -bash
+21119 pts/36   S      0:00  |   \_ schroot
+21246 pts/36   S      0:00  |       \_ -bash
+21278 pts/36   S+     0:30  |           \_ sudo scapy
+21279 pts/36   S+     0:01  |               \_ /usr/bin/python /usr/bin/scapy
+…
+
+$ ps aejxf > ps.out
+search ENV vars etc.…
+
+
+
+# == pstree ==
+# -a, --arguments     show command line arguments
+# -H PID, --highlight-pid=PID highlight this process and its ancestors
+# -p, --show-pids     show PIDs; implies -c
+# -s, --show-parents  show parents of the selected process
+$ pstree
+systemd─┬─ModemManager─┬─{gdbus}
+        │              └─{gmain}
+        ├─tmux─┬─4*[bash───vim]
+        │      ├─17*[bash]
+        │      ├─2*[bash───schroot───bash]
+        │      ├─3*[bash───ssh]
+        │      └─bash───schroot───bash───sudo───scapy
+…
+
+
+$ pstree -a -p -s 25041 -H 25041
+systemd,1
+  └─tmux,4227 new-session -s main
+      └─bash,25041
+          └─schroot,21119
+              └─bash,21246
+                  └─sudo,21278 scapy
+                      └─scapy,21279 /usr/bin/scapy

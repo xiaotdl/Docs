@@ -1,0 +1,46 @@
+== check all dirs/files ==
+xili@xili-ubuntu-vm:~/project$ tree -d [-L level]
+.
+├── dir1
+└── dir2
+
+2 directories
+
+xili@xili-ubuntu-vm:~/project$ tree -a
+.
+├── config
+├── dir1
+│   ├── file1
+│   └── file2
+├── dir2
+│   └── file3
+├── .project
+└── README
+
+2 directories, 6 files
+
+
+== check line numbers ==
+xili@xili-ubuntu-vm:~/project$ find . -type f -exec wc -l {}  \;
+50 ./dir1/file2
+21 ./dir1/file1
+15 ./config
+9 ./.project
+246 ./README
+11 ./dir2/file3
+
+xili@xili-ubuntu-vm:~/project$ find . -type f -exec wc -l {}  \; | cut -d' ' -f1 | paste -sd+ | bc
+352
+
+
+== check dir/file size ==
+xili@xili-ubuntu-vm:~/project$ du -ah .
+4.0K    ./dir1/file2
+4.0K    ./dir1/file1
+12K     ./dir1
+4.0K    ./config
+4.0K    ./.project
+12K     ./README
+4.0K    ./dir2/file3
+8.0K    ./dir2
+44K     .

@@ -1,0 +1,43 @@
+A Positive test result means that the substance or condition being tested for was found.
+Positive - 阳性的，肯定的
+e.g.
+测试怀孕
+TP：人怀孕了，验孕棒显示怀孕了
+TN：人没怀孕，验孕棒显示没怀孕
+FP：人没怀孕，验孕棒显示怀孕了
+FN：人怀孕了，验孕棒显示没怀孕
+Software Testing
+TP：software has a bug，test shows positive(fails)
+TN：software has no bug，test shows negative(passes)
+FP：software has no bug，test shows positive(fails)
+FN：software has a bug，test shows negative(passes)
+
+True Positive（真正, TP）被模型预测为正的正样本；可以称作判断为真的正确率
+
+True Negative（真负 , TN）被模型预测为负的负样本 ；可以称作判断为假的正确率
+
+False Positive（假正, FP）被模型预测为正的负样本；可以称作误报率
+
+False Negative（假负 , FN）被模型预测为负的正样本；可以称作漏报率
+
+True Positive Rate（真正率 , TPR）或灵敏度（sensitivity）  
+   TPR = TP /（TP + FN）  
+   正样本预测结果数 / 正样本实际数
+
+True Negative Rate（真负率 , TNR）或特指度（specificity）  
+   TNR = TN /（TN + FP）  
+   负样本预测结果数 / 负样本实际数
+
+False Positive Rate （假正率, FPR）  
+   FPR = FP /（FP + TN）  
+   被预测为正的负样本结果数 /负样本实际数
+
+False Negative Rate（假负率 , FNR）  
+   FNR = FN /（TP + FN）  
+   被预测为负的正样本结果数 / 正样本实际数
+
+
+Ref:
+https://en.wikipedia.org/wiki/Sensitivity_and_specificity
+https://en.wikipedia.org/wiki/Type_I_and_type_II_errors#Table_of_error_types
+http://www.cnblogs.com/gnuhpc/archive/2012/12/07/2807040.html

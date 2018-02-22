@@ -1,0 +1,40 @@
+Ref:
+https://askubuntu.com/questions/425767/i-cant-tell-which-dev-sda-file-is-my-external-hard-drive-to-install-xubuntu-on
+
+The disk names in Linux are alphabetical. /dev/sda is the first hard drive (the primary master), /dev/sdb is the second etc. The numbers refer to partitions, so /dev/sda1 is the first partition of the first drive.
+
+vagrant at xili-dev1(10.192.10.141) in ~/p4/tmos-dpi-infra/TrafficShield/autotest/tests/bin [0]
+🍺 sudo fdisk -l
+Disk /dev/sda: 64 GiB, 68719476736 bytes, 134217728 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x6af1d140
+
+Device     Boot     Start       End   Sectors  Size Id Type
+/dev/sda1  *         2048 133169151 133167104 63.5G 83 Linux
+/dev/sda2       133171198 134215679   1044482  510M  5 Extended
+/dev/sda5       133171200 134215679   1044480  510M 82 Linux swap / Solaris
+
+vagrant at xili-dev1(10.192.10.141) in ~/p4/tmos-dpi-infra/TrafficShield/autotest/tests/bin [0]
+🍺 lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+fd0      2:0    1    4K  0 disk
+sda      8:0    0   64G  0 disk
+├─sda1   8:1    0 63.5G  0 part /
+├─sda2   8:2    0    1K  0 part
+└─sda5   8:5    0  510M  0 part [SWAP]
+
+vagrant at xili-dev1(10.192.10.141) in ~/p4/tmos-dpi-infra/TrafficShield/autotest/tests/bin [0]
+🍺 sudo parted -l
+Model: VMware Virtual disk (scsi)
+Disk /dev/sda: 68.7GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags:
+
+Number  Start   End     Size    Type      File system     Flags
+ 1      1049kB  68.2GB  68.2GB  primary   ext4            boot
+ 2      68.2GB  68.7GB  535MB   extended
+ 5      68.2GB  68.7GB  535MB   logical   linux-swap(v1)

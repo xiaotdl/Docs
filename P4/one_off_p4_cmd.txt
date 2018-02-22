@@ -1,0 +1,1 @@
+P4PORT=p4proxy.example.com:port P4USER=user P4PASSWD=******************************** P4CLIENT=user-branch-vm p4 info

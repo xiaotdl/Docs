@@ -1,0 +1,8 @@
+startup_message off
+caption always "%{= Wk}%-w%{= Bw}%n %t%{-}%+w %-="
+
+
+screen -t "server" 1
+screen -t "logs" 2
+screen -t "ruby" 3
+screen -t "coffeescript" 4

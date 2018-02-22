@@ -1,0 +1,58 @@
+As this package does not have a binary component, but you may still follow these
+steps if you are upgrading it:
+
+    # Get the latest version
+    cd ~/perl.modules/
+    wget <Lastest version from metacpan: https://metacpan.org/pod/CPAN::Meta
+          say https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/CPAN-Meta-2.150005.tar.gz> --no-check-certificate
+
+    # Unpack it
+    tar xvzf CPAN-Meta-2.150005.tar.gz
+    rm CPAN-Meta-2.150005.tar.gz
+    cd CPAN-Meta-2.150005
+
+    # Compilation should happen inside ITE.  Skip if you are already in
+    # ITE.
+    schroot -c ite
+
+    export WS=<target Perforce workspace, say /home/user/p4/unified-bvt>
+    export PERL5LIB="$WS/agent/lib:$PERL5LIB"
+
+    # Compile and install in a local directory.
+    mkdir build
+    perl Makefile.PL INSTALL_Base="$( pwd )/build"
+    make
+    make install
+
+    # Copy over the old version.
+    cd build/lib/perl5
+
+    # Delete .packlist files
+    find . -iname .packlist -delete
+
+    # Delete .pod files
+    find . -iname '*.pod' -delete
+
+    # Edit files
+    find . -type f | ( cd $WS/agent/lib; p4 -x - edit )
+
+    cp -Rv CPAN/ $WS/agent/lib/
+
+    # Revert unmodified files.
+    find . -type f | ( cd $WS/agent/lib; p4 -x - revert -a )
+
+    # Add new files.
+    find . -type f | ( cd $WS/agent/lib; p4 -x - add )
+
+    # TODO check for removed files.
+
+Cleanup:
+
+    cd ../../../../..
+    rm -rf build
+    make distclean
+
+And maybe even remove the whole directory:
+
+    cd ..
+    rm -r CPAN-Meta-2.150005

@@ -1,0 +1,36 @@
+*Encodings*
+Ref - http://www.fmddlmyy.cn/text6.html
+1. Character => Byte
+	EBCDIC
+	ASCII
+	ISO-8859-1 (Latin 1)
+
+2. Character => Code Point => Byte
+	Unicode      |	utf-8, utf-16, utf-32 (small/big endian)
+	ucs-2, ucs-4 |	     
+
+3. Chinese character’s encoding
+	gb18030 > gbk > gb2312 > ISO-8859-1 (>= 2bytes)
+	unicode/utf-8 (>= 3bytes)
+
+
+*New Line*
+'\n':   Line Feed (LF)        0x0A=10     Unix and Unix-like systems (Linux, OS X, FreeBSD etc.)
+'\r':   Carriage Return (CR)  0x0D=13     Mac OS up to version 9 and OS-9
+'\r\n': CR+LF                 0x0D0A      Windows
+
+
+*Character Encoding Tricks for Vim*
+REF - http://spin.atomicobject.com/2011/06/21/character-encoding-tricks-for-vim/
+[optional] <required>
+:edit ++enc=<encoding> [filename]
+:write ++enc=<encoding> [filename]
+:set encoding[=<encoding>]		=> Specifies encoding that Vim used internally. Defaults to "latin1"/"utf-8".
+:set fileencoding[=<encoding>]          => Specifies encoding used for saving the file. Defaults to "".
+					   If differs from encoding, there is a conversion.
+					   If target fileencoding is not available, then "Conversion Error" and data loss.
+:as or keystroke: ga                    => Displays the code point of the selected char.
+keystroke: g8				=> Displays the hex value of the bytes used to represent the selected char.
+keystroke: 8g8				=> Identifies any invalid UTF-8 character sequences in the current file.
+xxd utility -> edit text files by hex value
+support Unicode byte-order mark (BOM)

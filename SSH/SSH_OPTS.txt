@@ -1,0 +1,14 @@
+SSH_OPTS = [
+    # Silence the warnings, in particular, numerous 'Permanenty added ...
+    # to the list of known hosts'.
+    '-q',
+    # Don't access user's known_hosts file.
+    '-o', 'UserKnownHostsFile=/dev/null',
+    # And do no host key checking.
+    '-o', 'StrictHostKeyChecking=no',
+    # Also no external key sources.
+    '-o', 'IdentitiesOnly=yes',
+    # This is disable by default, but as we do not need it, make sure it is
+    # not slowing us down.
+    '-o', 'ForwardX11=no'
+]

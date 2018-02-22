@@ -1,0 +1,77 @@
+Ref: http://www.cyberciti.biz/faq/bash-shell-change-the-color-of-my-shell-prompt-under-linux-or-unix/
+
+Task: Add colors to the prompt
+
+To add colors to the shell prompt use the following export command syntax:
+'\e[x;ym $PS1 \e[m'
+Where,
+
+\e[ : Start color scheme141.
+x;y : Color pair to use (x;y)
+$PS1 : Your shell prompt variable.
+\e[m : Stop color scheme.
+To set a red color prompt, type the following command:
+$ export PS1="\e[0;31m[\u@\h \W]\$ \e[m "
+
+CentOS e.g.:
+PS1="${debian_chroot:+($debian_chroot)}\e[01;32m\u@\h:\e[m\e[01;34m\w\e[m$"
+
+
+# .bashrc PS1 color snippet
+# Ref: http://stackoverflow.com/a/16715681/2989564
+PROMPT_COMMAND=__prompt_command # Func to gen PS1 after CMDs
+
+__prompt_command() {
+    local EXIT="$?"
+
+    local RST='\e[m'
+
+    local BLK='\e[01;30m'
+    local RED='\e[01;31m'
+    local GRN='\e[01;32m'
+    local YLW='\e[01;33m'
+    local BLU='\e[01;34m'
+    local PNK='\e[01;35m'
+    local RYN='\e[01;36m'
+    local WHT='\e[01;37m'
+
+    local STATUS_COLOR=$(if [[ $EXIT == 0 ]]; then
+               echo "${GRN}";
+           else
+               echo "${RED}";
+           fi)
+    local USER="${STATUS_COLOR}\u${RST}"
+    local AT="${WHT}at${RST}"
+    local HOST="${RYN}\h${RST}"
+    local IN="${WHT}in${RST}"
+    local CWD="${BLU}\w${RST}"
+    local EXIT_CODE="${STATUS_COLOR}$EXIT${RST}"
+    local CHROOT="${WHT}${debian_chroot:+($debian_chroot)}${RST}"
+    local NOW="${YLW}$(date +"%a %b %H:%M %Y %Z")${RST}"
+    local UNAME=`uname`
+    local MGMT_IP=$(if [[ $UNAME == "Linux" ]]; then
+               echo "${RYN}$(/sbin/ip route get 8.8.8.8 \
+                                | grep 8.8.8.8 \
+                                | sed "s/.*src \([0-9.]*\).*/\1/")${RST}"
+           elif [[ $UNAME == "Darwin" ]]; then
+               echo "${RYN}$(ifconfig $(route get 8.8.8.8 \
+                                | grep interface \
+                                | sed "s/[^:]*: \(.*\)/\1/") \
+                                | grep inet \
+                                | grep -v inet6 \
+                                | sed "s/.*inet \([0-9.]*\) .*/\1/")${RST}"
+           else
+               echo "n/a"
+           fi)
+
+    PS1="$CHROOT$USER $AT $HOST($MGMT_IP) $IN $CWD [$EXIT_CODE]\n"
+    PS1+="🍺 "
+}
+
+e.g.
+vagrant at xili-dev1 in ~/p4/tmos-tier2/TrafficShield/autotest/tests/bin [0]
+🍺 $(exit 0)
+vagrant at xili-dev1 in ~/p4/tmos-tier2/TrafficShield/autotest/tests/bin [0]
+🍺 $(exit 5)
+vagrant at xili-dev1 in ~/p4/tmos-tier2/TrafficShield/autotest/tests/bin [5]
+🍺

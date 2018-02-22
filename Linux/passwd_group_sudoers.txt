@@ -1,0 +1,111 @@
+/etc/passwd => saves all users
+/etc/group => saves all groups, as well as group members (users)
+
+$ cat /etc/passwd | head -n 1
+root:x:0:0:root:/root:/bin/bash
+
+Column Description ==> 
+root: User Name
+x: Encrypted password stored in /etc/shadow>
+0: User ID (UID)
+0: Group ID (GID), primary group id, stored in /etc/group
+/root: Home directory of the user
+/bin/bash: The shell used for executing commands
+<==
+
+$ cat /etc/group | head -n 1
+root:x:0:
+
+Column Description ==> 
+root: Group Name
+:x:: Encrypted password. Not really used with groups.
+0: Group ID(GID)
+:: Users of this group are listed here
+<==
+
+== Add a user ==
+$ useradd <user>
+Options:
+  -G, --groups: add into group
+  -m, --create-home: create the user's home dir
+  -d, --home-dir HOME_DIR: home dir of the new account
+arbell@fs2:~$ sudo useradd -G sudo -m -d /home/xili -s /bin/bash xili
+arbell@fs2:~$ sudo passwd
+<xili>
+
+== Logon as a user (Switching User) ==
+$ su - <user>
+$ exit
+
+== Delete a user ==
+$ userdel <user>
+
+== Change password for a user ==
+root$ passwd <user>
+<user>$ passwd
+
+== Add users to groups ==
+Recreate user's group:
+$ useradd -G <group> <user>
+Append to user's group:
+$ useradd -A <group> <user>
+To verify:
+$ grep <user> /etc/passwd
+$ grep <group> /etc/group
+Print real effective UID and GID
+$ id xili
+uid=1000(xili) gid=1000(xili) groups=1000(xili)
+
+
+== Create Groups ==
+$ groupadd <group>
+To verify:
+$ grep <group> /etc/group
+
+== Delete Groups ==
+$ groupdel <group>
+
+
+/etc/sudoers => save user previleges
+
+$ cat /etc/sudoers
+Defaults    env_reset
+Defaults    mail_badpass
+Defaults    secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+vagrant ALL=(ALL) NOPASSWD: ALL
+
+# Members of the admin group may gain root privileges
+%admin ALL=(ALL) ALL
+
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+
+#includedir /etc/sudoers.d
+----------------------------------
+
+== Edit /etc/sudoers ==
+Open with `sudo visudo` in case of syntax error
+
+$ sudo update-alternatives --config editor
+select vim as default editor
+
+== User Privilege Lines ==
+$ grep root /etc/sudoers
+root ALL=(ALL:ALL) ALL
+     1st  2nd 3rd  4th
+
+Column Description ==>
+root: indicates the username that this rule applies to
+1st ALL: indicates this rule applies to all hosts
+2nd ALL: indicates 'root' user can run cmds as all users
+3rd ALL: indicates 'root' user can run cmds as all groups
+4th ALL: indicates these rules applies to all cmds
+<==
+
+
+== Group Privilege Lines ==
+%sudo   ALL=(ALL:ALL) ALL
+

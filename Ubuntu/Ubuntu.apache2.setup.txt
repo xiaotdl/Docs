@@ -1,0 +1,35 @@
+Ref:
+https://help.ubuntu.com/community/ApacheMySQLPHP
+https://www.youtube.com/watch?v=Vw0Bshaw2n0
+
+
+# installation
+sudo apt-get install apache2
+
+# configuration
+cd /etc/apache2/mods-enabled
+sudo ln -s ../mods-available/userdir.conf userdir.conf
+sudo ln -s ../mods-available/userdir.load userdir.load
+sudo /etc/init.d/apache2 restart
+
+# create an example page
+vagrant@vagrant:~$ mkdir -p ~/public_html
+vagrant@vagrant:~$ sudo sh -c 'cat <<EOF >> ~/public_html/example.html
+Whats up:)
+EOF'
+
+
+Then check:
+http://10.192.10.209/~user/
+
+# uninstallation
+sudo apt-get --purge remove apache2
+
+# install and enable php in apache2
+https://help.ubuntu.com/lts/serverguide/php.html
+
+== latest ==
+Ref: http://www.techytalk.info/enable-userdir-apache-module-ubuntu-debian-based-linux-distributions/
+$ sudo a2enmod userdir
+$ sudo service apache2 restart
+$ mkdir /home/$USER/public_html

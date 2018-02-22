@@ -1,0 +1,164 @@
+## ps_mem.py ##
+Download ps_mem.py from https://github.com/pixelb/ps_mem.
+
+$ while true; do
+	date >> ps_mem.out;
+	sudo python ps_mem.py >> ps_mem.out;
+	sleep 1;
+done
+
+one-liner:
+$ while true; do date >> ps_mem.out; sudo python ps_mem.py >> ps_mem.out; sleep 60; done
+
+Sample output:
+$ sudo python ps_mem.py
+ Private  +   Shared  =  RAM used       Program
+
+  4.0 KiB +  30.0 KiB =  34.0 KiB       agetty
+  4.0 KiB +  53.0 KiB =  57.0 KiB       systemd-udevd
+  4.0 KiB +  56.0 KiB =  60.0 KiB       rpc.mountd
+  4.0 KiB +  60.0 KiB =  64.0 KiB       rpc.statd
+  8.0 KiB +  59.0 KiB =  67.0 KiB       rpc.idmapd
+ 72.0 KiB +  62.0 KiB = 134.0 KiB       rpcbind
+104.0 KiB +  51.0 KiB = 155.0 KiB       cron
+ 20.0 KiB + 286.5 KiB = 306.5 KiB       (sd-pam)
+364.0 KiB +  83.0 KiB = 447.0 KiB       ntpd
+368.0 KiB + 118.0 KiB = 486.0 KiB       sendmail-mta
+464.0 KiB +  60.0 KiB = 524.0 KiB       systemd-logind
+592.0 KiB +  58.0 KiB = 650.0 KiB       dbus-daemon
+  1.0 MiB +  48.0 KiB =   1.0 MiB       systemd-journald
+828.0 KiB + 469.5 KiB =   1.3 MiB       ssh
+  1.1 MiB + 232.0 KiB =   1.3 MiB       sudo
+936.0 KiB + 455.0 KiB =   1.4 MiB       schroot (2)
+  1.7 MiB + 246.5 KiB =   2.0 MiB       accounts-daemon
+  1.7 MiB +   1.0 MiB =   2.7 MiB       systemd (2)
+  1.1 MiB +   2.2 MiB =   3.3 MiB       sshd (3)
+  4.2 MiB + 265.0 KiB =   4.5 MiB       vmtoolsd
+  6.5 MiB +   2.7 MiB =   9.2 MiB       apache2 (3)
+  9.3 MiB +  81.5 KiB =   9.4 MiB       rsyslogd
+ 17.7 MiB +   2.9 MiB =  20.5 MiB       vim.basic (2)
+ 23.3 MiB + 684.0 KiB =  24.0 MiB       tmux (2)
+ 23.4 MiB +   4.2 MiB =  27.6 MiB       bash (15)
+---------------------------------
+                        111.1 MiB
+=================================
+
+
+## top ##
+# -b :Batch-mode
+# -c :Command-line/Program-name toggle
+# -n :Number-of-iterations limit as:  -n number
+
+# COLUMNS=9999 is needed, otherwise top output will be truncated after column 80
+# ref: http://unix.stackexchange.com/questions/95877/output-of-top-gets-truncated-to-80-columns-when-run-by-cron
+
+$ while true; do
+	date >> top.out;
+	COLUMNS=9999 top -b -c -n 1 | sed 's/ *$//'>> top.out;
+	sleep 1;
+done
+
+one-liner:
+$ while true; do date >> top.out; COLUMNS=9999 top -b -c -n 1 | sed 's/ *$//'>> top.out; sleep 60; done
+
+Sample output:
+$ top -b -c -n 1
+top - 22:57:24 up 35 days, 23:08,  1 user,  load average: 0.01, 0.04, 0.05
+Tasks: 111 total,   1 running, 110 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  2.2 us,  0.7 sy,  0.0 ni, 96.9 id,  0.1 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem:   1016928 total,   738516 used,   278412 free,   134968 buffers
+KiB Swap:   522236 total,    23848 used,   498388 free.   347348 cached Mem
+
+  PID USER      PR  NI    VIRT    RES    SHR S %CPU %MEM     TIME+ COMMAND
+    1 root      20   0   35084   3276   2036 S  0.0  0.3   1:01.01 /sbin/init splash
+    2 root      20   0       0      0      0 S  0.0  0.0   0:00.05 [kthreadd]
+    3 root      20   0       0      0      0 S  0.0  0.0   0:17.33 [ksoftirqd/0]
+    5 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 [kworker/0:0H]
+    7 root      20   0       0      0      0 S  0.0  0.0   4:20.59 [rcu_sched]
+    8 root      20   0       0      0      0 S  0.0  0.0   0:00.00 [rcu_bh]
+    9 root      20   0       0      0      0 S  0.0  0.0   3:56.98 [rcuos/0]
+   10 root      20   0       0      0      0 S  0.0  0.0   0:00.00 [rcuob/0]
+   11 root      rt   0       0      0      0 S  0.0  0.0   0:00.00 [migration/0]
+   12 root      rt   0       0      0      0 S  0.0  0.0   0:24.06 [watchdog/0]
+   13 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 [khelper]
+   14 root      20   0       0      0      0 S  0.0  0.0   0:00.00 [kdevtmpfs]
+   15 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 [netns]
+   16 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 [perf]
+…
+
+
+## ps ##
+# -a show all processes associated with terminals
+# -x show processes that have no controlling terminal, such as daemons
+# -o format
+## sort ##
+# -r reverse
+# -b ignore leading blanks
+# -V --version-sort, natural sort of (version) numbers within text
+
+$ while true; do
+	date >> ps.out;
+	ps axo %mem,%cpu,user,bsdtime,args | sort -rb -V | head -n 15 >> ps.out;
+	sleep 1;
+done
+
+one-liner:
+$ while true; do date >> ps.out; ps axo %mem,%cpu,user,bsdtime,args | sort -rb -V | head -n 15 >> ps.out; sleep 60; done
+
+Sample output:
+$ ps axo %mem,%cpu,user,bsdtime,args | sort -rb -V | head -n 15
+%MEM %CPU USER       TIME COMMAND
+ 2.4  0.2 vagrant   96:26 tmux
+ 1.1  0.0 vagrant    0:02 vim ../html/eg/test.html
+ 0.9  0.0 syslog     0:05 /usr/sbin/rsyslogd -n
+ 0.6  0.0 www-data   0:27 /usr/sbin/apache2 -k start
+ 0.6  0.0 www-data   0:27 /usr/sbin/apache2 -k start
+ 0.5  0.1 root      73:06 /usr/sbin/vmtoolsd
+ 0.5  0.0 vagrant    0:01 -bash
+ 0.5  0.0 vagrant    0:00 -bash
+ 0.5  0.0 vagrant    0:00 -bash
+ 0.5  0.0 vagrant    0:00 -bash
+ 0.5  0.0 vagrant    0:00 -bash
+ 0.5  0.0 vagrant    0:00 -bash
+ 0.5  0.0 vagrant    0:00 -bash
+
+
+# == get current CPU usage ==
+# Cpu(s):  3.2%us,  2.0%sy,  2.1%ni, 92.6%id,  0.1%wa,  0.0%hi,  0.0%si,  0.0%st
+$ top -b -c -n 1 | grep '^Cpu' | awk '{ split($5, arr, "%"); printf "%.2f%%", 100 - arr[1]; }'
+92.6%
+
+# == get current Memory usage ==
+# (http://unix.stackexchange.com/questions/152299/how-to-get-memory-usedram-used-using-linux-command)
+# virtual memory usage:
+# Mem:       4139540    3286132     853408      43896     303064    2198644
+$ free | grep Mem | awk '{printf "%.2f%%", $3/$2 * 100.0}'
+79.38%
+# actual memory(rss) usage:
+# -/+ buffers/cache:    6756788    1442748
+$ free | grep buffers/cache | awk '{printf "%.2f", $3/($3+$4)*100.0}'
+82.40%
+
+$ ps axo pid,user,%mem,rss,vsz,%cpu,bsdtime,args | sort -n -k 3 -r | head -n 5 | awk 'BEGIN {printf("%5s | %10s | %7s | %7s | %7s | %7s |%15s| %5s\n", "pid", "user", "mem", "rss(GB)", "vsz(GB)", "cpu", "bsdtime(MMM:SS)", "args"); printf("%5s-+-%10s-+-%7s-+-%7s-+-%7s-+-%7s-+%15s+-%5s\n", "-----", "----------", "-------", "-------","-------", "-------", "---------------", "-----");}{args=""; for(i=8;i<=NF;i++){args=args" "$i}; $4=$4/1024/1024;$5=$5/1024/1024; printf("%5s | %10s |%9.2f|%9.2f|%9.2f|%9.2f|%15.2f| %5s\n", $1, $2, $3, $4, $5, $6, $7, args);}'
+
+>>>
+  pid |       user |     mem | rss(GB) | vsz(GB) |     cpu |bsdtime(MMM:SS)|  args
+------+------------+---------+---------+---------+---------+---------------+------
+ 5086 |       root |     2.10|     0.17|     0.27|     1.00|           3.00|  /usr/lib/jvm/jre/bin/java ...
+10056 |     tomcat |     2.00|     0.16|     0.26|     0.20|           1.00|  /usr/lib/jvm/jre/bin/java ...
+10879 |       root |     1.60|     0.13|     0.35|    18.30|         133.00|  tmm.0 -T 4 --tmid 0 --npus 4 --platform Z100 -m -s 3722
+ 6127 |       root |     1.40|     0.11|     0.14|     1.00|           7.00|  /usr/bin/mcpd -dbmem 512 -listen 127.0.0.1 -f
+11597 |       root |     1.40|     0.11|     0.72|     0.60|           4.00|  ./bd num_rw_threads 4 ...
+
+# == get current Disk usage ==
+#                         293533    209835     68543  76% /
+$ df / | awk '$NF == "/" { split($(NF-1), arr, "%"); printf "%.2f%%", arr[1]; }'
+76%
+
+
+## mpstat ##
+$ mpstat | awk '$3 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i  }  } $3 ~ /all/ { print 100 - $field }'
+7.38
+# round off as an integer
+$ mpstat | awk '$3 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i  }  } $3 ~ /all/ { printf("%d%%", 100 - $field) }'
+7%

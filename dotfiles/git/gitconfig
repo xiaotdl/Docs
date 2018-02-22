@@ -1,0 +1,7 @@
+# Ref:
+# https://stackoverflow.com/a/28102209
+
+[diff]
+    tool = vimdiff
+[difftool]
+    prompt = false
