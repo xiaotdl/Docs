@@ -1,1 +1,1 @@
-find / -xdev -type f -size +100M -exec du -sh {} ';' | sort -rh | head -n50
+find / -xdev -type f -size +100M -exec du -sh {} \; 2> /dev/null | sort -hr | head -100
