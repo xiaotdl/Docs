@@ -68,7 +68,8 @@ $ groupdel <group>
 
 /etc/sudoers => save user previleges
 
-$ cat /etc/sudoers
+$ sudo update-alternatives --config editor
+$ sudo visudo
 Defaults    env_reset
 Defaults    mail_badpass
 Defaults    secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
