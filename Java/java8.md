@@ -15,3 +15,11 @@ https://www.jetbrains.com/help/idea/defining-a-jdk-and-a-mobile-sdk-in-intellij-
 
 ## define language level to allow diamonds
 https://stackoverflow.com/questions/44005097/java-diamond-types-are-not-supported-at-this-language-level
+
+## (optional) Error: Unable to parse template "Class" Error message: This template did not produce a Java class or an interface - during New -> Java Class
+https://intellij-support.jetbrains.com/hc/en-us/community/posts/206922365-Unable-to-parse-template-Class-Error-message-This-template-did-not-produce-a-Java-class-or-an-interface-during-New-Java-Class
+
+Edit /Applications/IntelliJ IDEA 14 CE.app/Contents/bin/idea.vmoptions
+
+Add to your idea.vmoptions or idea64.vmoptions following line:
+-Djdk.util.zip.ensureTrailingSlash=false
