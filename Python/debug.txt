@@ -13,6 +13,9 @@ import ipdb; ipdb.set_trace() # PYTHON BREAKPOINT
 == Useful debug commands ==
 h(elp) [command]
 
+l(ist) [first [,last]] - print lines
+ll - print lines from current stack frame
+
 w(here) - stack trace
 d(own) - move down in stack trace
 u(p) - move up in stack trace
