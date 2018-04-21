@@ -56,8 +56,13 @@ source /usr/local/bin/virtualenvwrapper.sh
 """
 
 1. Create a virtual environment:
+For python2:
 """
 mkvirtualenv my_project
+"""
+For python3:
+"""
+mkvirtualenv --python=python3.5 my_project
 """
 This creates the my_project folder inside ~/.virtualenvs
 
