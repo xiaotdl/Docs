@@ -4,10 +4,8 @@ http://docs.python-guide.org/en/latest/dev/virtualenvs/
 ## pip
 Install:
 """
-sudo apt-get install python-pip python-dev build-essential
-sudo pip install --upgrade pip
-sudo pip install --upgrade virtualenv
-sudo pip install --upgrade virtualenvwrapper
+sudo apt-get install -y python-pip python-dev build-essential
+sudo pip install --upgrade pip virtualenv virtualenvwrapper
 """
 
 To “freeze” the current state of the environment packages.
