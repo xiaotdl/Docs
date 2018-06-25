@@ -1,3 +1,6 @@
+Ref:
+https://www.cyberciti.biz/faq/unix-linux-check-if-port-is-in-use-command/
+
 fit@apiserver-prod:~/git/api-service$ sudo netstat -tulpn | grep LISTEN
 tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1111/sshd
 tcp        0      0 0.0.0.0:46394           0.0.0.0:*               LISTEN      -
