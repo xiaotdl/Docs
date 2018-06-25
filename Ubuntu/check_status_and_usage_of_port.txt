@@ -1,0 +1,32 @@
+fit@apiserver-prod:~/git/api-service$ sudo netstat -tulpn | grep LISTEN
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1111/sshd
+tcp        0      0 0.0.0.0:46394           0.0.0.0:*               LISTEN      -
+tcp        0      0 0.0.0.0:43647           0.0.0.0:*               LISTEN      1352/rpc.statd
+tcp        0      0 0.0.0.0:2049            0.0.0.0:*               LISTEN      -
+tcp        0      0 0.0.0.0:45730           0.0.0.0:*               LISTEN      1276/rpc.mountd
+tcp        0      0 0.0.0.0:5000            0.0.0.0:*               LISTEN      11588/python
+tcp        0      0 0.0.0.0:25672           0.0.0.0:*               LISTEN      1553/beam
+tcp        0      0 0.0.0.0:39880           0.0.0.0:*               LISTEN      1276/rpc.mountd
+tcp        0      0 0.0.0.0:3306            0.0.0.0:*               LISTEN      23453/mysqld
+tcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN      4148/redis-server *
+tcp        0      0 0.0.0.0:53647           0.0.0.0:*               LISTEN      1276/rpc.mountd
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      1167/rpcbind
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      24410/nginx -g daem
+tcp        0      0 0.0.0.0:4369            0.0.0.0:*               LISTEN      1290/epmd
+tcp6       0      0 :::22                   :::*                    LISTEN      1111/sshd
+tcp6       0      0 :::2049                 :::*                    LISTEN      -
+tcp6       0      0 :::60898                :::*                    LISTEN      1276/rpc.mountd
+tcp6       0      0 :::37444                :::*                    LISTEN      1276/rpc.mountd
+tcp6       0      0 :::5672                 :::*                    LISTEN      1553/beam
+tcp6       0      0 :::48777                :::*                    LISTEN      1276/rpc.mountd
+tcp6       0      0 :::6379                 :::*                    LISTEN      4148/redis-server *
+tcp6       0      0 :::45131                :::*                    LISTEN      -
+tcp6       0      0 :::111                  :::*                    LISTEN      1167/rpcbind
+tcp6       0      0 :::80                   :::*                    LISTEN      24410/nginx -g daem
+tcp6       0      0 :::43600                :::*                    LISTEN      1352/rpc.statd
+tcp6       0      0 :::4369                 :::*                    LISTEN      1290/epmd
+
+
+fit@apiserver-prod:~/git/api-service$ lsof -i -P -n | grep 3306
+celery     9262  fit    4u  IPv4 5082640      0t0  TCP 10.192.10.198:54566->10.192.10.198:3306 (ESTABLISHED)
+python    24917  fit    9u  IPv4 5082395      0t0  TCP 10.192.10.198:54560->10.192.10.198:3306 (ESTABLISHED)
