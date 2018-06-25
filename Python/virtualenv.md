@@ -3,58 +3,90 @@ http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 ## pip
 Install:
-$ sudo apt-get install python-pip python-dev build-essential
-$ sudo pip install --upgrade pip
-$ sudo pip install --upgrade virtualenv
-$ sudo pip install --upgrade virtualenvwrapper
+"""
+sudo apt-get install -y python-pip python-dev build-essential
+sudo pip install --upgrade pip virtualenv virtualenvwrapper
+"""
 
 To “freeze” the current state of the environment packages.
-$ pip freeze > requirements.txt
+"""
+pip freeze > requirements.txt
+"""
 To install the same packages using the same versions:
-$ pip install -r requirements.txt
+"""
+pip install -r requirements.txt
+"""
 
 
 ## virtualenv
 1. Create a virtual environment for a project:
-$ cd my_project_folder
-$ virtualenv my_project
-(alternatively) $ virtualenv -p /usr/bin/python2.7 my_project
+"""
+cd my_project_folder
+virtualenv my_project
+"""
+(alternatively)
+"""
+virtualenv -p /usr/bin/python2.7 my_project
+"""
 
 2. To begin using the virtual environment, it needs to be activated:
-$ source my_project/bin/activate
+"""
+source my_project/bin/activate
+"""
 
 3. If you are done working in the virtual environment for the moment, you can deactivate it:
-$ deactivate
+"""
+deactivate
+"""
 
 4. To delete a virtual environment, just delete its folder.
-$ rm -rf my_project
+"""
+rm -rf my_project
+"""
 
 
 ## virtualenvwrapper
-$ mkdir $HOME/.virtualenvs
+"""
+mkdir $HOME/.virtualenvs
 // put following lines in .bashrc
-$ export WORKON_HOME=$HOME/.virtualenvs
-$ source /usr/local/bin/virtualenvwrapper.sh
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
+"""
 
 1. Create a virtual environment:
-$ mkvirtualenv my_project
+For python2:
+"""
+mkvirtualenv my_project
+"""
+For python3:
+"""
+mkvirtualenv --python=python3.5 my_project
+"""
 This creates the my_project folder inside ~/.virtualenvs
 
 2. Work on a virtual environment:
-$ workon my_project
-$ cdvirtualenv
+"""
+workon my_project
+cdvirtualenv
+"""
 
 3. Deactivating is still the same:
-$ deactivate
+"""
+deactivate
+"""
 
 4. To delete:
-$ rmvirtualenv venv
+"""
+rmvirtualenv venv
+"""
 
 Other commands:
-$ lsvirtualenv
-$ cdvirtualenv
-$ lssitepackages
-$ cdsitepackages
+"""
+lsvirtualenv
+cdvirtualenv
+lssitepackages
+cdsitepackages
+"""
 
 doc from virtualenvwrapper.sh:
 # Setup:
