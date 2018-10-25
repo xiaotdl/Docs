@@ -129,7 +129,8 @@ $ top -b -c -n 1 | grep '^Cpu' | awk '{ split($5, arr, "%"); printf "%.2f%%", 10
 92.6%
 
 # == get current Memory usage ==
-# (http://unix.stackexchange.com/questions/152299/how-to-get-memory-usedram-used-using-linux-command)
+# ref: http://unix.stackexchange.com/questions/152299/how-to-get-memory-usedram-used-using-linux-command
+# ref: https://unix.stackexchange.com/a/152302
 # virtual memory usage:
 # Mem:       4139540    3286132     853408      43896     303064    2198644
 $ free | grep Mem | awk '{printf "%.2f%%", $3/$2 * 100.0}'
