@@ -1,0 +1,81 @@
+Ref:
+GDB cheatsheet: https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
+
+e.g.
+$ buck build @mode/dev admarket/adindexer/test:index_query_test --show-output
+>>> //admarket/adindexer/test:index_query_test buck-out/gen/admarket/adindexer/test/index_query_test
+
+$ gdb buck-out/gen/admarket/adindexer/test/index_query_test
+
+
+== Useful debug commands ==
+h(elp) - list of classes of commands 
+  e.g. help bt
+
+q(uit) - exit gdb
+
+
+r(un) - execute the program
+  e.g. r --gtest_filter=UsersRichQueryRewritingTest.PhoneticAndSegments2
+b(reak) <line-number> - set a breakpoint
+  e.g. add breakpoint to file using relpath or abspath, (gdb)$ b fib.cpp:34
+  e.g. add breakpoint to function, b fibbonacci::operator()
+
+
+n(ext) <repitition> - step over, execute next statement
+s(tep) <repitition> - step into, execute into statement
+fin(ish) - step out, run until exit from a function
+c(ontinue) - continue execution
+
+
+l(ist) - display lines around the last line
+set listsize <count> - change how many lines will be printed
+l(ist) <start-line>
+l(ist) <start-line>,<end-line>
+
+
+p(rint) <var | expr> - inspect the value of a variable or expression
+disp(lay) <var> - print the value of a variable at every step
+wha(tis) <var | expr> - inspect the type of a variable or expression
+
+
+set var <var> = <expr> - set the value of a variable
+
+
+bt, backtrack <n innermost frames> - dump the backtrace of the stack frames
+  To print a backtrace including local variables, use `backtrace full`
+
+
+f(rame) - dump (current) stack frame
+i(nfo) f(rame) <framespec> - dump verbose (current) stack fram
+i(nfo) ar(gs) - dump the arguments of current frame
+i(nfo) lo(cals) - dump the local variables of current frame
+
+
+# manageing breakpoints
+i(nfo) b(reakpoints) - list existing breakpoints
+dis(able) breakpoints <i> - disable a breakpoint
+en(able) breakpoints <i> - enable a breakpoint
+d(elete) breakpoints <i> - delete a breakpoint
+
+
+# managing auto-displays
+i(nfo) di(splay) - list existing displays
+dis(able) display <i> - disable a display
+en(able) display <i> - enable a display
+d(elete) display <i> - delete a display
+
+
+at(tach) <pid> - attach to a running process
+k(ill) process - stop debugging and kill the debuggee process
+
+
+$ gdb --args /tmp/bin arg1 arg2
+or
+(gdb)$ run arg1 arg2
+
+
+Ref: https://our.internmc.facebook.com/intern/wiki/Dex/gdb/
+# catch throws
+# debugging multiple threads..
+# debugging deadlocks
