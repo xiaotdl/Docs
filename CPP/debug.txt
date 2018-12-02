@@ -2,7 +2,7 @@ Ref:
 GDB cheatsheet: https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
 
 e.g.
-$ buck build @mode/dev admarket/adindexer/test:index_query_test --show-output
+$ buck build @mode/opt admarket/adindexer/test:index_query_test --show-output
 >>> //admarket/adindexer/test:index_query_test buck-out/gen/admarket/adindexer/test/index_query_test
 
 $ gdb buck-out/gen/admarket/adindexer/test/index_query_test
