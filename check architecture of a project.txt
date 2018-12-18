@@ -1,12 +1,12 @@
 == check all dirs/files ==
-xili@xili-ubuntu-vm:~/project$ tree -d [-L level]
+$ tree -d [-L level]
 .
 ├── dir1
 └── dir2
 
 2 directories
 
-xili@xili-ubuntu-vm:~/project$ tree -a
+$ tree -a
 .
 ├── config
 ├── dir1
@@ -21,7 +21,7 @@ xili@xili-ubuntu-vm:~/project$ tree -a
 
 
 == check line numbers ==
-xili@xili-ubuntu-vm:~/project$ find . -type f -exec wc -l {}  \;
+$ find . -type f -exec wc -l {}  \;
 50 ./dir1/file2
 21 ./dir1/file1
 15 ./config
@@ -34,7 +34,7 @@ xili@xili-ubuntu-vm:~/project$ find . -type f -exec wc -l {}  \; | cut -d' ' -f1
 
 
 == check dir/file size ==
-xili@xili-ubuntu-vm:~/project$ du -ah .
+$ du -ah .
 4.0K    ./dir1/file2
 4.0K    ./dir1/file1
 12K     ./dir1
@@ -44,3 +44,9 @@ xili@xili-ubuntu-vm:~/project$ du -ah .
 4.0K    ./dir2/file3
 8.0K    ./dir2
 44K     .
+
+# show hidden files as well
+$ du -hs .[!.]* * | sort -h
+4.0K    codecov.yml
+4.0K    .coveragerc
+
