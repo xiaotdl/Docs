@@ -47,6 +47,6 @@ $ du -ah .
 
 # show hidden files as well
 $ du -hs .[!.]* * | sort -h
-4.0K    codecov.yml
-4.0K    .coveragerc
+4.0K    file.txt
+4.0K    .hidden_file
 
