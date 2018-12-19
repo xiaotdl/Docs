@@ -45,5 +45,9 @@ http://www.cnblogs.com/gnuhpc/archive/2012/12/07/2807040.html
 
 ----
 Precision and Recall
+
 Precision: In information retrieval, precision is the fraction of retrieved documents that are relevant to the query.
 Recall: In information retrieval, recall is the fraction of the relevant documents that are successfully retrieved.
+
+Ref:
+https://en.wikipedia.org/wiki/Precision_and_recall
