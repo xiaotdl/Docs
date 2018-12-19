@@ -41,3 +41,9 @@ Ref:
 https://en.wikipedia.org/wiki/Sensitivity_and_specificity
 https://en.wikipedia.org/wiki/Type_I_and_type_II_errors#Table_of_error_types
 http://www.cnblogs.com/gnuhpc/archive/2012/12/07/2807040.html
+
+
+----
+Precision and Recall
+Precision: In information retrieval, precision is the fraction of retrieved documents that are relevant to the query.
+Recall: In information retrieval, recall is the fraction of the relevant documents that are successfully retrieved.
