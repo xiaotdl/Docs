@@ -14,7 +14,7 @@ h(elp) - list of classes of commands
 
 q(uit) - exit gdb
 
-
+start - execute the program and stop at main
 r(un) - execute the program
   e.g. r --gtest_filter=UsersRichQueryRewritingTest.PhoneticAndSegments2
 b(reak) <line-number> - set a breakpoint
