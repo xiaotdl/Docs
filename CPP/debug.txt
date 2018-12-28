@@ -75,11 +75,22 @@ or
 (gdb)$ run arg1 arg2
 
 
+--------------------------------------------------------------------------------
+Ref:
+CppCon 2015: Greg Law " Give me 15 minutes & I'll change your view of GDB"
+https://www.youtube.com/watch?v=PorfLSr3DDI
+
+Ctrl-x a - enter/exit interactive mode
+
+
+--------------------------------------------------------------------------------
 Ref: https://our.internmc.facebook.com/intern/wiki/Dex/gdb/
 # catch throws
 # debugging multiple threads..
 # debugging deadlocks
 
+
+--------------------------------------------------------------------------------
 Ref: http://www.yolinux.com/TUTORIALS/GDB-Commands.html
 Prerequisite: Download .gdbinit to use the following macros:
 Data type	GDB command
