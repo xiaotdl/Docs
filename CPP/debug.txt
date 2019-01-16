@@ -44,6 +44,13 @@ set var <var> = <expr> - set the value of a variable
 
 bt, backtrack <n innermost frames> - dump the backtrace of the stack frames
   To print a backtrace including local variables, use `backtrace full`
+(gdb) help bt
+Print backtrace of all stack frames, or innermost COUNT frames.
+Usage: backtrace [QUALIFIERS]... [COUNT]
+With a negative argument, print outermost -COUNT frames.
+Use of the 'full' qualifier also prints the values of the local variables.
+Use of the 'no-filters' qualifier prohibits frame filters from executing
+on this backtrace.
 
 
 f(rame) - dump (current) stack frame
