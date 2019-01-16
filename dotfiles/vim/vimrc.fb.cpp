@@ -25,6 +25,9 @@ Plugin 'ntpeters/vim-better-whitespace'
 " [view][file] show parentheses in diff color
 Plugin 'luochen1990/rainbow'
 
+" [view][file] show the indention levels with thin vertical lines
+" Plugin 'thaerkh/vim-indentguides' " XXX: distracting
+
 " [view][file][linter] asynchronous linting/fixing for Vim
 Plugin 'w0rp/ale' " XXX: not working
 
@@ -50,7 +53,7 @@ Plugin 'jlanzarotta/bufexplorer'
 Plugin 'majutsushi/tagbar'
 
 " [navigation] toggle between .h and .cpp
-Plugin 'alxyang/a.vim'
+Plugin 'micbou/a.vim'
 
 " " [navigation] fuzzy search files and buffers
 " Plugin 'wincent/command-t'  " XXX: cannot compile
@@ -63,7 +66,7 @@ Plugin 'ctrlpvim/ctrlp.vim'
 "   install vim8
 "   $ sudo yum install gcc-c++ cmake python-devel
 "   $ cd ~/.vim/bundle/youcompleteme && python ./install.py
-Plugin 'valloric/youcompleteme'
+" Plugin 'valloric/youcompleteme'
 
 " [edit][auto-complete] Insert or delete brackets, parens, quotes in pair.
 Plugin 'jiangmiao/auto-pairs'
@@ -87,16 +90,17 @@ filetype plugin indent on    " required
 
 " ==============================================================================
 " UI Layout {{{
-" set colorcolumn=100     " display vertical line
+set colorcolumn=80      " display vertical line
 set number              " show line numbers
-set cursorline          " highlight/underscore current line
+set cursorline          " highlight/underscore  cursorline
 set wildmenu            " visual autocomplete for command menu, e.g. run :e ~/.vim<TAB>?
 set wildmode=list:longest,full
 set lazyredraw          " redraw only when we need to
 set showmatch           " highlight matching [{()}]
 set matchtime=15        " defaults to 5
 set laststatus=2        " make statusline always visible
-" set fillchars+=stl:\ ,stlnc:\
+" fill the statuslines and vertical separators with 'char'
+set fillchars+=stl:\ ,stlnc:\
 " set ruler               " show line, column, relative position
 " highlight StatusLine ctermbg=White ctermfg=DarkRed
 " highlight StatusLineNC ctermbg=White ctermfg=Black
@@ -105,13 +109,17 @@ set laststatus=2        " make statusline always visible
 " ==============================================================================
 " Searching {{{
 set ignorecase          " ignore case when searching
-set smartcase
+set smartcase           " override "ignorecase" if search with upper case
 set incsearch           " search as characters are entered
 set hlsearch            " highlight matches
+set redrawtime=1000     " time in milliseconds for redarwing display for hlsearch
 set nowrapscan          " disable search wrap around the eof
 
-" * highlight search no jump forward, ref: https://stackoverflow.com/a/49944815
-nnoremap <silent> * :let @/= '\<' . expand('<cword>') . '\>' <bar> set hls <cr>
+" * highlight matches without moving to the next word >>>
+" REF: http://vim.wikia.com/wiki/Highlight_all_search_pattern_matches#Highlight_matches_without_moving
+nnoremap <silent> * :let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>
+" <<<
+
 " }}}
 
 " ==============================================================================
@@ -132,34 +140,75 @@ filetype plugin on      " ?
 let mapleader=","       " leader is comma, defaults to \
 noremap <leader>s       :source ~/.vimrc<CR>
 nnoremap <leader>,      :w<CR>
-nnoremap <leader>l      e %<CR>
+nnoremap <leader>p      :set invpaste paste?<CR>
 
 
 " search <keyword> in fbgs
-nnoremap <leader>g      yiw:!fbgs <C-r>"<CR>
-" nnoremap <leader>g      yiw:!fbgs -f admarket/.* <C-r>"<CR>
-nnoremap <leader>t      :tab sp
+" nnoremap <leader>f      yiw:!fbgs <C-r>"<CR>
+" nnoremap <leader>f      yiw:!fbgs -f fbsource/fbcode/admarket/.* <C-r>"<CR>
+nnoremap <leader>f      yiw:!fbgs -f fbsource/fbcode/admarket/adindexer/.* <C-r>" && fbgs -f fbsource/fbcode/admarket/libadmarket/if/.* <C-r>"<CR>
 
-" buffer navigation >>>
-nnoremap <C-j>           :bp<CR>
-nnoremap <C-k>           :bn<CR>
+" search <keyword> in cbgs
+nnoremap <leader>c      yiw:!cbgs -f source/admarket/adindexer/.* <C-r>"<CR>
+
+
+" buffer mgmt >>>
+" better version of :bd
+" nnoremap <C-d>           :call CloseSplitOrBuffer()<CR>
+nnoremap <C-d>           :q<CR>
 " <<<
 
-" " tab navigation >>>
-" nnoremap <C-j>           gT
-" nnoremap <C-k>           gt
-" " <<<
+" buffer navigation >>>
+" go to the left window
+nnoremap gB              :bp<CR>
+" go to the right window
+nnoremap gb              :bn<CR>
+" <<<
+
+" window navigation >>>
+" go to the left window
+nnoremap <C-j>           <C-w>h
+" go to the right window
+nnoremap <C-k>           <C-w>l
+" <<<
+
+" tab mgmt >>>
+" open current file in a new tab, go to next hls
+nnoremap <leader>t      :tab sp %<CR>n
+" <<<
+
+" tab navigation >>>
+"   gT " go to the previous tab page
+"   gt " go to the next tab page
+" <<<
 
 " " ctrl-l to switch back to last active vim tab >>>
 " " https://superuser.com/a/675119
-" au TabLeave * let g:lasttab = tabpagenr()
-" nnoremap <silent> <c-l> :exe "tabn ".g:lasttab<cr>
-" vnoremap <silent> <c-l> :exe "tabn ".g:lasttab<cr>
+au TabLeave * let g:lasttab = tabpagenr()
+nnoremap <silent> <C-l> :exe "tabn ".g:lasttab<cr>
+vnoremap <silent> <C-l> :exe "tabn ".g:lasttab<cr>
 " " <<<
 
+" }}}
+
 " == Plugin key mappings ==
+" ctags: {{{
+" highlight current word, open a vertical split window, jump to the next tag, center
+" nnoremap <silent> <C-]>           *:vs<CR><C-]>
+" nnoremap <silent> <C-]>           :let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>  :vs<CR>  <C-]>
+nnoremap <silent> <C-]>           b:let @/='\<<C-R>=expand("<cword>")<CR>\>'<CR>:set hls<CR>  :vs<CR>  <C-]> zz
 
+" jump to previous tag
+nnoremap <C-[>           <C-T>
+" }}}
 
+" Plugin: 'jlanzarotta/bufexplorer' {{{
+nnoremap <leader>B      :BufExplorer<CR>
+" }}}
+"
+" Plugin: 'majutsushi/tagbar' {{{
+" nnoremap <leader>T      :TagbarToggle<CR>
+nnoremap <leader>T      :TagbarOpenAutoClose<CR>
 " }}}
 
 " ==============================================================================
@@ -170,15 +219,41 @@ set t_Co=256
 set ttyfast             " faster redraw"
 
 " Enable syntax for file types
-autocmd FileType md set syntax=markdown
+" List All Vim supported filetypes
+"   :echo getcompletion('', 'filetype')
+au BufRead,BufNewFile *.md             set filetype=markdown
+au BufRead,BufNewFile *.thrift         set filetype=cpp
+au BufRead,BufNewFile *.cinc,*.cconf   set filetype=python
 
 " disable recording
 " https://stackoverflow.com/questions/1527784/what-is-vim-recording-and-how-can-it-be-disabled
 map q <Nop>
 
-if has('mouse')
-  set mouse=a
-endif
+" disable entering Ex mode in vim
+nnoremap Q <Nop>
+
+" mouse mgmt >>>
+" if has('mouse')
+"   set mouse=a "enable mouse
+" endif
+
+" disable mouse to avoid unintended insert
+set mouse=
+set ttymouse=
+" <<<
+
+" cursor navigation config >>>
+" scrolling faster with cursor
+set scrolljump=10  " scroll vertically
+set sidescroll=10 " scroll horizontally
+" <<<
+
+" automatically re-read files changed outside vim
+set autoread
+" automatically write files when buffer is changed
+set autowrite
+
+set noerrorbells       " no bells in terminal"
 " }}}
 
 
@@ -195,7 +270,7 @@ autocmd FileType vim        call VIMSET()
 autocmd FileType c,cpp      call CPPSET()
 
 " ==============================================================================
-" ctags
+" CTAGS:
 " Build: ctags -R *
 " Usage:
 "   Ctrl-]          - Jump to the tag underneath the cursor
@@ -224,8 +299,9 @@ set tags=./tags;/ " recursively search tags file from current dir
 " Tuning:
 "   :runtime syntax/colortest.vim " check supported colors
 "   256 colors - xterm number <-> display mapping, https://jonasjacek.github.io/colors/
-" Overwrite: ~/.vim/bundle/molokai/colors/molokai.vim:238
+" Overwrite: ~/.vim/bundle/molokai/colors/molokai.vim
 "   hi Normal       ctermfg=15  ctermbg=235
+"   hi CursorLine               ctermbg=242   cterm=none
 " Config:
 let g:molokai_original = 1
 let g:rehash256 = 1
@@ -253,6 +329,12 @@ let g:strip_whitespace_on_save=0
 let g:rainbow_active = 1
 autocmd BufEnter * :RainbowToggleOn
 " }}}
+
+" ==============================================================================
+"" Plugin: 'thaerkh/vim-indentguides' {{{
+"" Ref: https://github.com/thaerkh/vim-indentguides
+"let g:indentguides_toggleListMode = 0
+"" }}}
 
 " ==============================================================================
 " Plugin: 'w0rp/ale' {{{
@@ -298,13 +380,18 @@ let g:signify_realtime = 0 " 0 -> BufRead && BufWritePost
 "   :NERDTreeToggle - toggle
 " Config:
 " autocmd vimenter * NERDTree " uncomment to auto open upon vim start-up
+" let loaded_nerd_tree=0 .   " disable NERDTree
+
+" close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType")) | q | endif
+let NERDTreeIgnore = ['\.pyc$']
 " }}}
 
 " ==============================================================================
 " Plugin: 'jistr/vim-nerdtree-tabs' {{{
 " Ref: https://github.com/jistr/vim-nerdtree-tabs
 " Config:
-let g:nerdtree_tabs_open_on_console_startup=1  " uncomment to auto open upon vim start-up
+" let g:nerdtree_tabs_open_on_console_startup=1  " uncomment to auto open upon vim start-up
 let g:nerdtree_tabs_autofind=1
 " }}}
 
@@ -317,6 +404,15 @@ let g:airline#extensions#tabline#enabled = 1
 
 " Show just the filename
 let g:airline#extensions#tabline#fnamemod = ':t'
+
+" let g:airline_powerline_fonts = 1 "XXX: powerline fonts not working
+" }}}
+
+" ==============================================================================
+" Plugin: 'vim-airline/vim-airline-themes' {{{
+" Ref: https://github.com/vim-airline/vim-airline-themes/blob/master/doc/airline-themes.txt
+" Config:
+let g:airline_theme='dark' " powerline alike tabline and statusline
 " }}}
 
 " ==============================================================================
@@ -336,12 +432,13 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 "   :TagbarToggle - toggle
 " Config:
 " autocmd VimEnter * nested :TagbarOpen " uncomment to auto open upon vim start-up
-let g:tagbar_width=100
+let g:tagbar_width=150
 " }}}
 
 " ==============================================================================
-" Plugin: 'alxyang/a.vim' {{{
-" Ref: https://github.com/alxyang/a.vim
+" Plugin: 'micbou/a.vim' {{{
+
+" Ref: https://github.com/micbou/a.vim
 " Usage:
 "   :A  - go to .h header/.cpp file in a new buffer
 "   :AS - horizontal splits and switches
@@ -365,15 +462,22 @@ let g:tagbar_width=100
 "   -- once CtrlP is opend --
 "   <c-f>/<c-b> - cycle between modes
 "   <c-j>/<c-k> - move down/up in the list
+"   <c-v>       - open vertical split buffer
 " Config:
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlPMixed'
-let g:ctrlp_root_markers = ['adindexer.conf']
+let g:ctrlp_root_markers = ['.project']
+let g:ctrlp_mruf_case_sensitive = 0 " set to enable search case insensitive
 " }}}
 
 " ==============================================================================
 " Plugin: 'valloric/youcompleteme' {{{
+" AKA: YCM
 " Ref: https://github.com/Valloric/YouCompleteMe
+" Usage:
+"   :YcmRestartServer - restart ycmd for vimrc changes to take effect
+" Config:
+" let g:ycm_filetype_blacklist = {'*': 1} " toggle, uncomment to turn off YCM, use :set ft? to check filetype
 " }}}
 
 " ==============================================================================
@@ -393,7 +497,7 @@ let g:ctrlp_root_markers = ['adindexer.conf']
 "   :<Leader>cu - uncomment
 " }}}
 
-" ======================================================================================================
+" ==============================================================================
 " Fold C++ include files by default: {{{
 function! Fold_Includes(ln)
   let cur_line = getline(a:ln)
@@ -413,5 +517,139 @@ function! Fold_Includes(ln)
   return 0
 endfunction
 
-autocmd FileType c,cpp setlocal foldexpr=Fold_Includes(v:lnum) foldmethod=expr
+" autocmd FileType c,cpp setlocal foldexpr=Fold_Includes(v:lnum) foldmethod=expr " uncomment to toggle
 " }}}
+
+" Usage:
+"   :set nofoldenable - toggle
+
+" ==============================================================================
+" Close only one buffer instance
+" Use Case: after vsplit, still use :bd to close the buffer instead of :q
+function! g:CloseSplitOrBuffer()
+    " Is the file opened at least two times?
+    if winnr('$') > 1
+        execute ':q'
+    else
+        execute ':bd'
+    endif
+endfunction
+" }}}
+
+" ==============================================================================
+" VIM_MANUAL:
+" help:
+"   :help {CMD}       - show command, e.g. `:h :file`, `:h CTRL-G`
+
+" vim variable:
+"   :let g:[var] = [value] - set variable
+"   :echo g:[var]          - print variable
+"   :verbose set [var]?    - e.g. verbose set modeline? modelines?
+
+" key mapping:
+"   :help index       - show built-in command mappings in different modes, e.g. CTRL-I: same as <Tab>
+"   :map              - show user-defined command mappings, e.g. <MODE> <C-P>: <Plug>(ctrlp)
+
+" ==============================================================================
+" VIM_MGMT:
+" fold mgmt:
+"   :help fold - manual
+"   zo         - open one fold under the cursor
+"   zc         - close one fold under the cursor
+"   za         - toggle one fold under the cursor
+"   zR         - open all folds
+"   zM         - close all folds
+"   zi         - toggle foldenalbe
+
+" buffer mgmt:
+"   description: the in-memory text of a file
+"   :ls or :buffers - list all buffers
+
+" window mgmt:
+"   description: a viewport on a buffer
+"   :help window     - manual
+"   :s[plit] [file]  - split current window in two horizontally
+"   :vs[plit] [file] - split current window in two vertically
+"   :bel[owright] vsp[lit] [file] - open new window on below right
+"   :q[uit]          - quit the current window, quit vim if this is the last window
+
+"   Ctrl-w x         - swap the current window with the next one
+"   Ctrl-w =         - make all windows the same height and width
+
+" tab page mgmt:
+"   description: a collection of windows
+"   :help tabpage       - manual
+"   :tabs               - list all tabs
+"   :tabe[dit] [file]   - open file in a new tab
+"   :tabf[ind] [file]   - open a new tab with filename given, searching the path to find it
+"   :tab sp[lit] [file] - split the current window, but open the split in a new tab
+"   :tabm[ove] -N|+N    - move current tab to N places to the left|right
+"   :tabclose           - close current tab
+
+" file mgmt:
+"   :f[ile] - prints the current file name
+" Config:
+"   .       - parent dir
+"   <empty> - current dir
+"   **      - subdir
+set path=.,,** " used by tabfind etc.
+
+
+" font mgmt:
+"   CMD-+    - increase font size
+"   CMD--    - decrease font size
+
+
+" ==============================================================================
+" VIM_NAVIGATION:
+" cursor navigation:
+"   H        - move cursor to the first line of the window
+"   M        - move cursor to the middle line of the window
+"   L        - move cursor to the last line of the window
+"   {line#}G - move cursor to {line#}
+
+" buffer navigation:
+"   Ctrl-o   - jump back to the pevious(older) location
+"   Ctrl-i   - jump forward to the next(newer) location
+
+" window navigation:
+"   Ctrl-w w - go to the next window
+"   Ctrl-w h - go to the left window
+"   Ctrl-w l - go to the right window
+
+" tab page navigation:
+"   {count}gt    - go to tab page {count}
+"   :tabp or gT  - go to the previous tab page
+"   :tabn or gt  - go to the next tab page
+
+" ==============================================================================
+" VIM_NAVIGATION_THROUGH_CALLSTACK:
+" 1. open a vertical buffer on the left window
+"    CMD: Ctrl-w v  or :vs
+" 2. goto declaration
+"    CMD: Ctrl-]
+" 1-2.
+"    CMD: Ctrl-] or :vs<CR><C-]>
+" 3. close current split/buffer
+"    CMD: Ctrl-d or :q/:bd
+" 3.1. repeatedly doing step1-2 till too many windows, open current file in a new tab
+"    CMD: <leader>t or :tab sp %<CR>
+" 4.1. close current tab
+"    CMD: :tabclose
+" 4.2. go back to previous active tab
+"    CMD: Ctrl-l
+
+" ==============================================================================
+" VIM_MOUSE_COPY:
+" press 'alt' and use mouse to select, then cmd+c to copy selected word
+
+" ==============================================================================
+" LESSION:
+" * Accidentally press Ctrl-s will lock the screen. Press Ctrl-q to unlock.
+
+" ==============================================================================
+" TODO:
+"   * Ctrl-] not working correctly sometimes, ctags prompt is overwriten
+"     e.g. 'indexer->query' jump to admarket/adal ==> rebuild ctags for specific folders
+"   * Ctrl-] search a word with cursor at last few chars will redirect to wrong locations
+
