@@ -7,6 +7,15 @@ $ buck build @mode/dev admarket/adindexer/test:index_query_test --show-output
 
 $ gdb buck-out/gen/admarket/adindexer/test/index_query_test
 
+== Tricks ==
+Ref: https://www.youtube.com/watch?v=PorfLSr3DDI
+
+ctrl+x a - enter into text user interface(TUI), a nicer GUI
+ctrl+x 2 - show assembly codes, then register
+ctrl+x 1 - go back
+uparrow/downarrow - going up/down
+ctrl+p/n - go to previous/next command, works in CLI 
+
 
 == Useful debug commands ==
 h(elp) - list of classes of commands 
