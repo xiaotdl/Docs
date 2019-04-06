@@ -2,7 +2,7 @@ Ref:
 GDB cheatsheet: https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
 
 e.g.
-$ buck build @mode/dev admarket/adindexer/test:index_query_test --show-output
+$ buck build @mode/opt admarket/adindexer/test:index_query_test --show-output
 >>> //admarket/adindexer/test:index_query_test buck-out/gen/admarket/adindexer/test/index_query_test
 
 $ gdb buck-out/gen/admarket/adindexer/test/index_query_test
@@ -23,7 +23,7 @@ h(elp) - list of classes of commands
 
 q(uit) - exit gdb
 
-
+start - execute the program and stop at main
 r(un) - execute the program
   e.g. r --gtest_filter=UsersRichQueryRewritingTest.PhoneticAndSegments2
 b(reak) <line-number> - set a breakpoint
@@ -53,6 +53,13 @@ set var <var> = <expr> - set the value of a variable
 
 bt, backtrack <n innermost frames> - dump the backtrace of the stack frames
   To print a backtrace including local variables, use `backtrace full`
+(gdb) help bt
+Print backtrace of all stack frames, or innermost COUNT frames.
+Usage: backtrace [QUALIFIERS]... [COUNT]
+With a negative argument, print outermost -COUNT frames.
+Use of the 'full' qualifier also prints the values of the local variables.
+Use of the 'no-filters' qualifier prohibits frame filters from executing
+on this backtrace.
 
 
 f(rame) - dump (current) stack frame
@@ -84,7 +91,35 @@ or
 (gdb)$ run arg1 arg2
 
 
+--------------------------------------------------------------------------------
+Ref:
+CppCon 2015: Greg Law " Give me 15 minutes & I'll change your view of GDB"
+https://www.youtube.com/watch?v=PorfLSr3DDI
+
+Ctrl-x a - enter/exit interactive mode
+
+
+--------------------------------------------------------------------------------
 Ref: https://our.internmc.facebook.com/intern/wiki/Dex/gdb/
 # catch throws
 # debugging multiple threads..
 # debugging deadlocks
+
+
+--------------------------------------------------------------------------------
+Ref: http://www.yolinux.com/TUTORIALS/GDB-Commands.html
+Prerequisite: Download .gdbinit to use the following macros:
+Data type	GDB command
+std::vector<T>	pvector stl_variable
+std::list<T>	plist stl_variable T
+std::map<T,T>	pmap stl_variable
+std::multimap<T,T>	pmap stl_variable
+std::set<T>	pset stl_variable T
+std::multiset<T>	pset stl_variable
+std::deque<T>	pdequeue stl_variable
+std::stack<T>	pstack stl_variable
+std::queue<T>	pqueue stl_variable
+std::priority_queue<T>	ppqueue stl_variable
+std::bitset<n>td>	pbitset stl_variable
+std::string	pstring stl_variable
+std::widestring	pwstring stl_variable

@@ -1,0 +1,245 @@
+" Xiaotian Li
+" vim config file
+set encoding=utf-8
+set t_Co=256
+" Plugins {{{
+" install Vundle$ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+set nocompatible             " be iMproved, required
+filetype off                 " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'bling/vim-airline'
+Plugin 'kien/ctrlp.vim'
+Plugin 'scrooloose/nerdtree'
+Plugin 'jistr/vim-nerdtree-tabs'
+Plugin 'scrooloose/syntastic'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'davidhalter/jedi-vim'
+Plugin 'ervandew/supertab'
+Plugin 'jiangmiao/auto-pairs'
+Plugin 'majutsushi/tagbar'   " prerequisite: apt-get install exuberant-ctags
+Plugin 'rking/ag.vim'        " prerequisite: apt-get install silversearcher-ag
+
+call vundle#end()            " required
+filetype plugin indent on    " required
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just
+" :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+" }}}
+" Colors {{{
+if &t_Co > 2 || has("gui_running")
+    syntax enable       " enable syntax processing; keep your current color settings
+    "" syntax on           " enable syntax processing; overrule your settings with the defaults
+    " Download a colorscheme
+    " mkdir -p ~/.vim/colors; cd ~/.vim/colors; curl -O https://raw.githubusercontent.com/tomasr/molokai/master/colors/molokai.vim; cd -
+    "" colorscheme molokai
+endif
+" }}}
+" Spaces & Tabs {{{
+set tabstop=4           " number of visual spaces per TABs
+set shiftwidth=4        " when using the >> or << commands, shift lines by 4 spaces
+set softtabstop=4       " number of visual spaces in tab when editing
+set expandtab           " expand tabs into spaces, e.g. :set tabstop=4 shiftwidth=4 expandtab; :retab
+set autoindent          " indent when moving to the next line while writing code
+set smartindent
+set modelines=1         " ?
+filetype indent on      " load filetype-specific indent files, e.g. ~/.vim/indent/python.vim gets loaded every time a *.py file opened
+filetype plugin on      " ?
+" }}}
+" UI Layout {{{
+set colorcolumn=100     " display vertical line
+set number              " show line numbers
+set cursorline          " highlight/underscore current line
+set wildmenu            " visual autocomplete for command menu, e.g. run :e ~/.vim<TAB>?
+set wildmode=list:longest,full
+set lazyredraw          " redraw only when we need to
+set showmatch           " highlight matching [{()}]
+set matchtime=15        " defaults to 5
+set laststatus=2        " make statusline always visible
+set fillchars+=stl:\ ,stlnc:\
+set ruler               " show line, column, relative position
+highlight StatusLine ctermbg=White ctermfg=DarkRed
+highlight StatusLineNC ctermbg=White ctermfg=Black
+" }}}
+" Searching {{{
+set ignorecase          " ignore case when searching
+set smartcase
+set incsearch           " search as characters are entered
+set hlsearch            " highlight matches
+set nowrapscan          " disable search wrap around the eof
+" }}}
+" Folding {{{
+"" set foldenable          " enable folding
+"" set foldlevelstart=10   " open most folds by default
+"" set foldnestmax=10      " 10 nested fold max
+"" set foldmethod=indent   " fold based on indent level
+"" nnoremap <space> za     " ? za opens/closes the fold around the current block
+"" au BufWinLeave * silent mkview       " autosave vim folding
+"" au BufWinEnter * silent loadview     " autoopen vim folding
+" }}}
+" Leader Shortcuts {{{
+let mapleader=","       " leader is comma, defaults to \
+nnoremap <leader>s       :source ~/.vimrc<CR>
+" Show all filetypes => :echo map(split(globpath(&rtp, 'ftplugin/*.vim'), '\n'), 'fnamemodify(v:val, ":t:r")')
+nnoremap <leader>e       :w!<CR>:!./%<CR>        " default execution for any filetype
+autocmd FileType c       nnoremap <leader>e       :w!<CR>:!gcc % && ./a.out<CR>
+autocmd FileType cpp     nnoremap <leader>e       :w!<CR>:!g++ % && ./a.out<CR>
+autocmd FileType java    nnoremap <leader>e       :w!<CR>:exe "!javac % && java " . expand("%:t:r")<CR>
+autocmd FileType python  nnoremap <leader>e       :w!<CR>:!python %<CR>
+autocmd FileType python  map      <Leader>b       Oimport ipdb; ipdb.set_trace() # PYTHON BREAKPOINT<C-c>
+autocmd FileType perl    nnoremap <leader>e       :w!<CR>:!perl %<CR>
+autocmd FileType perl    map      <Leader>b       O$DB::single = 1; # PERL BREAKPOINT<C-c>
+autocmd FileType php     nnoremap <leader>e       :w!<CR>:!php %<CR>
+autocmd FileType html    nnoremap <leader>e       :w!<CR>:!open %<CR> # used on Mac OS
+autocmd FileType sh      nnoremap <leader>e       :w!<CR>:!bash %<CR>
+autocmd FileType ruby    nnoremap <leader>e       :w!<CR>:!ruby %<CR>
+autocmd FileType ruby    map      <Leader>b       Obinding.pry; # RUBY BREAKPOINT<C-c>
+nnoremap <leader>,       :w<CR>
+nnoremap <leader>q       :lclose<CR>:bdelete<CR>
+nnoremap <leader><space> :set nohlsearch hlsearch?<CR>
+nnoremap <leader>p       :set invpaste paste?<CR>
+nnoremap <leader>g       yiw:Ag! <C-r>" .<CR>    " default search for any filetype
+autocmd FileType perl    nnoremap <leader>g       yiw:Ag! <C-r>" .  ..\/lib ..\/..\/FIT<CR>/\(package\s\+<C-r>";\\|sub\s\+<C-r>"\s*\((.*)\)\=\s*{\\|\| fields\>.*\((<C-r>"\>\\|\<<C-r>"\>\\|\<<C-r>")\)\)<CR>
+nnoremap <leader>d       yiw:e `perldoc -l <C-r>"`<CR>             " prerequisite: apt-get install perl-doc
+nnoremap <leader>K       yiw:!perldoc <C-r>"<CR>                   " prerequisite: apt-get install perl-doc
+nnoremap <C-o>           :b#<CR>
+nnoremap <C-k>           :bn<CR>
+nnoremap <C-j>           :bp<CR>
+nnoremap <C-p>           :CtrlPMixed<CR>
+nnoremap <C-n>           :call RelativeNumberToggle()<CR>
+" }}}
+" Map keys {{{
+map <F2> :NERDTreeToggle<CR>
+" map <F3> :NERDTreeFind<CR>
+" map <F5> :buffers<CR>:buffer<Space>
+map <F3> :CtrlPBuffer<CR>  " use ctrl+j/k to move up/down
+map <F8> :TagbarToggle<CR>
+map q: <Nop>           " Disable command line
+" }}}
+" Misc {{{
+set ttyfast             " faster redraw
+set backspace=indent,eol,start  " ?
+"" nnoremap gV `[v`]       " ? highlight last inserted text
+if has('mouse')
+  set mouse=a
+endif
+"" set backup              " creates the '~' annoying backup files
+
+" Display tab as ^I, eol as $
+"" set list
+"" set listchars=tab:>-,trail:-
+
+" Stop using the arrow keys, for beginner
+"" map <up> <nop>
+"" map <down> <nop>
+"" map <left> <nop>
+"" map <right> <nop>
+
+" Enable syntax for template files
+autocmd FileType tt set syntax=html
+
+" Open :help window vertically
+autocmd FileType help wincmd L
+
+" Highlight trailing spaces
+autocmd BufWinEnter * match Error /\s\+$/
+
+" enable all Python syntax highlighting features
+let python_highlight_all = 1
+
+" <Python> folding, e.g. `f`, `F`
+" mkdir -p ~/.vim/ftplugin; wget -O ~/.vim/ftplugin/python_editing.vim http://www.vim.org/scripts/download_script.php?src_id=5492
+set nofoldenable
+" }}}
+
+" Plugins {{{
+" Plugin 'bling/vim-airline'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
+
+" Plugin 'kien/ctrlp.vim'
+let g:ctrlp_max_height = 30
+let g:ctrlp_max_files=0
+let g:ctrlp_max_depth=40
+let g:ctrlp_working_path_mode = 'r'
+let g:ctrlp_root_markers = ['.ctrlp']           " `touch .ctrlp` in root dir, also add .ctrlp to your ~/.gitignore_global
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip        " MacOSX/Linux
+set wildignore+=*.pyc
+"" let g:ctrlp_user_command = 'find %s -type f' " MacOSX/Linux
+
+" Plugin 'scrooloose/nerdtree'
+" let loaded_nerd_tree=0 .   " disable NERDTree
+" close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+let NERDTreeIgnore = ['\.pyc$']
+
+" Plugin 'jistr/vim-nerdtree-tabs'
+let g:nerdtree_tabs_autofind = 1
+let g:nerdtree_tabs_open_on_console_startup=1
+
+" Plugin 'scrooloose/syntastic'
+let g:syntastic_python_checkers = ['pylint']
+"" let g:syntastic_mode_map = { 'passive_filetypes': ['python'] }   " call :SyntasticCheck to check syntax
+"" set statusline+=%#warningmsg#
+"" set statusline+=%{SyntasticStatuslineFlag()}
+"" set statusline+=%*
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+
+" Plugin 'davidhalter/jedi-vim'
+"" let g:jedi#use_splits_not_buffers = "right"
+"" let g:jedi#goto_command = "<leader>d"
+"" let g:jedi#goto_assignments_command = "<leader>g"
+"" let g:jedi#goto_definitions_command = ""
+"" let g:jedi#documentation_command = "K"
+"" let g:jedi#usages_command = "<leader>n"
+"" let g:jedi#completions_command = "<C-Space>"
+"" let g:jedi#rename_command = "<leader>r"
+" Better navigating through omnicomplete option list
+" ref: http://stackoverflow.com/questions/2170023/how-to-map-keys-for-popup-menu-in-vim
+set completeopt=longest,menuone
+function! OmniPopup(action)
+    if pumvisible()
+        if a:action == 'j'
+            return "\<C-N>"
+        elseif a:action == 'k'
+            return "\<C-P>"
+        endif
+    endif
+    return a:action
+endfunction
+inoremap <silent><C-j> <C-R>=OmniPopup('j')<CR>
+inoremap <silent><C-k> <C-R>=OmniPopup('k')<CR>
+
+" Plugin 'majutsushi/tagbar'
+autocmd VimEnter * nested :call tagbar#autoopen(1)   " Don't open upon vim start
+let g:tagbar_width=30
+
+" Plugin 'rking/ag.vim'
+let g:ag_prg="ag --vimgrep --smart-case"
+let g:ag_highlight=1
+"" let g:ag_working_path_mode='path/to/root' " defaults to cwd
+" }}}
+
+" Functions {{{
+autocmd InsertEnter * :set relativenumber!
+autocmd InsertLeave * :set relativenumber
+function! RelativeNumberToggle()
+  if(&relativenumber == 1)
+    set relativenumber!
+  else
+    set relativenumber
+  endif
+endfunc
+" }}}
