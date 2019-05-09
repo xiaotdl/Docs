@@ -135,3 +135,17 @@ std::priority_queue<T>	ppqueue stl_variable
 std::bitset<n>td>	pbitset stl_variable
 std::string	pstring stl_variable
 std::widestring	pwstring stl_variable
+
+e.g.
+$ g++ -std=c++11 -g -O0 -Wall main.cpp
+$ cgdb ./a.out
+(gdb) b main
+(gdb) run
+(gdb) u 20
+(gdb) pvector v
+elem[0]: $2 = 1
+elem[1]: $3 = 2
+elem[2]: $4 = 3
+Vector size = 3
+Vector capacity = 4
+Element type = std::_Vector_base<int, std::allocator<int> >::pointer
