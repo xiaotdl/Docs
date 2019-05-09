@@ -149,3 +149,25 @@ elem[2]: $4 = 3
 Vector size = 3
 Vector capacity = 4
 Element type = std::_Vector_base<int, std::allocator<int> >::pointer
+
+
+--
+== print elements inside vector ==
+REF: https://math-linux.com/c/faq-c/faq-c-stl/article/how-to-print-the-elements-of-a-c-std-vector-with-gnu-debugger-gdb
+
+(gdb) p v
+$9 = {
+  <std::_Vector_base<int, std::allocator<int> >> = {
+    _M_impl = {
+      <std::allocator<int>> = {
+        <__gnu_cxx::new_allocator<int>> = {<No data fields>}, <No data fields>},
+      members of std::_Vector_base<int, std::allocator<int> >::_Vector_impl:
+      _M_start = 0x604030,
+      _M_finish = 0x604038,
+      _M_end_of_storage = 0x604038
+    }
+  }, <No data fields>}
+(gdb) p *(v._M_impl._M_start)
+$10 = 1
+(gdb) p *(v._M_impl._M_start+1)
+$11 = 2
