@@ -2,10 +2,18 @@ Ref:
 GDB cheatsheet: https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
 
 e.g.
+$ g++ -std=c++11 -g -O0 -o /tmp main.cpp
+-g flag tells gcc to add debugging information into the binary.
+-O0 flag sets the optimization level to 0 (disabled). This will prevent inlining, which would make debugging more difficult.
+
+$ gdb ./a.out
+
+e.g.
 $ buck build @mode/opt admarket/adindexer/test:index_query_test --show-output
 >>> //admarket/adindexer/test:index_query_test buck-out/gen/admarket/adindexer/test/index_query_test
 
 $ gdb buck-out/gen/admarket/adindexer/test/index_query_test
+
 
 == Tricks ==
 Ref: https://www.youtube.com/watch?v=PorfLSr3DDI
