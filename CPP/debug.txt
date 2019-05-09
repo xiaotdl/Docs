@@ -37,6 +37,9 @@ fin(ish) - step out, run until exit from a function
 c(ontinue) - continue execution
 u(ntil) <location> - continue running your program until either the specified location is reached, or the current stack frame returns.
 
+[multi-thread]
+set scheduler-locking <mode> - If on, then only the current thread may run when the inferior is resumed. 
+REF: https://ftp.gnu.org/old-gnu/Manuals/gdb-5.1.1/html_node/gdb_39.html
 
 l(ist) - display lines around the last line
 set listsize <count> - change how many lines will be printed
