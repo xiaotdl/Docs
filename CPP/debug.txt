@@ -84,7 +84,7 @@ i(nfo) lo(cals) - dump the local variables of current frame
 i(nfo) b(reakpoints) - list existing breakpoints
 dis(able) breakpoints <i> - disable a breakpoint
 en(able) breakpoints <i> - enable a breakpoint
-d(elete) breakpoints <i> - delete a breakpoint
+d(elete) breakpoints <i> - delete a breakpoint, e.g. `d` deletes all breakpoints
 
 
 # managing auto-displays
