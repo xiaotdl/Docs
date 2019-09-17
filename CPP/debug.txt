@@ -53,6 +53,7 @@ l(ist) - display lines around the last line
 set listsize <count> - change how many lines will be printed
 l(ist) <start-line>
 l(ist) <start-line>,<end-line>
+l(ist) - - Print lines just before the lines last printed.
 
 
 p(rint) <var | expr> - inspect the value of a variable or expression
