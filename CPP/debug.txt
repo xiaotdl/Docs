@@ -19,6 +19,7 @@ $ gdb buck-out/gen/admarket/adindexer/test/index_query_test
 Ref: https://www.youtube.com/watch?v=PorfLSr3DDI
 
 ctrl+x a - enter into text user interface(TUI), a nicer GUI
+ctrl+x o - change the active window
 ctrl+x 2 - show assembly codes, then register
 ctrl+x 1 - go back
 uparrow/downarrow - going up/down
