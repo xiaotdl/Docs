@@ -22,7 +22,7 @@ u(p) - move up in stack trace
 
 s(tep) - execute one statement
 n(ext) - execute one line
-unt(il) - continue execution until line number greater than current one
+unt(il) [lineno] - continue execution until line number greater than current one
 r(eturn) - continue execution until current function returns
 c(ont(inue)) - continue execution till next breakpoint
 j(ump) lineno
