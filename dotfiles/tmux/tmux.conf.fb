@@ -11,6 +11,10 @@ bind r source-file ~/.tmux.conf \; display "tmux conf reloaded!"
 # Switch between lastest active window
 bind-key C-a last-window
 
+# # default
+# # Switch between lastest active pane
+# bind-key ; last-pane
+
 # enable mouse scrolling
 set -g mouse on
 
