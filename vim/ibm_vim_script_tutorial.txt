@@ -1,0 +1,118 @@
+# REF
+# :help vim-script-intro
+
+
+# REF:
+  * [Scripting the Vim editor, Part 1: Variables, values, and expressions](https://developer.ibm.com/articles/l-vim-script-1/)
+  * [Scripting the Vim editor, Part 2: User-defined functions](https://developer.ibm.com/tutorials/l-vim-script-2/)
+  * [Scripting the Vim editor, Part 3: Built-in lists](https://developer.ibm.com/tutorials/l-vim-script-3/)
+  * [Scripting the Vim editor, Part 4: Dictionaries](https://developer.ibm.com/tutorials/l-vim-script-4/)
+  * [
+Scripting the Vim editor, Part 5: Event-driven scripting and automation](https://developer.ibm.com/tutorials/l-vim-script-5/)
+
+
+# Scripting the Vim editor, Part 1: Variables, values, and expressions
+
+## Run vimscript
+1. The simplest approach is to put them in a file (typically with a .vim extension) and then execute the file by :source-ing it from within a Vim session:
+  :source /full/path/to/the/scriptfile.vim
+
+2. Alternatively, you can type scripting commands directly on the Vim command line, after the colon. For example:
+  :call MyBackupFunc(expand('%'), { 'all':1, 'save':'recent'})
+
+3. The most common way to invoke Vim scripts is by creating new keyboard mappings, like so:
+  :nmap ;s :source /full/path/to/the/scriptfile.vim<CR>
+  :nmap \b :call MyBackupFunc(expand('%'), { 'all': 1 })<CR>
+
+
+## A Syntactic Example
+See toggle_syntax.vim
+
+:help keycodes - See the complete list of these special symbols.
+
+
+## Vimscript Statements
+\: continuation mark
+e.g.
+```
+call SetName(
+\             first_name,
+\             middle_initial,
+\             family_name
+\           )
+```
+
+|: statements separator
+e.g.
+echo "Starting..." | call Phase(1) | call Phase(2) | echo "Done"
+
+Comment with "
+
+## Values and Variables
+Variable assignment in Vimscript requires a special keyword, let:
+e.g.
+let str = "Damian"
+let int = 165
+let list =  'Cinema', 'Literature', 'World Domination', 101 
+let dict = { 'cell':5551017346, 'home':5558038728, 'work':'?' }
+
+Values in Vimscript are typically one of the following three types:
+  * scalar: a single value, such as a string or a number. For example: "Damian" or 165
+  * list: an ordered sequence of values delimited by square brackets, with implicit integer indices starting at zero. For example: ['Cinema', 'Literature', 'World Domination', 101]
+  * dictionary: an unordered set of values delimited by braces, with explicit string keys. For example: {'cell':5551017346, 'home':5558038728, 'work':'?'}
+
+Variable types, once assigned, are permanent and strictly enforced at runtime:
+let interests = 'unknown' " Error: variable type mismatch
+
+Table 1. Vimscript variable scoping
+Prefix	Meaning
+g:varname	The variable is global
+s:varname	The variable is local to the current script file
+w:varname	The variable is local to the current editor window
+t:varname	The variable is local to the current editor tab
+b:varname	The variable is local to the current editor buffer
+l:varname	The variable is local to the current function
+a:varname	The variable is a parameter of the current function
+v:varname	The variable is one that Vim predefines
+
+Table 2. Vimscript pseudovariables
+Prefix	Meaning
+&varname	A Vim option (local option if defined, otherwise global)
+&l:varname	A local Vim option
+&g:varname	A global Vim option
+@varname	A Vim register
+$varname	An environment variable
+
+
+## Expressions
+...
+
+
+## Logical caveats
+Flawed test for empty string
+```
+let result_string = GetResult();
+
+if !result_string
+   echo "No result"
+endif
+```
+
+Correct test for empty string
+```
+if empty(result_string)
+   echo "No result"
+endif
+```
+
+
+## Comparator caveats
+
+
+
+
+
+
+
+
+
