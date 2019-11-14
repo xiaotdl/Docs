@@ -1,0 +1,3715 @@
+vim:tw=78:ts=8:ft=help:norl:
+
+VIM - main help file
+====================
+
+Editing Effectively
+-------------------
+|usr_20.txt|  Typing command-line commands quickly
+|usr_21.txt|  Go away and come back
+|usr_22.txt|  Finding the file to edit
+|usr_23.txt|  Editing other files
+|usr_24.txt|  Inserting quickly
+|usr_25.txt|  Editing formatted text
+|usr_26.txt|  Repeating
+|usr_27.txt|  Search commands and patterns
+|usr_28.txt|  Folding
+|usr_29.txt|  Moving through programs
+|usr_30.txt|  Editing programs
+|usr_31.txt|  Exploiting the GUI
+|usr_32.txt|  The undo tree
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_20.txt|  Typing command-line commands quickly
+
+Vim has a few generic features that makes it easier to enter commands.  Colon
+commands can be abbreviated, edited and repeated.  Completion is available for
+nearly everything.
+
+|20.1|	Command line editing
+|20.2|	Command line abbreviations
+|20.3|	Command line completion
+|20.4|	Command line history
+|20.5|	Command line window
+
+==============================================================================
+*20.1*	Command line editing
+
+When you use a colon (:) command or search for a string with / or ?, Vim puts
+the cursor on the bottom of the screen.  There you type the command or search
+pattern.  This is called the Command line.  Also when it's used for entering a
+search command.
+
+The most often used keys to move around in the command line:
+
+	<Left>			one character left
+	<Right>			one character right
+	<S-Left> or <C-Left>	one word left (Note: <C-Left> conflicts with Mac's multi-desk)
+	<S-Right> or <C-Right>	one word right
+	CTRL-B or <Home>	to begin of command line
+	CTRL-E or <End>		to end of command line
+
+DELETING
+
+  <BS>:   delete a char.
+  CTRL-W: delete a word.
+  CTRL-U: delete all text.
+
+OVERSTRIKE
+The <Insert> key toggles between inserting characters and replacing the
+existing ones.
+
+CANCELLING
+You thought of executing a : or / command, but changed your mind.  To get rid
+of what you already typed, without executing it, press CTRL-C or <Esc>.
+
+	Note:
+	<Esc> is the universal "get out" key.  Unfortunately, in the good old
+	Vi pressing <Esc> in a command line executed the command!  Since that
+	might be considered to be a bug, Vim uses <Esc> to cancel the command.
+	But with the 'cpoptions' option it can be made Vi compatible.  And
+	when using a mapping (which might be written for Vi) <Esc> also works
+	Vi compatible.  Therefore, using CTRL-C is a method that always works.
+
+==============================================================================
+*20.2*	Command line abbreviations
+
+Some of the ":" commands are really long.  We already mentioned that
+":substitute" can be abbreviated to ":s".  This is a generic mechanism, all
+":" commands can be abbreviated.
+
+How short can a command get?  There are 26 letters, and many more commands.
+For example, ":set" also starts with ":s", but ":s" doesn't start a ":set"
+command.  Instead ":set" can be abbreviated to ":se".
+   When the shorter form of a command could be used for two commands, it
+stands for only one of them.  There is no logic behind which one, you have to
+learn them.  In the help files the shortest form that works is mentioned.  For
+example: >
+
+	:s[ubstitute]
+  :s[et]
+
+It is recommended that in Vim scripts you write the full command name.  That
+makes it easier to read back when you make later changes.  Except for some
+often used commands like ":w" (":write") and ":r" (":read").
+   A particularly confusing one is ":end", which could stand for ":endif",
+":endwhile" or ":endfunction".  Therefore, always use the full name.
+
+SHORT OPTION NAMES
+
+In the user manual the long version of the option names is used.  Many options
+also have a short name.  Unlike ":" commands, there is only one short name
+that works.  For example, the short name of 'autoindent' is 'ai'.  Thus these
+two commands do the same thing: >
+
+	:set autoindent
+	:set ai
+
+You can find the full list of long and short names here: |option-list|.
+
+==============================================================================
+*20.3*	Command line completion
+
+This is one of those Vim features that, by itself, is a reason to switch from
+Vi to Vim.  Once you have used this, you can't do without.
+
+Suppose you have a directory that contains these files:
+
+	info.txt
+	intro.txt
+	bodyofthepaper.txt
+
+To edit the last one, you use the command: >
+
+	:edit bodyofthepaper.txt
+
+It's easy to type this wrong.  A much quicker way is: >
+
+	:edit b<Tab>
+
+Then it starts all over again.  Thus Vim cycles through the list of matches.
+Use CTRL-P to go through the list in the other direction:
+
+<Tab>:  go to next match.
+CTRL-P: go to prev match.
+
+	      <------------------- <Tab> -------------------------+
+								  |
+		  <Tab> -->		       <Tab> -->
+	:edit i		      :edit info.txt		   :edit intro.txt
+		  <-- CTRL-P		       <-- CTRL-P
+	   |
+	   +---------------------- CTRL-P ------------------------>
+
+CONTEXT
+
+When you type ":set i" instead of ":edit i" and press <Tab> you get: >
+
+	:set icon
+
+Hey, why didn't you get ":set info.txt"?  That's because Vim has context
+sensitive completion.  The kind of words Vim will look for depends on the
+command before it.  Vim knows that you cannot use a file name just after a
+":set" command, but you can use an option name.
+
+   Again, if you repeat typing the <Tab>, Vim will cycle through all matches.
+There are quite a few, it's better to type more characters first: >
+
+	:set isk<Tab>
+
+Gives: >
+
+	:set iskeyword
+
+Now type "=" and press <Tab>: >
+
+	:set iskeyword=@,48-57,_,192-255
+
+What happens here is that Vim inserts the old value of the option.  Now you
+can edit it.
+
+LIST MATCHES
+CTRL-D: list all matches.
+
+For example, pressing CTRL-D after: >
+
+	:set is
+
+results in: >
+
+	:set is
+	incsearch  isfname    isident    iskeyword  isprint
+
+   If you have watched carefully, you will have noticed that "incsearch"
+doesn't start with "is".  In this case "is" stands for the short name of
+"incsearch".  (Many options have a short and a long name.)  Vim is clever
+enough to know that you might have wanted to expand the short name of the
+option into the long name.
+
+THERE IS MORE
+
+The CTRL-L command completes the word to the longest unambiguous string.  If
+you type ":edit i" and there are files "info.txt" and "info_backup.txt" you
+will get ":edit info".
+
+The 'wildmode' option can be used to change the way completion works.
+The 'wildmenu' option can be used to get a menu-like list of matches.
+Use the 'suffixes' option to specify files that are less important and appear
+at the end of the list of files.
+The 'wildignore' option specifies files that are not listed at all.
+
+More about all of this here: |cmdline-completion|
+
+==============================================================================
+*20.4*	Command line history
+
+In chapter 3 we briefly mentioned the history.  The basics are that you can
+use the <Up> key to recall an older command line.  <Down> then takes you back
+to newer commands.
+
+There are actually four histories.  The ones we will mention here are for ":"
+commands and for "/" and "?" search commands.  The "/" and "?" commands share
+the same history, because they are both search commands.  The two other
+histories are for expressions and input lines for the input() function.
+|cmdline-history|
+
+Suppose you have done a ":set" command, typed ten more colon commands and then
+want to repeat that ":set" command again.  You could press ":" and then ten
+times <Up>.  There is a quicker way: >
+
+	:se<Up>
+
+Vim will now go back to the previous command that started with "se".  You have
+a good chance that this is the ":set" command you were looking for.  At least
+you should not have to press <Up> very often (unless ":set" commands is all
+you have done).
+
+The <Up> key will use the text typed so far and compare it with the lines in
+the history.  Only matching lines will be used.
+
+   If you do not find the line you were looking for, use <Down> to go back to
+what you typed and correct that.  Or use CTRL-U to start all over again.
+
+To see all the lines in the history: >
+
+	:history
+
+That's the history of ":" commands.  The search history is displayed with this
+command: >
+
+	:history /
+
+CTRL-P: work like <Up>, except that it doesn't matter what you already typed. (Previous)
+CTRL-N: work like <Down>. (Next)
+
+==============================================================================
+*20.5*	Command line window
+
+Typing the text in the command line works different from typing text in Insert
+mode.  It doesn't allow many commands to change the text.  For most commands
+that's OK, but sometimes you have to type a complicated command.  That's where
+the command line window is useful.
+
+Open the command line window with this command: >
+
+	q:
+
+Vim now opens a (small) window at the bottom.  It contains the command line
+history, and an empty line at the end:
+
+	+-------------------------------------+
+	|other window			      |
+	|~				      |
+	|file.txt=============================|
+	|:e c				      |
+	|:e config.h.in			      |
+	|:set path=.,/usr/include,,	      |
+	|:set iskeyword=@,48-57,_,192-255     |
+	|:set is			      |
+	|:q				      |
+	|:				      |
+	|command-line=========================|
+	|				      |
+	+-------------------------------------+
+
+hjkl to move around and modify the command and hit <Enter> to execute the line under the cursor.
+The <Enter> command will execute the line under the cursor.  It doesn't
+matter whether Vim is in Insert mode or in Normal mode.
+
+   Changes in the command line window are lost.  They do not result in the
+history to be changed.  Except that the command you execute will be added to
+the end of the history, like with all executed commands.
+
+The command line window is very useful when you want to have overview of the
+history, lookup a similar command, change it a bit and execute it.  A search
+command can be used to find something.
+
+OPEN						*c_CTRL-F* *q:* *q/* *q?*
+   This starts editing an Ex command-line ("q:") or search string ("q/" or
+   "q?").  Note that this is not possible while recording is in progress (the
+   "q" stops recording then).
+
+==============================================================================
+# usr_21.txt  Go away and come back
+
+This chapter goes into mixing the use of other programs with Vim.  Either by
+executing program from inside Vim or by leaving Vim and coming back later.
+Furthermore, this is about the ways to remember the state of Vim and restore
+it later.
+
+|21.1|	Suspend and resume
+|21.2|	Executing shell commands
+|21.3|	Remembering information; viminfo
+|21.4|	Sessions
+|21.5|	Views
+|21.6|	Modelines
+
+
+==============================================================================
+*21.1*	Suspend and resume
+
+Like most Unix programs Vim can be suspended by pressing CTRL-Z.  This stops
+Vim and takes you back to the shell it was started in.  You can then do any
+other commands until you are bored with them.  Then bring back Vim with the
+"fg" command. >
+
+	CTRL-Z
+	{any sequence of shell commands}
+	fg
+
+You are right back where you left Vim, nothing has changed.
+
+   In case pressing CTRL-Z doesn't work, you can also use ":suspend".
+Don't forget to bring Vim back to the foreground, you would lose any changes
+that you made!
+
+==============================================================================
+*21.2*	Executing shell commands
+
+To execute a single shell command from Vim use ":!{command}".  For example, to
+see a directory listing: >
+
+	:!ls
+	:!dir
+
+   Vim will execute the program.  When it ends you will get a prompt to hit
+<Enter>.  This allows you to have a look at the output from the command before
+returning to the text you were editing.
+
+   The "!" is also used in other places where a program is run.  Let's take
+a look at an overview:
+
+	:!{program}		execute {program}
+	:r !{program}		execute {program} and read its output
+	:w !{program}		execute {program} and send text to its input
+	:[range]!{program}	filter text through {program}
+
+Notice that the presence of a range before "!{program}" makes a big
+difference.  Without it executes the program normally, with the range a number
+of text lines is filtered through the program.
+
+==============================================================================
+*21.3*	Remembering information; viminfo
+
+The viminfo file is designed to store status information:
+
+	Command-line and Search pattern history
+	Text in registers
+	Marks for various files
+	The buffer list
+	Global variables
+
+Each time you exit Vim it will store this information in a file, the viminfo
+file.  When Vim starts again, the viminfo file is read and the information
+restored.
+
+The 'viminfo' option is set by default to restore a limited number of items.
+You might want to set it to remember more information.  This is done through
+the following command: >
+
+	:set viminfo=string
+
+The string specifies what to save.  The syntax of this string is an option
+character followed by an argument.  The option/argument pairs are separated by
+commas.
+
+   Take a look at how you can build up your own viminfo string.  First, the '
+option is used to specify how many files for which you save marks (a-z).  Pick
+a nice even number for this option (1000, for instance).  Your command now
+looks like this: >
+
+	:set viminfo='1000
+
+The f option controls whether global marks (A-Z and 0-9) are stored.  If this
+option is 0, none are stored.  If it is 1 or you do not specify an f option,
+the marks are stored.  You want this feature, so now you have this: >
+
+	:set viminfo='1000,f1
+
+The < option controls how many lines are saved for each of the registers.  By
+default, all the lines are saved.  If 0, nothing is saved.  To avoid adding
+thousands of lines to your viminfo file (which might never get used and makes
+starting Vim slower) you use a maximum of 500 lines: >
+<
+Other options you might want to use:
+	:	number of lines to save from the command line history
+	@	number of lines to save from the input line history
+	/	number of lines to save from the search history
+	r	removable media, for which no marks will be stored (can be
+		used several times)
+	!	global variables that start with an uppercase letter and
+		don't contain lowercase letters
+	h	disable 'hlsearch' highlighting when starting
+	%	the buffer list (only restored when starting Vim without file
+		arguments)
+	c	convert the text using 'encoding'
+	n	name used for the viminfo file (must be the last option)
+
+GETTING BACK TO WHERE YOU STOPPED VIM
+
+You are halfway editing a file and it's time to leave for holidays.  You exit
+Vim and go enjoy yourselves, forgetting all about your work.  After a couple
+of weeks you start Vim, and type:
+>
+	'0
+
+GETTING BACK TO SOME FILE
+
+If you want to go back to a file that you edited recently, but not when
+exiting Vim, there is a slightly more complicated way.  You can see a list of
+files by typing the command: >
+
+	:oldfiles
+<	1: ~/.viminfo ~
+	2: ~/text/resume.txt ~
+	3: /tmp/draft ~
+
+Now you would like to edit the second file, which is in the list preceded by
+"2:".  You type: >
+
+	:e #<123
+
+That #<123 thing is a bit complicated when you just want to edit a file.
+Fortunately there is a simpler way: >
+
+	:browse oldfiles
+<	1: ~/.viminfo ~
+	2: ~/text/resume.txt ~
+	3: /tmp/draft ~
+	-- More --
+
+You get the same list of files as with |:oldfiles|.  If you want to edit
+"resume.txt" first press "q" to stop the listing.  You will get a prompt:
+
+	Type number and <Enter> (empty cancels): ~
+
+Type "2" and press <Enter> to edit the second file.
+
+MOVE INFO FROM ONE VIM TO ANOTHER
+
+You can use the ":wviminfo" and ":rviminfo" commands to save and restore the
+information while still running Vim.  This is useful for exchanging register
+contents between two instances of Vim, for example.  In the first Vim do: >
+
+==============================================================================
+*21.4*	Sessions
+
+Suppose you are editing along, and it is the end of the day.  You want to quit
+work and pick up where you left off the next day.  You can do this by saving
+your editing session and restoring it the next day.
+   A Vim session contains all the information about what you are editing.
+This includes things such as the file list, window layout, global variables,
+options and other information.  (Exactly what is remembered is controlled by
+the 'sessionoptions' option, described below.)
+
+   The following command creates a session file: >
+
+	:mksession vimbook.vim
+
+Later if you want to restore this session, you can use this command: >
+
+	:source vimbook.vim
+
+If you want to start Vim and restore a specific session, you can use the
+following command: >
+
+	vim -S vimbook.vim
+
+This tells Vim to read a specific file on startup.  The 'S' stands for
+session (actually, you can source any Vim script with -S, thus it might as
+well stand for "source").
+
+The windows that were open are restored, with the same position and size as
+before.  Mappings and option values are like before.
+   What exactly is restored depends on the 'sessionoptions' option.  The
+default value is "blank,buffers,curdir,folds,help,options,winsize".
+
+	blank		keep empty windows
+	buffers		all buffers, not only the ones in a window
+	curdir		the current directory
+	folds		folds, also manually created ones
+	help		the help window
+	options		all options and mappings
+	winsize		window sizes
+
+Change this to your liking.  To also restore the size of the Vim window, for
+example, use: >
+
+	:set sessionoptions+=resize
+
+SESSION HERE, SESSION THERE
+
+The obvious way to use sessions is when working on different projects.
+Suppose you store your session files in the directory "~/.vim".  You are
+currently working on the "secret" project and have to switch to the "boring"
+project: >
+
+	:wall
+	:mksession! ~/.vim/secret.vim
+	:source ~/.vim/boring.vim
+
+   Another way of using sessions is to create a window layout that you like to
+use, and save this in a session.  Then you can go back to this layout whenever
+you want.
+   For example, this is a nice layout to use:
+
+	+----------------------------------------+
+	|		   VIM - main help file  |
+	|					 |
+	|Move around:  Use the cursor keys, or "h|
+	|help.txt================================|
+	|explorer   |				 |
+	|dir	    |~				 |
+	|dir	    |~				 |
+	|file	    |~				 |
+	|file	    |~				 |
+	|file	    |~				 |
+	|file	    |~				 |
+	|~/=========|[No File]===================|
+	|					 |
+	+----------------------------------------+
+
+You can resize the windows a bit to your liking.  Then save the session with:
+>
+	:mksession ~/.vim/mine.vim
+
+Now you can start Vim with this layout: >
+
+	vim -S ~/.vim/mine.vim
+
+Hint: To open a file you see listed in the explorer window in the empty
+window, move the cursor to the filename and press "O".  Double clicking with
+the mouse will also do this.
+
+UNIX AND MS-WINDOWS
+
+Some people have to do work on MS-Windows systems one day and on Unix another
+day.  If you are one of them, consider adding "slash" and "unix" to
+'sessionoptions'.  The session files will then be written in a format that can
+be used on both systems.  This is the command to put in your vimrc file: >
+
+	:set sessionoptions+=unix,slash
+
+Vim will use the Unix format then, because the MS-Windows Vim can read and
+write Unix files, but Unix Vim can't read MS-Windows format session files.
+Similarly, MS-Windows Vim understands file names with / to separate names, but
+Unix Vim doesn't understand \.
+
+SESSIONS AND VIMINFO
+
+Sessions store many things, but not the position of marks, contents of
+registers and the command line history.  You need to use the viminfo feature
+for these things.
+   In most situations you will want to use sessions separately from viminfo.
+This can be used to switch to another session, but keep the command line
+history.  And yank text into registers in one session, and paste it back in
+another session.
+   You might prefer to keep the info with the session.  You will have to do
+this yourself then.  Example: >
+
+	:mksession! ~/.vim/secret.vim
+	:wviminfo! ~/.vim/secret.viminfo
+
+And to restore this again: >
+
+	:source ~/.vim/secret.vim
+	:rviminfo! ~/.vim/secret.viminfo
+
+==============================================================================
+*21.5*	Views
+
+A session stores the looks of the whole of Vim.  When you want to store the
+properties for one window only, use a view.
+   The use of a view is for when you want to edit a file in a specific way.
+For example, you have line numbers enabled with the 'number' option and
+defined a few folds.  Just like with sessions, you can remember this view on
+the file and restore it later.  Actually, when you store a session, it stores
+the view of each window.
+   There are two basic ways to use views.  The first is to let Vim pick a name
+for the view file.  You can restore the view when you later edit the same
+file.  To store the view for the current window: >
+
+	:mkview
+
+Vim will decide where to store the view.  When you later edit the same file
+you get the view back with this command: >
+
+	:loadview
+
+That's easy, isn't it?
+   Now you want to view the file without the 'number' option on, or with all
+folds open, you can set the options to make the window look that way.  Then
+store this view with: >
+
+	:mkview 1
+
+Obviously, you can get this back with: >
+
+	:loadview 1
+
+Now you can switch between the two views on the file by using ":loadview" with
+and without the "1" argument.
+   You can store up to ten views for the same file this way, one unnumbered
+and nine numbered 1 to 9.
+
+A VIEW WITH A NAME
+
+The second basic way to use views is by storing the view in a file with a name
+you choose.  This view can be loaded while editing another file.  Vim will
+then switch to editing the file specified in the view.  Thus you can use this
+to quickly switch to editing another file, with all its options set as you
+saved them.
+   For example, to save the view of the current file: >
+
+	:mkview ~/.vim/main.vim
+
+You can restore it with: >
+
+	:source ~/.vim/main.vim
+
+==============================================================================
+*21.6*	Modelines
+
+When editing a specific file, you might set options specifically for that
+file.  Typing these commands each time is boring.  Using a session or view for
+editing a file doesn't work when sharing the file between several people.
+   The solution for this situation is adding a modeline to the file.  This is
+a line of text that tells Vim the values of options, to be used in this file
+only.
+   A typical example is a C program where you make indents by a multiple of 4
+spaces.  This requires setting the 'shiftwidth' option to 4.  This modeline
+will do that:
+
+	/* vim:set shiftwidth=4: */ ~
+
+Put this line as one of the first or last five lines in the file.  When
+editing the file, you will notice that 'shiftwidth' will have been set to
+four.  When editing another file, it's set back to the default value of eight.
+
+   For some files the modeline fits well in the header, thus it can be put at
+the top of the file.  For text files and other files where the modeline gets
+in the way of the normal contents, put it at the end of the file.
+
+The 'modelines' option specifies how many lines at the start and end of the
+file are inspected for containing a modeline.  To inspect ten lines: >
+
+	:set modelines=10
+
+The 'modeline' option can be used to switch this off.  Do this when you are
+working as root on Unix or Administrator on MS-Windows, or when you don't
+trust the files you are editing: >
+
+	:set nomodeline
+
+Use this format for the modeline:
+
+	any-text vim:set {option}={value} ... : any-text ~
+
+The "any-text" indicates that you can put any text before and after the part
+that Vim will use.  This allows making it look like a comment, like what was
+done above with /* and */.
+
+   The " vim:" part is what makes Vim recognize this line.  There must be
+white space before "vim", or "vim" must be at the start of the line.  Thus
+using something like "gvim:" will not work.
+   The part between the colons is a ":set" command.  It works the same way as
+typing the ":set" command, except that you need to insert a backslash before a
+colon (otherwise it would be seen as the end of the modeline).
+
+For an example:
+
+	// vim:set textwidth=72 dir=c\:\tmp:  use c:\tmp here ~
+
+For more details see |modeline|.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# usr_22.txt  Finding the file to edit
+
+Files can be found everywhere.  So how do you find them?  Vim offers various
+ways to browse the directory tree.  There are commands to jump to a file that
+is mentioned in another.  And Vim remembers which files have been edited
+before.
+
+|22.1|	The file browser
+|22.2|	The current directory
+|22.3|	Finding a file
+|22.4|	The buffer list
+
+==============================================================================
+*22.1*	The file browser
+
+Vim has a plugin that makes it possible to edit a directory.  Try this: >
+
+	:edit .
+
+Through the magic of autocommands and Vim scripts, the window will be filled
+with the contents of the directory.  It looks like this:
+
+" ============================================================================ ~
+" Netrw Directory Listing                                        (netrw v109) ~
+"   /Users/xiaotianli/git/Sandbox/cpp/test/std
+"   Sorted by      name ~
+"   Sort sequence: [\/]$,\.h$,\.c$,\.cpp$,*,\.info$,\.swp$,\.o$\.obj$,\.bak$ ~
+"   Quick Help: <F1>:help  -:go up dir  D:delete  R:rename  s:sort-by  x:exec ~
+" ============================================================================ ~
+../ ~
+./ ~
+check/ ~
+Makefile ~
+autocmd.txt ~
+change.txt ~
+eval.txt~ ~
+filetype.txt~ ~
+help.txt.info ~
+
+You can press <F1> to get help on the things you can do in the netrw file
+browser.  This is what you get: >
+
+    9. Directory Browsing	 netrw-browse   netrw-dir   netrw-list   netrw-help 
+
+    MAPS								 netrw-maps 
+     	 <F1>.............Help.......................................|netrw-help|
+     	 <cr>.............Browsing...................................|netrw-cr|
+     	 <del>............Deleting Files or Directories..............|netrw-delete|
+     	 -................Going Up...................................|netrw--|
+     	 a................Hiding Files or Directories................|netrw-a|
+     	 mb...............Bookmarking a Directory....................|netrw-mb|
+     	 gb...............Changing to a Bookmarked Directory.........|netrw-gb|
+     	 c................Make Browsing Directory The Current Dir....|netrw-c|
+     	 d................Make A New Directory.......................|netrw-d|
+     	 D................Deleting Files or Directories..............|netrw-D|
+     	 <c-h>............Edit File/Directory Hiding List............|netrw-ctrl-h|
+     	 i................Change Listing Style.......................|netrw-i|
+     	 <c-l>............Refreshing the Listing.....................|netrw-ctrl-l|
+     	 o................Browsing with a Horizontal Split...........|netrw-o|
+     	 p................Use Preview Window.........................|netrw-p|
+     	 P................Edit in Previous Window....................|netrw-p|
+     	 q................Listing Bookmarks and History..............|netrw-qb|
+     	 r................Reversing Sorting Order....................|netrw-r|
+<    	(etc)
+
+To select files for display and editing: (with the cursor is atop a filename)
+
+	<enter>		Open the file in the current window.	   |netrw-cr|
+	o		Horizontally split window and display file |netrw-o|
+	v		Vertically split window and display file   |netrw-v|
+	p		Use the |preview-window| 		   |netrw-p|
+	P		Edit in the previous window		   |netrw-P|
+	t		Open file in a new tab			   |netrw-t|
+
+The following normal-mode commands may be used to control the browser display:
+
+	i		Controls listing style (thin, long, wide, and tree).
+			The long listing includes size and date information.
+	s		Repeatedly pressing s will change the way the files
+			are sorted; one may sort on name, modification time,
+			or size.
+	r		Reverse the sorting order.
+
+As a sampling of extra normal-mode commands:
+
+	c		Change Vim's notion of the current directory to be
+			the same as the browser directory.  (see
+			|g:netrw_keepdir| to control this, too)
+	R		Rename the file or directory under the cursor; a
+			prompt will be issued for the new name.
+	D		Delete the file or directory under the cursor; a
+			confirmation request will be issued.
+	mb gb		Make bookmark/goto bookmark
+
+See |netrw-browse| for more.
+
+==============================================================================
+*22.2*	The current directory
+
+Just like the shell, Vim has the concept of a current directory.  Suppose you
+are in your home directory and want to edit several files in a directory
+"VeryLongFileName".  You could do: >
+
+	:edit VeryLongFileName/file1.txt
+	:edit VeryLongFileName/file2.txt
+	:edit VeryLongFileName/file3.txt
+
+To avoid much of the typing, do this: >
+
+	:cd VeryLongFileName
+	:edit file1.txt
+	:edit file2.txt
+	:edit file3.txt
+
+The ":cd" command changes the current directory.  You can see what the current
+directory is with the ":pwd" command: >
+
+	:pwd
+	/a
+
+Vim remembers the last directory that you used.  Use "cd -" to go back to it.
+Example: >
+
+	:pwd
+	/a
+
+	:cd /b
+	:pwd
+	/b
+
+	:cd -
+	:pwd
+	/a
+
+	:cd -
+	:pwd
+	/b
+
+WINDOW LOCAL DIRECTORY
+
+When you split a window, both windows use the same current directory.  When
+you want to edit a number of files somewhere else in the new window, you can
+make it use a different directory, without changing the current directory in
+the other window.  This is called a local directory. >
+
+	:pwd
+	/a
+
+	:split
+	:lcd /b
+	:pwd
+	/b
+
+	CTRL-W w
+	:pwd
+	/a
+
+So long as no ":lcd" command has been used, all windows share the same current
+directory.  Doing a ":cd" command in one window will also change the current
+directory of the other window.
+   For a window where ":lcd" has been used a different current directory is
+remembered.  Using ":cd" or ":lcd" in other windows will not change it.
+   When using a ":cd" command in a window that uses a different current
+directory, it will go back to using the shared directory.
+
+==============================================================================
+*22.3*	Finding a file
+
+You are editing a C program that contains this line:
+
+	#include "inits.h" ~
+
+You want to see what is in that "inits.h" file.  Move the cursor on the name
+of the file and type: >
+
+	gf
+
+Vim will find the file and edit it.
+
+   What if the file is not in the current directory?  Vim will use the 'path'
+option to find the file.  This option is a list of directory names where to
+look for your file.
+   Suppose you have your include files located in "c:/prog/include".  This
+command will add it to the 'path' option: >
+
+	:set path+=c:/prog/include
+
+This directory is an absolute path.  No matter where you are, it will be the
+same place.  What if you have located files in a subdirectory, below where the
+file is?  Then you can specify a relative path name.  This starts with a dot:
+>
+	:set path+=./proto
+
+The 'path' option allows specifying the directories where to search for files
+in many more ways.  See the help on the 'path' option.
+   The 'isfname' option is used to decide which characters are included in the
+file name, and which ones are not (e.g., the " character in the example
+above).
+
+When you know the file name, but it's not to be found in the file, you can
+type it: >
+
+	:find inits.h
+
+Vim will then use the 'path' option to try and locate the file.  This is the
+same as the ":edit" command, except for the use of 'path'.
+e.g.
+set path+=/data/users/xiaotianli/fbsource/fbcode
+set path+=/data/users/xiaotianli/fbsource/fbcode/admarket/adindexer/**
+set path+=/data/users/xiaotianli/fbsource/fbcode/buck-out/opt/gen/admarket/adindexer/if/**
+
+To open the found file in a new window use CTRL-W f instead of "gf", or use
+":sfind" instead of ":find".
+
+A nice way to directly start Vim to edit a file somewhere in the 'path': >
+
+	vim "+find stdio.h"
+
+This finds the file "stdio.h" in your value of 'path'.  The quotes are
+necessary to have one argument |-+c|.
+
+==============================================================================
+*22.4*	The buffer list
+
+The Vim editor uses the term buffer to describe a file being edited.
+Actually, a buffer is a copy of the file that you edit.  When you finish
+changing the buffer, you write the contents of the buffer to the file.
+Buffers not only contain file contents, but also all the marks, settings, and
+other stuff that goes with it.
+
+HIDDEN BUFFERS
+
+Suppose you are editing the file one.txt and need to edit the file two.txt.
+You could simply use ":edit two.txt", but since you made changes to one.txt
+that won't work.  You also don't want to write one.txt yet.  Vim has a
+solution for you: >
+
+	:hide edit two.txt
+
+The buffer "one.txt" disappears from the screen, but Vim still knows that you
+are editing this buffer, so it keeps the modified text.  This is called a
+hidden buffer: The buffer contains text, but you can't see it.
+
+   The argument of ":hide" is another command.  ":hide" makes that command
+behave as if the 'hidden' option was set.  You could also set this option
+yourself.  The effect is that when any buffer is abandoned, it becomes hidden.
+   Be careful!  When you have hidden buffers with changes, don't exit Vim
+without making sure you have saved all the buffers.
+
+INACTIVE BUFFERS
+
+   When a buffer has been used once, Vim remembers some information about it.
+When it is not displayed in a window and it is not hidden, it is still in the
+buffer list.  This is called an inactive buffer.  Overview:
+
+   Active		Appears in a window, text loaded.
+   Hidden		Not in a window, text loaded.
+   Inactive		Not in a window, no text loaded.
+
+LISTING BUFFERS
+
+View the buffer list with this command: >
+
+	:buffers
+
+A command which does the same, is not so obvious to list buffers, but is much
+shorter to type: >
+
+	:ls
+
+The output could look like this:
+
+  1 #h   "help.txt"			line 62 ~
+  2 %a + "usr_21.txt"			line 1 ~
+  3      "usr_toc.txt"			line 1 ~
+
+col1: buffer number.
+col2: flags.
+col3: the name of the file.
+col4: the line number where the cursor was the last time.
+
+   The flags that can appear are these (from left to right):
+
+	u	Buffer is unlisted |unlisted-buffer|.
+	 %	Current buffer.
+	 #	Alternate buffer.
+	  a	Buffer is loaded and displayed.
+	  h	Buffer is loaded but hidden.
+	   =	Buffer is read-only.
+	   -	Buffer is not modifiable, the 'modifiable' option is off.
+	    +	Buffer has been modified.
+
+EDITING A BUFFER
+
+You can edit a buffer by its number.  That avoids having to type the file
+name: >
+
+	:buffer 2
+
+But the only way to know the number is by looking in the buffer list.  You can
+use the name, or part of it, instead: >
+
+	:buffer help
+
+Vim will find the best match for the name you type.  If there is only one
+buffer that matches the name, it will be used.  In this case "help.txt".
+   To open a buffer in a new window: >
+
+	:sbuffer 3
+
+This works with a name as well.
+
+USING THE BUFFER LIST
+
+You can move around in the buffer list with these commands:
+
+	:bnext		go to next buffer
+	:bprevious	go to previous buffer
+	:bfirst		go to the first buffer
+	:blast		go to the last buffer
+
+To remove a buffer from the list, use this command: >
+
+	:bdelete 3
+
+Again, this also works with a name.
+
+   If you delete a buffer that was active (visible in a window), that window
+will be closed.  If you delete the current buffer, the current window will be
+closed.  If it was the last window, Vim will find another buffer to edit.  You
+can't be editing nothing!
+
+	Note:
+	Even after removing the buffer with ":bdelete" Vim still remembers it.
+	It's actually made "unlisted", it no longer appears in the list from
+	":buffers".  The ":buffers!" command will list unlisted buffers (yes,
+	Vim can do the impossible).  To really make Vim forget about a buffer,
+	use ":bwipe".  Also see the 'buflisted' option.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# usr_23.txt  Editing other files
+
+This chapter is about editing files that are not ordinary files.  With Vim you
+can edit files that are compressed or encrypted.  Some files need to be
+accessed over the internet.  With some restrictions, binary files can be
+edited as well.
+
+|23.1|	DOS, Mac and Unix files
+|23.2|	Files on the internet
+|23.3|	Encryption
+|23.4|	Binary files
+|23.5|	Compressed files
+
+==============================================================================
+*23.1*	DOS, Mac and Unix files
+
+Back in the early days, the old Teletype machines used two characters to
+start a new line.  One to move the carriage back to the first position
+(carriage return, <CR>), another to move the paper up (line feed, <LF>).
+   When computers came out, storage was expensive.  Some people decided that
+they did not need two characters for end-of-line.  The UNIX people decided
+they could use <Line Feed> only for end-of-line.  The Apple people
+standardized on <CR>.  The MS-DOS (and Microsoft Windows) folks decided to
+keep the old <CR><LF>.
+   This means that if you try to move a file from one system to another, you
+have line-break problems.  The Vim editor automatically recognizes the
+different file formats and handles things properly behind your back.
+   The option 'fileformats' contains the various formats that will be tried
+when a new file is edited.  The following command, for example, tells Vim to
+try UNIX format first and MS-DOS format second: >
+
+	:set fileformats=unix,dos
+
+You will notice the format in the message you get when editing a file.  You
+don't see anything if you edit a native file format.  Thus editing a Unix file
+on Unix won't result in a remark.  But when you edit a dos file, Vim will
+notify you of this:
+
+	"/tmp/test" [dos] 3L, 71C ~
+
+For a Mac file you would see "[mac]".
+   The detected file format is stored in the 'fileformat' option.  To see
+which format you have, execute the following command: >
+
+	:set fileformat?
+
+The three names that Vim uses are:
+
+	unix		<LF>
+	dos		<CR><LF>
+	mac		<CR>
+
+==============================================================================
+*23.2*	Files on the internet
+
+	ftp://		uses ftp
+	rcp://		uses rcp
+	scp://		uses scp
+	http://		uses wget (reading only)
+
+You could start a program to download the file, save it on your local disk and
+then start Vim to edit it.
+   There is a much simpler way.  Move the cursor to any character of the URL.
+Then use this command: >
+
+	gf
+
+With a bit of luck, Vim will figure out which program to use for downloading
+the file, download it and edit the copy.
+
+==============================================================================
+*23.3*	Encryption
+
+...
+
+==============================================================================
+*23.4*	Binary files
+
+   To make sure that Vim does not use its clever tricks in the wrong way, add
+the "-b" argument when starting Vim: >
+
+	vim -b datafile
+
+USING XXD
+
+A real binary editor shows the text in two ways: as it is and in hex format.
+You can do this in Vim by first converting the file with the "xxd" program.
+This comes with Vim.
+   First edit the file in binary mode: >
+
+	vim -b datafile
+
+Now convert the file to a hex dump with xxd: >
+
+	:%!xxd
+
+The text will look like this:
+
+	0000000: 1f8b 0808 39d7 173b 0203 7474 002b 4e49  ....9..;..tt.+NI ~
+	0000010: 4b2c 8660 eb9c ecac c462 eb94 345e 2e30  K,.`.....b..4^.0 ~
+	0000020: 373b 2731 0b22 0ca6 c1a2 d669 1035 39d9  7;'1.".....i.59. ~
+
+...
+
+==============================================================================
+*23.5*	Compressed files
+
+This is easy: You can edit a compressed file just like any other file.  The
+"gzip" plugin takes care of decompressing the file when you edit it.  And
+compressing it again when you write it.
+   These compression methods are currently supported:
+
+	.Z	compress
+	.gz	gzip
+	.bz2	bzip2
+
+Vim uses the mentioned programs to do the actual compression and
+decompression.  You might need to install the programs first.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# usr_24.txt  Inserting quickly
+
+When entering text, Vim offers various ways to reduce the number of keystrokes
+and avoid typing mistakes.  Use Insert mode completion to repeat previously
+typed words.  Abbreviate long words to short ones.  Type characters that
+aren't on your keyboard.
+
+|24.1|	Making corrections
+|24.2|	Showing matches
+|24.3|	Completion
+|24.4|	Repeating an insert
+|24.5|	Copying from another line
+|24.6|	Inserting a register
+|24.7|	Abbreviations
+|24.8|	Entering special characters
+|24.9|	Digraphs
+|24.10|	Normal mode commands
+
+==============================================================================
+*24.1*	Making corrections
+
+<BS>: deletes the character before the cursor.
+<Del>: deletes the character under the cursor.
+i_CTRL-W: delete a whole word before the cursor.
+i_CTRL-U: delete from prev char to first non-blank char.
+i_Shift-<Left>: same as b in normal mode 
+i_Shift-<Right>: same as w in normal mode
+
+This uses special keys to move around, while remaining in Insert mode.  This
+resembles what you would do in a modeless editor.  It's easier to remember,
+but takes more time (you have to move your hand from the letters to the cursor
+keys, and the <End> key is hard to press without looking at the keyboard).
+   These special keys are most useful when writing a mapping that doesn't
+leave Insert mode.  The extra typing doesn't matter then.
+   An overview of the keys you can use in Insert mode:
+
+	<C-Home>	to start of the file
+	<PageUp>	a whole screenful up
+	<Home>		to start of line
+	<S-Left>	one word left
+	<C-Left>	one word left
+	<S-Right>	one word right
+	<C-Right>	one word right
+	<End>		to end of the line
+	<PageDown>	a whole screenful down
+	<C-End>		to end of the file
+
+There are a few more, see |ins-special-special|.
+
+==============================================================================
+*24.2*	Showing matches
+
+When you type a ) it would be nice to see with which ( it matches.  To make
+Vim do that use this command: >
+
+	:set showmatch
+
+When you now type a text like "(example)", as soon as you type the ) Vim will
+briefly move the cursor to the matching (, keep it there for half a second,
+
+   In case there is no matching (, Vim will beep.  Then you know that you
+might have forgotten the ( somewhere, or typed a ) too many.
+   The match will also be shown for [] and {} pairs.  You don't have to wait
+with typing the next character, as soon as Vim sees it the cursor will move
+back and inserting continues as before.
+   You can change the time Vim waits with the 'matchtime' option.  For
+example, to make Vim wait one and a half second: >
+
+	:set matchtime=15
+
+The time is specified in tenths of a second.
+
+==============================================================================
+*24.3*	Completion
+
+Vim can automatically complete words on insertion.  You type the first part of
+a word, press CTRL-P, and Vim guesses the rest.
+
+   Suppose, for example, that you are creating a C program and want to type in
+the following:
+
+	total = ch_array[0] + ch_array[1] + ch_array[2]; ~
+
+You start by entering the following:
+
+	total = ch_array[0] + ch_ ~
+
+At this point, you tell Vim to complete the word using the command CTRL-P.
+Vim searches for a word that starts with what's in front of the cursor.  In
+this case, it is "ch_", which matches with the word ch_array.  So typing
+CTRL-P gives you the following:
+
+	total = ch_array[0] + ch_array ~
+
+CTRL-N: search forward. (Next)
+CTRL-P: search backward. (Previous)
+
+OPTIONS
+
+You can customize the search order with the 'complete' option.
+
+A special option for completion is 'infercase'.  This is useful to find
+matches while ignoring case ('ignorecase' must be set) but still using the
+case of the word typed so far.  Thus if you type "For" and Vim finds a match
+"fortunately", it will result in "Fortunately".
+
+If you know what you are looking for, you can use these commands to complete
+with a certain type of item:
+
+	CTRL-X CTRL-F		file names
+	CTRL-X CTRL-L		whole lines
+	CTRL-X CTRL-D		macro definitions (also in included files)
+	CTRL-X CTRL-I		current and included files
+	CTRL-X CTRL-K		words from a dictionary
+	CTRL-X CTRL-T		words from a thesaurus
+	CTRL-X CTRL-]		tags
+	CTRL-X CTRL-V		Vim command line
+
+After each of them CTRL-N can be used to find the next match, CTRL-P to find
+the previous match.
+   More information for each of these commands here: |ins-completion|.
+
+COMPLETING FILE NAMES
+
+Let's take CTRL-X CTRL-F as an example.  This will find file names.  It scans
+the current directory for files and displays each one that matches the word in
+front of the cursor.
+   Suppose, for example, that you have the following files in the current
+directory:
+
+	main.c  sub_count.c  sub_done.c  sub_exit.c
+
+Now enter Insert mode and start typing:
+
+	The exit code is in the file sub ~
+
+At this point, you enter the command CTRL-X CTRL-F.  Vim now completes the
+current word "sub" by looking at the files in the current directory.  The
+first match is sub_count.c.  This is not the one you want, so you match the
+next file by typing CTRL-N.  This match is sub_done.c.  Typing CTRL-N again
+takes you to sub_exit.c.  The results:
+
+	The exit code is in the file sub_exit.c ~
+
+COMPLETING IN SOURCE CODE
+
+Source code files are well structured.  That makes it possible to do
+completion in an intelligent way.  In Vim this is called **Omni completion**.
+In some other editors it's called **intellisense**, but that is a trademark.
+
+The key to Omni completion is CTRL-X CTRL-O.  Obviously the O stands for Omni
+here, so that you can remember it easier.  Let's use an example for editing C
+source:
+
+	{
+	    struct foo *p;
+	    p->
+
+The cursor is after "p->".  Now type CTRL-X CTRL-O.  Vim will offer you a list
+of alternatives, which are the items that "struct foo" contains.  That is
+quite different from using CTRL-P, which would complete any word, while only
+members of "struct foo" are valid here.
+
+For Omni completion to work you may need to do some setup.  At least make sure
+filetype plugins are enabled.  Your vimrc file should contain a line like
+this: >
+	filetype plugin on
+Or: >
+	filetype plugin indent on
+
+==============================================================================
+*24.4*	Repeating an insert
+
+If you press CTRL-A, the editor inserts the text you typed the last time you
+were in Insert mode.
+   Assume, for example, that you have a file that begins with the following:
+
+	"file.h" ~
+	/* Main program begins */ ~
+
+You edit this file by inserting "#include " at the beginning of the first
+line:
+
+	#include "file.h" ~
+	#include /* Main program begins */ ~
+
+You go down to the beginning of the next line using the commands "j^".  You
+now start to insert a new "#include" line.  So you type: >
+
+	i CTRL-A
+i_CTRL-A: insert previous insertion.
+
+The CTRL-@ command does a CTRL-A and then exits Insert mode.  That's a quick
+way of doing exactly the same insertion again.
+
+==============================================================================
+*24.5*	Copying from another line
+
+The CTRL-Y command inserts the character above the cursor.  This is useful
+when you are duplicating a previous line.  For example, you have this line of
+C code:
+
+	b_array[i]->s_next = a_array[i]->s_next; ~
+        b_array[i]->s_prev = a_array[i]->s_prev; ~
+
+Start the new line, and press CTRL-Y 14 times, until you are at the "n" of
+"next":
+
+	b_array[i]->s_next = a_array[i]->s_next; ~
+	b_array[i]->s_ ~
+
+Now you type "prev":
+
+	b_array[i]->s_next = a_array[i]->s_next; ~
+	b_array[i]->s_prev ~
+
+Continue pressing CTRL-Y until the following "next":
+
+	b_array[i]->s_next = a_array[i]->s_next; ~
+	b_array[i]->s_prev = a_array[i]->s_ ~
+
+Now type "prev;" to finish it off.
+
+i_CTRL-Y: copy prev line one char at a time. (yield? y->up a line)
+i_CTRL-E: copy next line one char at a time. (extra? e->down a line)
+
+==============================================================================
+*24.6*	Inserting a register
+
+The command CTRL-R {register} inserts the contents of the register.  This is
+useful to avoid having to type a long word.  For example, you need to type
+this:
+
+	r = VeryLongFunction(a) + VeryLongFunction(b) + VeryLongFunction(c) ~
+
+The function name is defined in a different file.  Edit that file and move the
+cursor on top of the function name there, and yank it into register v: >
+
+	"vyiw
+
+"v is the register specification, "yiw" is yank-inner-word.  Now edit the file
+where the new line is to be inserted, and type the first letters:
+
+	r = ~
+
+Now use CTRL-R v to insert the function name:
+
+	r = VeryLongFunction ~
+
+If the register contains characters such as <BS> or other special characters,
+they are interpreted as if they had been typed from the keyboard.  If you do
+not want this to happen (you really want the <BS> to be inserted in the text),
+use the command CTRL-R CTRL-R {register}.
+
+==============================================================================
+*24.7*	Abbreviations
+
+An abbreviation is a short word that takes the place of a long one.  For
+example, "ad" stands for "advertisement".  Vim enables you to type an
+abbreviation and then will automatically expand it for you.
+   To tell Vim to expand "ad" into "advertisement" every time you insert it,
+use the following command: >
+
+	:iabbrev ad advertisement
+
+ABBREVIATING SEVERAL WORDS
+
+It is possible to define an abbreviation that results in multiple words.  For
+example, to define "JB" as "Jack Benny", use the following command: >
+
+	:iabbrev JB Jack Benny
+
+As a programmer, I use two rather unusual abbreviations: >
+
+	:iabbrev #b /****************************************
+	:iabbrev #e <Space>****************************************/
+
+    Note:
+    ":iabbrev" is a long word to type.  ":iab" works just as well.
+    That's abbreviating the abbreviate command!
+
+FIXING TYPING MISTAKES
+
+It's very common to make the same typing mistake every time.  For example,
+typing "teh" instead of "the".  You can fix this with an abbreviation: >
+
+	:abbreviate teh the
+
+You can add a whole list of these.  Add one each time you discover a common
+mistake.
+
+LISTING ABBREVIATIONS
+
+The "i" in the first column indicates Insert mode.  These abbreviations are
+only active in Insert mode.  Other possible characters are:
+
+	c	Command-line mode			:cabbrev
+	!	both Insert and Command-line mode	:abbreviate
+
+The ":abbreviate" command lists the abbreviations:
+
+	:abbreviate
+	i  #e		  ****************************************/
+	i  #b		 /****************************************
+	i  JB		 Jack Benny
+	i  ad		 advertisement
+	!  teh		 the
+
+DELETING ABBREVIATIONS
+
+To get rid of an abbreviation, use the ":unabbreviate" command.  Suppose you
+have the following abbreviation: >
+
+	:abbreviate @f fresh
+
+You can remove it with this command: >
+
+	:unabbreviate @f
+
+To remove all the abbreviations: >
+
+    :abclear
+
+REMAPPING ABBREVIATIONS
+
+There is one thing to watch out for when defining an abbreviation: The
+resulting string should not be mapped.  For example: >
+
+	:abbreviate @a adder
+	:imap dd disk-door
+
+When you now type @a, you will get "adisk-doorer".  That's not what you want.
+To avoid this, use the ":noreabbrev" command.  It does the same as
+":abbreviate", but avoids that the resulting string is used for mappings: >
+
+	:noreabbrev @a adder
+
+Fortunately, it's unlikely that the result of an abbreviation is mapped.
+
+==============================================================================
+*24.8*	Entering special characters
+
+i_CTRL-V: insert the next character literally.
+In other words, any special meaning the character has, it will be ignored.
+For example:
+
+	CTRL-V <Esc>
+
+Inserts an escape character.  Thus you don't leave Insert mode.  (Don't type
+the space after CTRL-V, it's only to make this easier to read).
+
+	Note:
+	On MS-Windows CTRL-V is used to paste text.  Use CTRL-Q instead of
+	CTRL-V.  On Unix, on the other hand, CTRL-Q does not work on some
+	terminals, because it has a special meaning.
+
+You can also use the command CTRL-V {digits} to insert a character with the
+decimal number {digits}.  For example, the character number 127 is the <Del>
+character (but not necessarily the <Del> key!).  To insert <Del> type: >
+
+	CTRL-V 127
+
+You can enter characters up to 255 this way.  When you type fewer than two
+digits, a non-digit will terminate the command.  To avoid the need of typing a
+non-digit, prepend one or two zeros to make three digits.
+   All the next commands insert a <Tab> and then a dot:
+
+	CTRL-V 9.
+	CTRL-V 09.
+	CTRL-V 009.
+
+To enter a character in hexadecimal, use an "x" after the CTRL-V: >
+
+	CTRL-V x7f
+
+This also goes up to character 255 (CTRL-V xff).  You can use "o" to type a
+character as an octal number and two more methods allow you to type up to
+a 16 bit and a 32 bit number (e.g., for a Unicode character): >
+
+	CTRL-V o123
+	CTRL-V u1234
+	CTRL-V U12345678
+
+==============================================================================
+*24.9*	Digraphs
+
+Some characters are not on the keyboard.  For example, the copyright character
+(©).  To type these characters in Vim, you use digraphs, where two characters
+represent one.  To enter a ©, for example, you press three keys: >
+
+	CTRL-K Co
+
+To find out what digraphs are available, use the following command: >
+
+	:digraphs
+
+Vim will display the digraph table.  Here are three lines of it:
+
+  AC ~_ 159  NS |  160  !I ¡  161  Ct ¢  162  Pd £  163  Cu ¤  164  Ye ¥  165 ~
+  BB ¦  166  SE §  167  ': ¨  168  Co ©  169  -a ª  170  << «  171  NO ¬  172 ~
+  -- ­  173  Rg ®  174  'm ¯  175  DG °  176  +- ±  177  2S ²  178  3S ³  179 ~
+
+This shows, for example, that the digraph you get by typing CTRL-K Pd is the
+character (£).  This is character number 163 (decimal).
+   Pd is short for Pound.  Most digraphs are selected to give you a hint about
+the character they will produce.  If you look through the list you will
+understand the logic.
+
+	Note:
+	The digraphs depend on the character set that Vim assumes you are
+	using.  On MS-DOS they are different from MS-Windows.  Always use
+	":digraphs" to find out which digraphs are currently available.
+
+More information about digraphs here: |digraphs|
+   Another way to insert special characters is with a keymap.  More about that
+here: |45.5|
+
+==============================================================================
+*24.10*	Normal mode commands
+
+Insert mode offers a limited number of commands.  In Normal mode you have many
+more.  When you want to use one, you usually leave Insert mode with <Esc>,
+execute the Normal mode command, and re-enter Insert mode with "i" or "a".
+   There is a quicker way.  With CTRL-O {command} you can execute any Normal
+mode command from Insert mode.  For example, to delete from the cursor to the
+end of the line: >
+
+	CTRL-O D
+
+You can execute only one Normal mode command this way.  But you can specify a
+register or a count.  A more complicated example: >
+
+	CTRL-O "g3dw
+
+This deletes up to the third word into register g.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_25.txt|  Editing formatted text
+
+Text hardly ever comes in one sentence per line.  This chapter is about
+breaking sentences to make them fit on a page and other formatting.
+Vim also has useful features for editing single-line paragraphs and tables.
+
+|25.1|	Breaking lines
+|25.2|	Aligning text
+|25.3|	Indents and tabs
+|25.4|	Dealing with long lines
+|25.5|	Editing tables
+
+==============================================================================
+*25.1*	Breaking lines
+
+	:set textwidth=78
+
+REFORMATTING
+
+The Vim editor is not a word processor.  In a word processor, if you delete
+something at the beginning of the paragraph, the line breaks are reworked.  In
+Vim they are not; so if you delete the word "programming" from the first line,
+all you get is a short line:
+
+gq: auto format
+
+visual select and then press gq
+
+Note: there is a way to do automatic formatting for specific types of text
+layouts, see |auto-format|.
+
+Since "gq" is an operator, you can use one of the three ways to select the
+text it works on: With Visual mode, with a movement and with a text object.
+
+A very useful text object to use with "gq" is the paragraph.  Try this: >
+
+	gqap
+
+If you have your paragraphs separated by empty lines, you can format the
+whole file by typing this: >
+
+	gggqG
+
+==============================================================================
+*25.2*	Aligning text
+
+To center a range of lines, use the following command: >
+
+	:{range}center [width]
+
+{range} is the usual command-line range.  [width] is an optional line width to
+use for centering.  If [width] is not specified, it defaults to the value of
+'textwidth'.  (If 'textwidth' is 0, the default is 80.)
+   For example: >
+
+	:1,5center 40
+
+results in the following:
+
+       I taught for a while. One ~
+       time, I was stopped by the ~
+     Fort Worth police, because my ~
+      homework was too hard. True ~
+		 story. ~
+
+RIGHT ALIGNMENT
+
+Similarly, the ":right" command right-justifies the text: >
+
+	:1,5right 37
+
+gives this result:
+
+	    I taught for a while. One ~
+	   time, I was stopped by the ~
+	Fort Worth police, because my ~
+	  homework was too hard. True ~
+			       story. ~
+
+LEFT ALIGNMENT
+
+Finally there is this command: >
+
+	:{range}left [margin]
+
+Unlike ":center" and ":right", however, the argument to ":left" is not the
+length of the line.  Instead it is the left margin.  If it is omitted, the
+text will be put against the left side of the screen (using a zero margin
+would do the same).  If it is 5, the text will be indented 5 spaces.  For
+example, use these commands: >
+
+	:1left 5
+	:2,5left
+
+This results in the following:
+
+	     I taught for a while. One ~
+	time, I was stopped by the ~
+	Fort Worth police, because my ~
+	homework was too hard. True ~
+	story. ~
+
+JUSTIFYING TEXT
+
+Vim has no built-in way of justifying text.  However, there is a neat macro
+package that does the job.  To use this package, execute the following
+command: >
+
+	:runtime macros/justify.vim
+
+This Vim script file defines a new visual command "_j".  To justify a block of
+text, highlight the text in Visual mode and then execute "_j".
+   Look in the file for more explanations.  To go there, do "gf" on this name:
+$VIMRUNTIME/macros/justify.vim.
+
+An alternative is to filter the text through an external program.  Example: >
+
+	:%!fmt
+
+==============================================================================
+*25.3*	Indents and tabs
+
+Indents can be used to make text stand out from the rest.  The example texts
+in this manual, for example, are indented by eight spaces or a tab.  You would
+normally enter this by typing a tab at the start of each line.  Take this
+text:
+	the first line ~
+	the second line ~
+
+This is entered by typing a tab, some text, <Enter>, tab and more text.
+   The 'autoindent' option inserts indents automatically: >
+
+	:set autoindent
+
+When a new line is started it gets the same indent as the previous line.  In
+the above example, the tab after the <Enter> is not needed anymore.
+
+INCREASING INDENT
+
+To increase the amount of indent in a line, use the ">" operator.  Often this
+is used as ">>", which adds indent to the current line.
+   The amount of indent added is specified with the 'shiftwidth' option.  The
+default value is 8.  To make ">>" insert four spaces worth of indent, for
+example, type this: >
+
+	:set shiftwidth=4
+
+When used on the second line of the example text, this is what you get:
+
+	the first line ~
+	    the second line ~
+
+"4>>" will increase the indent of four lines.
+
+TABSTOP
+
+If you want to make indents a multiple of 4, you set 'shiftwidth' to 4.  But
+when pressing a <Tab> you still get 8 spaces worth of indent.  To change this,
+set the 'softtabstop' option: >
+
+	:set softtabstop=4
+
+This will make the <Tab> key insert 4 spaces worth of indent.  If there are
+already four spaces, a <Tab> character is used (saving seven characters in the
+file).  (If you always want spaces and no tab characters, set the 'expandtab'
+option.)
+
+	Note:
+	You could set the 'tabstop' option to 4.  However, if you edit the
+	file another time, with 'tabstop' set to the default value of 8, it
+	will look wrong.  In other programs and when printing the indent will
+	also be wrong.  Therefore it is recommended to keep 'tabstop' at eight
+	all the time.  That's the standard value everywhere.
+
+CHANGING TABS
+
+You edit a file which was written with a tabstop of 3.  In Vim it looks ugly,
+because it uses the normal tabstop value of 8.  You can fix this by setting
+'tabstop' to 3.  But you have to do this every time you edit this file.
+   Vim can change the use of tabstops in your file.  First, set 'tabstop' to
+make the indents look good, then use the ":retab" command: >
+
+	:set tabstop=3
+	:retab 8
+
+The ":retab" command will change 'tabstop' to 8, while changing the text such
+that it looks the same.  It changes spans of white space into tabs and spaces
+for this.  You can now write the file.  Next time you edit it the indents will
+be right without setting an option.
+   Warning: When using ":retab" on a program, it may change white space inside
+a string constant.  Therefore it's a good habit to use "\t" instead of a
+real tab.
+
+==============================================================================
+*25.4*	Dealing with long lines
+
+Sometimes you will be editing a file that is wider than the number of columns
+in the window.  When that occurs, Vim wraps the lines so that everything fits
+on the screen.
+   If you switch the 'wrap' option off, each line in the file shows up as one
+line on the screen.  Then the ends of the long lines disappear off the screen
+to the right.
+   When you move the cursor to a character that can't be seen, Vim will scroll
+the text to show it.  This is like moving a viewport over the text in the
+horizontal direction.
+
+If you don't have a scrollbar or don't want to use it, use these commands to
+scroll the text.  The cursor will stay in the same place, but it's moved back
+into the visible text if necessary.
+
+	zh		scroll right
+	4zh		scroll four characters right
+	zH		scroll half a window width right
+	ze		scroll right to put the cursor at the end
+	zl		scroll left
+	4zl		scroll four characters left
+	zL		scroll half a window width left
+	zs		scroll left to put the cursor at the start
+
+Let's attempt to show this with one line of text.  The cursor is on the "w" of
+"which".  The "current window" above the line indicates the text that is
+currently visible.  The "window"s below the text indicate the text that is
+visible after the command left of it.
+
+			      |<-- current window -->|
+		some long text, part of which is visible in the window ~
+	ze	  |<--	   window     -->|
+	zH	   |<--     window     -->|
+	4zh		  |<--	   window     -->|
+	zh		     |<--     window	 -->|
+	zl		       |<--	window	   -->|
+	4zl			  |<--	   window     -->|
+	zL				|<--	 window     -->|
+	zs			       |<--	window	   -->|
+
+When 'wrap' is off and the text has scrolled horizontally, you can use the
+following commands to move the cursor to a character you can see.  Thus text
+left and right of the window is ignored.  These never cause the text to
+scroll:
+
+	g0		to first visible character in this line
+	g^		to first non-blank visible character in this line
+	gm		to middle of this line
+	g$		to last visible character in this line
+
+		|<--	 window    -->|
+	some long    text, part of which is visible ~
+		 g0  g^    gm	     g$
+
+
+BREAKING AT WORDS				*edit-no-break*
+
+When preparing text for use by another program, you might have to make
+paragraphs without a line break.  A disadvantage of using 'nowrap' is that you
+can't see the whole sentence you are working on.  When 'wrap' is on, words are
+broken halfway, which makes them hard to read.
+   A good solution for editing this kind of paragraph is setting the
+'linebreak' option.  Vim then breaks lines at an appropriate place when
+displaying the line.  The text in the file remains unchanged.
+   Without 'linebreak' text might look like this:
+
+	+---------------------------------+
+	|letter generation program for a b|
+	|ank.  They wanted to send out a s|
+	|pecial, personalized letter to th|
+	|eir richest 1000 customers.  Unfo|
+	|rtunately for the programmer, he |
+	+---------------------------------+
+After: >
+
+	:set linebreak
+
+it looks like this:
+
+	+---------------------------------+
+	|letter generation program for a  |
+	|bank.  They wanted to send out a |
+	|special, personalized letter to  |
+	|their richest 1000 customers.    |
+	|Unfortunately for the programmer,|
+	+---------------------------------+
+
+
+MOVING BY VISIBLE LINES
+
+The "j" and "k" commands move to the next and previous lines.  When used on
+a long line, this means moving a lot of screen lines at once.
+   To move only one screen line, use the "gj" and "gk" commands.  When a line
+doesn't wrap they do the same as "j" and "k".  When the line does wrap, they
+move to a character displayed one line below or above.
+   You might like to use these mappings, which bind these movement commands to
+the cursor keys:
+
+	:map <Up> gk
+	:map <Down> gj
+
+TURNING A PARAGRAPH INTO ONE LINE			*edit-paragraph-join*
+
+If you want to import text into a program like MS-Word, each paragraph should
+be a single line.  If your paragraphs are currently separated with empty
+lines, this is how you turn each paragraph into a single line: >
+
+	:g/./,/^$/join
+
+That looks complicated.  Let's break it up in pieces:
+
+	:g/./		A ":global" command that finds all lines that contain
+			at least one character.
+	     ,/^$/	A range, starting from the current line (the non-empty
+			line) until an empty line.
+		  join	The ":join" command joins the range of lines together
+			into one line.
+
+Starting with this text, containing eight lines broken at column 30:
+
+	+----------------------------------+
+	|A letter generation program	   |
+	|for a bank.  They wanted to	   |
+	|send out a special,		   |
+	|personalized letter.		   |
+	|				   |
+	|To their richest 1000		   |
+	|customers.  Unfortunately for	   |
+	|the programmer,		   |
+	+----------------------------------+
+
+You end up with two lines:
+
+	+----------------------------------+
+	|A letter generation program for a |
+	|bank.	They wanted to send out a s|
+	|pecial, personalized letter.	   |
+	|To their richest 1000 customers.  |
+	|Unfortunately for the programmer, |
+	+----------------------------------+
+
+==============================================================================
+*25.5*	Editing tables
+
+Suppose you are editing a table with four columns:
+
+	nice table	  test 1	test 2	    test 3 ~
+	input A		  0.534 ~
+	input B		  0.913 ~
+
+You need to enter numbers in the third column.  You could move to the second
+line, use "A", enter a lot of spaces and type the text.
+   For this kind of editing there is a special option: >
+
+	set virtualedit=all
+
+Now you can move the cursor to positions where there isn't any text.  This is
+called "virtual space".  Editing a table is a lot easier this way.
+   Move the cursor by searching for the header of the last column: >
+
+	/test 3
+
+Now press "j" and you are right where you can enter the value for "input A".
+Typing "0.693" results in:
+
+	nice table	  test 1     test 2	 test 3 ~
+	input A		  0.534			 0.693 ~
+	input B		  0.913 ~
+
+
+Go back to non-virtual cursor movements with: >
+
+	:set virtualedit=
+
+VIRTUAL REPLACE MODE
+...
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_26.txt|  Repeating
+
+An editing task is hardly ever unstructured.  A change often needs to be made
+several times.  In this chapter a number of useful ways to repeat a change
+will be explained.
+
+|26.1|	Repeating with Visual mode
+|26.2|	Add and subtract
+|26.3|	Making a change in many files
+|26.4|	Using Vim from a shell script
+
+==============================================================================
+*26.1*	Repeating with Visual mode
+Visual mode is very handy for making a change in any sequence of lines.  You
+can see the highlighted text, thus you can check if the correct lines are
+changed.  But making the selection takes some typing.  The "gv" command
+selects the same area again.  This allows you to do another operation on the
+same text.
+   Suppose you have some lines where you want to change "2001" to "2002" and
+"2000" to "2001":
+
+	The financial results for 2001 are better ~
+	than for 2000.  The income increased by 50%, ~
+	even though 2001 had more rain than 2000. ~
+			2000		2001 ~
+	income		45,403		66,234 ~
+
+First change "2001" to "2002".  Select the lines in Visual mode, and use: >
+
+	:s/2001/2002/g
+
+Now use "gv" to reselect the same text.  It doesn't matter where the cursor
+is.  Then use ":s/2000/2001/g" to make the second change.
+   Obviously, you can repeat these changes several times.
+
+==============================================================================
+*26.2*	Add and subtract
+
+When repeating the change of one number into another, you often have a fixed
+offset.  In the example above, one was added to each year.  Instead of typing
+a substitute command for each year that appears, the CTRL-A command can be
+used.
+   Using the same text as above, search for a year: >
+
+	/19[0-9][0-9]\|20[0-9][0-9]
+
+Now press CTRL-A.  The year will be increased by one:
+
+Use "n" to find the next year, and press "." to repeat the CTRL-A ("." is a
+bit quicker to type).  Repeat "n" and "." for all years that appear.
+
+Another example:
+
+	006	foo bar ~
+	007	foo bar ~
+
+Using CTRL-A on these numbers results in:
+
+	006	foo bar ~
+	010	foo bar ~
+
+7 plus one is 10?  What happened here is that Vim recognized "007" as an octal
+number, because there is a leading zero.  This notation is often used in C
+programs.  If you do not want a number with leading zeros to be handled as
+octal, use this: >
+
+	:set nrformats-=octal
+
+The CTRL-X command does subtraction in a similar way.
+
+==============================================================================
+*26.3*	Making a change in many files
+
+Suppose you have a variable called "x_cnt" and you want to change it to
+"x_counter".  This variable is used in several of your C files.  You need to
+change it in all files.  This is how you do it.
+   Put all the relevant files in the argument list: >
+
+	:args *.c
+<
+This finds all C files and edits the first one.  Now you can perform a
+substitution command on all these files: >
+
+	:argdo %s/\<x_cnt\>/x_counter/ge | update
+
+The ":argdo" command takes an argument that is another command.  That command
+will be executed on all files in the argument list.
+   The "%s" substitute command that follows works on all lines.
+   The flags for the substitute command include "g" to replace all occurrences
+of "x_cnt" in the same line.  The "e" flag is used to avoid an error message
+when "x_cnt" does not appear in the file.  Otherwise ":argdo" would abort on
+the first file where "x_cnt" was not found.
+   The "|" separates two commands.  The following "update" command writes the
+file only if it was changed.  If no "x_cnt" was changed to "x_counter" nothing
+happens.
+
+:argdo - executes its argument in args.
+:windo - executes its argument in all windows.
+:bufdo - executes its argument on all buffers.  Be careful with
+         this, because you might have more files in the buffer list than you
+         think.
+
+==============================================================================
+*26.4*	Using Vim from a shell script
+
+Suppose you have a lot of files in which you need to change the string
+"-person-" to "Jones" and then print it.  How do you do that?  One way is to
+do a lot of typing.  The other is to write a shell script to do the work.
+   The Vim editor does a superb job as a screen-oriented editor when using
+Normal mode commands.  For batch processing, however, Normal mode commands do
+not result in clear, commented command files; so here you will use Ex mode
+instead.  This mode gives you a nice command-line interface that makes it easy
+to put into a batch file.  ("Ex command" is just another name for a
+command-line (:) command.)
+   The Ex mode commands you need are as follows: >
+
+	%s/-person-/Jones/g
+	write tempfile
+	quit
+
+You put these commands in the file "change.vim".  Now to run the editor in
+batch mode, use this shell script: >
+
+	for file in *.txt; do
+	  vim -e -s $file < change.vim
+	  lpr -r tempfile
+	done
+
+The for-done loop is a shell construct to repeat the two lines in between,
+while the $file variable is set to a different file name each time.
+   The second line runs the Vim editor in Ex mode (-e argument) on the file
+$file and reads commands from the file "change.vim".  The -s argument tells
+Vim to operate in silent mode.  In other words, do not keep outputting the
+:prompt, or any other prompt for that matter.
+   The "lpr -r tempfile" command prints the resulting "tempfile" and deletes
+it (that's what the -r argument does).
+
+READING FROM STDIN
+
+Vim can read text on standard input.  Since the normal way is to read commands
+there, you must tell Vim to read text instead.  This is done by passing the
+"-" argument in place of a file.  Example: >
+
+	ls | vim -
+
+This allows you to edit the output of the "ls" command, without first saving
+the text in a file.
+   If you use the standard input to read text from, you can use the "-S"
+argument to read a script: >
+
+	producer | vim -S change.vim -
+
+NORMAL MODE SCRIPTS
+
+If you really want to use Normal mode commands in a script, you can use it
+like this: >
+
+	vim -s script file.txt ...
+<
+	Note:
+	"-s" has a different meaning when it is used without "-e".  Here it
+	means to source the "script" as Normal mode commands.  When used with
+	"-e" it means to be silent, and doesn't use the next argument as a
+	file name.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_27.txt|  Search commands and patterns
+
+In chapter 3 a few simple search patterns were mentioned |03.9|.  Vim can do
+much more complex searches.  This chapter explains the most often used ones.
+A detailed specification can be found here: |pattern|
+
+|27.1|	Ignoring case
+|27.2|	Wrapping around the file end
+|27.3|	Offsets
+|27.4|	Matching multiple times
+|27.5|	Alternatives
+|27.6|	Character ranges
+|27.7|	Character classes
+|27.8|	Matching a line break
+|27.9|	Examples
+
+==============================================================================
+*27.1*	Ignoring case
+
+By default, Vim's searches are case sensitive.  Therefore, "include",
+"INCLUDE", and "Include" are three different words and a search will match
+only one of them.
+   Now switch on the 'ignorecase' option: >
+
+	:set ignorecase
+
+Search for "include" again, and now it will match "Include", "INCLUDE" and
+"InClUDe".
+   You can switch this off again with: >
+
+	:set noignorecase
+
+But let's keep it set, and search for "INCLUDE".  It will match exactly the
+same text as "include" did.  Now set the 'smartcase' option: >
+
+	:set ignorecase smartcase
+
+If you have a pattern with at least one uppercase character, the search
+becomes case sensitive.  The idea is that you didn't have to type that
+uppercase character, so you must have done it because you wanted case to
+match.  That's smart!
+
+    With these two options set you find the following matches:
+
+	pattern			matches	~
+	word			word, Word, WORD, WoRd, etc.
+	Word			Word
+	WORD			WORD
+	WoRd			WoRd
+
+CASE IN ONE PATTERN
+
+If you want to ignore case for one specific pattern, you can do this by
+prepending the "\c" string.  Using "\C" will make the pattern to match case.
+This overrules the 'ignorecase' and 'smartcase' options, when "\c" or "\C" is
+used their value doesn't matter.
+
+	pattern			matches	~
+	\Cword			word
+	\CWord			Word
+	\cword			word, Word, WORD, WoRd, etc.
+	\cWord			word, Word, WORD, WoRd, etc.
+
+A big advantage of using "\c" and "\C" is that it sticks with the pattern.
+Thus if you repeat a pattern from the search history, the same will happen, no
+matter if 'ignorecase' or 'smartcase' was changed.
+
+==============================================================================
+*27.2*	Wrapping around the file end
+
+NOT WRAPPING
+
+To turn off search wrapping, use the following command: >
+
+	:set nowrapscan
+
+Now when the search hits the end of the file, an error message displays:
+
+	E385: search hit BOTTOM without match for: forever ~
+
+Thus you can find all matches by going to the start of the file with "gg" and
+keep searching until you see this message.
+   If you search in the other direction, using "?", you get:
+
+	E384: search hit TOP without match for: forever ~
+
+==============================================================================
+*27.3*	Offsets
+By default, the search command leaves the cursor positioned on the beginning
+of the pattern.  You can tell Vim to leave it some other place by specifying
+an offset.  For the forward search command "/", the offset is specified by
+appending a slash (/) and the offset: >
+
+	/default/2
+
+This command searches for the pattern "default" and then moves to the
+beginning of the second line past the pattern.  Using this command on the
+paragraph above, Vim finds the word "default" in the first line.  Then the
+cursor is moved two lines down and lands on "an offset".
+
+If the offset is a simple number, the cursor will be placed at the beginning
+of the line that many lines from the match.  The offset number can be positive
+or negative.  If it is positive, the cursor moves down that many lines; if
+negative, it moves up.
+
+CHARACTER OFFSETS
+
+The "e" offset indicates an offset from the end of the match.  It moves the
+cursor onto the last character of the match.  The command: >
+
+	/const/e
+
+puts the cursor on the "t" of "const".
+   From that position, adding a number moves forward that many characters.
+This command moves to the character just after the match: >
+
+	/const/e+1
+
+A positive number moves the cursor to the right, a negative number moves it to
+the left.  For example: >
+
+	/const/e-1
+moves the cursor to the "s" of "const".
+
+If the offset begins with "b", the cursor moves to the beginning of the
+pattern.  That's not very useful, since leaving out the "b" does the same
+thing.  It does get useful when a number is added or subtracted.  The cursor
+then goes forward or backward that many characters.  For example: >
+
+	/const/b+2
+
+Moves the cursor to the beginning of the match and then two characters to the
+right.  Thus it lands on the "n".
+
+REPEATING
+
+To repeat searching for the previously used search pattern, but with a
+different offset, leave out the pattern: >
+
+	/that
+	//e
+
+Is equal to: >
+
+	/that/e
+
+To repeat with the same offset: >
+
+	/
+
+"n" does the same thing.  To repeat while removing a previously used offset: >
+
+	//
+
+SEARCHING BACKWARDS
+
+The "?" command uses offsets in the same way, but you must use "?" to separate
+the offset from the pattern, instead of "/": >
+
+	?const?e-2
+
+The "b" and "e" keep their meaning, they don't change direction with the use
+of "?".
+
+START POSITION
+
+When starting a search, it normally starts at the cursor position.  When you
+specify a line offset, this can cause trouble.  For example: >
+
+	/const/-2
+
+When you specify a character offset, Vim will compensate for this.  Thus the
+search starts a few characters forward or backward, so that the same match
+isn't found again.
+
+==============================================================================
+*27.4*	Matching multiple times
+
+The "*" item specifies that the item before it can match any number of times.
+Thus: >
+
+	/a*
+
+matches "a", "aa", "aaa", etc.  But also "" (the empty string), because zero
+times is included.
+   The "*" only applies to the item directly before it.  Thus "ab*" matches
+"a", "ab", "abb", "abbb", etc.  To match a whole string multiple times, it
+must be grouped into one item.  This is done by putting "\(" before it and
+"\)" after it.  Thus this command: >
+
+	/\(ab\)*
+
+Matches: "ab", "abab", "ababab", etc.  And also "".
+
+To avoid matching the empty string, use "\+".  This makes the previous item
+match one or more times. >
+
+	/ab\+
+Matches "ab", "abb", "abbb", etc.  It does not match "a" when no "b" follows.
+
+To match an optional item, use "\=".  Example: >
+
+	/folders\=
+
+SPECIFIC COUNTS
+
+To match a specific number of items use the form "\{n,m}".  "n" and "m" are
+numbers.  The item before it will be matched "n" to "m" times |inclusive|.
+Example: >
+
+	/ab\{3,5}
+matches "abbb", "abbbb" and "abbbbb".
+
+  When "n" is omitted, it defaults to zero.  When "m" is omitted it defaults
+to infinity.  When ",m" is omitted, it matches exactly "n" times.
+Examples:
+
+	pattern		match count ~
+	\{,4}		0, 1, 2, 3 or 4
+	\{3,}		3, 4, 5, etc.
+	\{0,1}		0 or 1, same as \=
+	\{0,}		0 or more, same as *
+	\{1,}		1 or more, same as \+
+	\{3}		3
+
+MATCHING AS LITTLE AS POSSIBLE
+
+The items so far match as many characters as they can find.  To match as few
+as possible, use "\{-n,m}".  It works the same as "\{n,m}", except that the
+minimal amount possible is used.
+   For example, use: >
+
+	/ab\{-1,3}
+
+Will match "ab" in "abbb".  Actually, it will never match more than one b,
+because there is no reason to match more.  It requires something else to force
+it to match more than the lower limit.
+
+   The same rules apply to removing "n" and "m".  It's even possible to remove
+both of the numbers, resulting in "\{-}".  This matches the item before it
+zero or more times, as few as possible.  The item by itself always matches
+zero times.  It is useful when combined with something else.  Example: >
+
+	/a.\{-}b
+
+This matches "axb" in "axbxb".  If this pattern would be used: >
+
+	/a.*b
+
+It would try to match as many characters as possible with ".*", thus it
+matches "axbxb" as a whole.
+
+==============================================================================
+*27.5*	Alternatives
+
+The "or" operator in a pattern is "\|".  Example: >
+
+	/foo\|bar
+
+This matches "foo" or "bar".  More alternatives can be concatenated: >
+
+	/one\|two\|three
+
+Matches "one", "two" and "three".
+   To match multiple times, the whole thing must be placed in "\(" and "\)": >
+
+	/\(foo\|bar\)\+
+
+This matches "foo", "foobar", "foofoo", "barfoobar", etc.
+   Another example: >
+
+	/end\(if\|while\|for\)
+
+This matches "endif", "endwhile" and "endfor".
+
+A related item is "\&".  This requires that both alternatives match in the
+same place.  The resulting match uses the last alternative.  Example: >
+
+	/forever\&...
+
+This matches "for" in "forever".  It will not match "fortuin", for example.
+
+==============================================================================
+*27.6*	Character ranges
+
+To match "a", "b" or "c" you could use "/a\|b\|c".  When you want to match all
+letters from "a" to "z" this gets very long.  There is a shorter method: >
+
+	/[a-z]
+
+The [] construct matches a single character.  Inside you specify which
+characters to match.  You can include a list of characters, like this: >
+
+	/[0123456789abcdef]
+
+This will match any of the characters included.  For consecutive characters
+you can specify the range.  "0-3" stands for "0123".  "w-z" stands for "wxyz".
+Thus the same command as above can be shortened to: >
+
+	/[0-9a-f]
+
+To match the "-" character itself make it the first or last one in the range.
+
+These special characters are accepted to make it easier to use them inside a
+[] range (they can actually be used anywhere in the search pattern):
+
+	\e	<Esc>
+	\t	<Tab>
+	\r	<CR>
+	\b	<BS>
+
+There are a few more special cases for [] ranges, see |/[]| for the whole
+story.
+
+COMPLEMENTED RANGE
+
+To avoid matching a specific character, use "^" at the start of the range.
+The [] item then matches everything but the characters included.  Example: >
+
+	/"[^"]*"
+<
+	 "	  a double quote
+	  [^"]	  any character that is not a double quote
+	      *	  as many as possible
+	       "  a double quote again
+
+This matches "foo" and "3!x", including the double quotes.
+
+PREDEFINED RANGES
+
+A number of ranges are used very often.  Vim provides a shortcut for these.
+For example: >
+
+	/\a
+
+Finds alphabetic characters.  This is equal to using "/[a-zA-Z]".  Here are a
+few more of these:
+
+	item	matches			 equivalent ~
+        \a	alphabetic character     [A-Za-z]
+        \A	non-alphabetic character [^A-Za-z]
+	\d	digit			 [0-9]
+	\D	non-digit		 [^0-9]
+	\x	hex digit		 [0-9a-fA-F]
+	\X	non-hex digit		 [^0-9a-fA-F]
+	\s	white space		 [ 	]     (<Tab> and <Space>)
+	\S	non-white characters	 [^ 	]     (not <Tab> and <Space>)
+	\l	lowercase alpha		 [a-z]
+	\L	non-lowercase alpha	 [^a-z]
+	\u	uppercase alpha		 [A-Z]
+	\U	non-uppercase alpha	 [^A-Z]
+
+	Note:
+	Using these predefined ranges works a lot faster than the character
+	range it stands for.
+	These items can not be used inside [].  Thus "[\d\l]" does NOT work to
+	match a digit or lowercase alpha.  Use "\(\d\|\l\)" instead.
+
+See |/\s| for the whole list of these ranges.
+
+==============================================================================
+*27.7*	Character classes
+
+The character range matches a fixed set of characters.  A character class is
+similar, but with an essential difference: The set of characters can be
+redefined without changing the search pattern.
+   For example, search for this pattern: >
+
+	/\f\+
+
+The "\f" items stands for file name characters.  Thus this matches a sequence
+of characters that can be a file name.
+
+   Which characters can be part of a file name depends on the system you are
+using.  On MS-Windows, the backslash is included, on Unix it is not.  This is
+specified with the 'isfname' option.  The default value for Unix is: >
+
+	:set isfname
+	isfname=@,48-57,/,.,-,_,+,,,#,$,%,~,=
+
+For other systems the default value is different.  Thus you can make a search
+pattern with "\f" to match a file name, and it will automatically adjust to
+the system you are using it on.
+
+	Note:
+	Actually, Unix allows using just about any character in a file name,
+	including white space.  Including these characters in 'isfname' would
+	be theoretically correct.  But it would make it impossible to find the
+	end of a file name in text.  Thus the default value of 'isfname' is a
+	compromise.
+
+The character classes are:
+
+	item	matches				option ~
+	\i	identifier characters		'isident'
+	\I	like \i, excluding digits
+	\k	keyword characters		'iskeyword'
+	\K	like \k, excluding digits
+	\p	printable characters		'isprint'
+	\P	like \p, excluding digits
+	\f	file name characters		'isfname'
+	\F	like \f, excluding digits
+
+==============================================================================
+*27.8*	Matching a line break
+
+Vim can find a pattern that includes a line break.  You need to specify where
+the line break happens, because all items mentioned so far don't match a line
+break.
+   To check for a line break in a specific place, use the "\n" item: >
+
+	/the\nword
+
+This will match at a line that ends in "the" and the next line starts with
+"word".  To match "the word" as well, you need to match a space or a line
+break.  The item to use for it is "\_s": >
+
+	/the\_sword
+
+To allow any amount of white space: >
+
+	/the\_s\+word
+
+This also matches when "the  " is at the end of a line and "   word" at the
+start of the next one.
+
+"\s" matches white space, "\_s" matches white space or a line break.
+Similarly, "\a" matches an alphabetic character, and "\_a" matches an
+alphabetic character or a line break.  The other character classes and ranges
+can be modified in the same way by inserting a "_".
+
+Many other items can be made to match a line break by prepending "\_".  For
+example: "\_." matches any character or a line break.
+
+	Note:
+	"\_.*" matches everything until the end of the file.  Be careful with
+	this, it can make a search command very slow.
+
+Another example is "\_[]", a character range that includes a line break: >
+
+	/"\_[^"]*"
+
+This finds a text in double quotes that may be split up in several lines.
+
+==============================================================================
+*27.9*	Examples
+
+FINDING A CALIFORNIA LICENSE PLATE
+
+A sample license plate number is "1MGU103".  It has one digit, three uppercase
+letters and three digits.  Directly putting this into a search pattern: >
+
+	/\d\u\u\u\d\d\d
+
+Another way is to specify that there are three digits and letters with a
+count: >
+
+	/\d\u\{3}\d\{3}
+
+Using [] ranges instead: >
+
+	/[0-9][A-Z]\{3}[0-9]\{3}
+
+FINDING AN IDENTIFIER
+
+In C programs (and many other computer languages) an identifier starts with a
+letter and further consists of letters and digits.  Underscores can be used
+too.  This can be found with: >
+
+	/\<\h\w*\>
+
+"\<" and "\>" are used to find only whole words.  "\h" stands for "[A-Za-z_]"
+and "\w" for "[0-9A-Za-z_]".
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_28.txt|  Folding
+
+Structured text can be separated in sections.  And sections in sub-sections.
+Folding allows you to display a section as one line, providing an overview.
+This chapter explains the different ways this can be done.
+
+|28.1|	What is folding?
+|28.2|	Manual folding
+|28.3|	Working with folds
+|28.4|	Saving and restoring folds
+|28.5|	Folding by indent
+|28.6|	Folding with markers
+|28.7|	Folding by syntax
+|28.8|	Folding by expression
+|28.9|	Folding unchanged lines
+|28.10|	Which fold method to use?
+
+==============================================================================
+*28.1*	What is folding?
+
+Folding is used to show a range of lines in the buffer as a single line on the
+screen.  Like a piece of paper which is folded to make it shorter:
+
+	+------------------------+
+	| line 1		 |
+	| line 2		 |
+	| line 3		 |
+	|_______________________ |
+	\			 \
+	 \________________________\
+	 / folded lines		  /
+	/________________________/
+	| line 12		 |
+	| line 13		 |
+	| line 14		 |
+	+------------------------+
+
+The text is still in the buffer, unchanged.  Only the way lines are displayed
+is affected by folding.
+
+The advantage of folding is that you can get a better overview of the
+structure of text, by folding lines of a section and replacing it with a line
+that indicates that there is a section.
+==============================================================================
+*28.2*	Manual folding
+
+Try it out: Position the cursor in a paragraph and type: >
+
+	zfap
+
+You will see that the paragraph is replaced by a highlighted line.  You have
+created a fold.  |zf| is an operator and |ap| a text object selection.  You
+can use the |zf| operator with any movement command to create a fold for the
+text that it moved over.  |zf| also works in Visual mode.
+
+To view the text again, open the fold by typing: >
+
+	zo
+
+And you can close the fold again with: >
+
+	zc
+
+All the folding commands start with "z".  With some fantasy, this looks like a
+folded piece of paper, seen from the side.  The letter after the "z" has a
+mnemonic meaning to make it easier to remember the commands:
+
+	zf	F-old creation
+	zo	O-pen a fold
+	zc	C-lose a fold
+
+Folds can be nested: A region of text that contains folds can be folded
+again.  For example, you can fold each paragraph in this section, and then
+fold all the sections in this chapter.  Try it out.  You will notice that
+opening the fold for the whole chapter will restore the nested folds as they
+were, some may be open and some may be closed.
+
+Suppose you have created several folds, and now want to view all the text.
+You could go to each fold and type "zo".  To do this faster, use this command: >
+
+	zr
+
+This will R-educe the folding.  The opposite is: >
+
+	zm
+
+This folds M-ore.  You can repeat "zr" and "zm" to open and close nested folds
+of several levels.
+
+If you have nested several levels deep, you can open all of them with: >
+
+	zR
+
+This R-educes folds until there are none left.  And you can close all folds
+with: >
+
+	zM
+This folds M-ore and M-ore.
+
+More about manual folding in the reference manual: |fold-manual|
+
+==============================================================================
+*28.3*	Working with folds
+
+When some folds are closed, movement commands like "j" and "k" move over a
+fold like it was a single, empty line.  This allows you to quickly move around
+over folded text.
+
+You can yank, delete and put folds as if it was a single line.  This is very
+useful if you want to reorder functions in a program.  First make sure that
+each fold contains a whole function (or a bit less) by selecting the right
+'foldmethod'.  Then delete the function with "dd", move the cursor and put it
+with "p".
+
+It is sometimes difficult to see or remember where a fold is located, thus
+where a |zo| command would actually work.  To see the defined folds: >
+
+	:set foldcolumn=4
+
+This will show a small column on the left of the window to indicate folds.
+A "+" is shown for a closed fold.  A "-" is shown at the start of each open
+fold and "|" at following lines of the fold.
+
+You can use the mouse to open a fold by clicking on the "+" in the foldcolumn.
+Clicking on the "-" or a "|" below it will close an open fold.
+
+To open all folds at the cursor line use |zO|.
+To close all folds at the cursor line use |zC|.
+To delete a fold at the cursor line use |zd|.
+To delete all folds at the cursor line use |zD|.
+
+When in Insert mode, the fold at the cursor line is never closed.  That allows
+you to see what you type!
+
+Folds are opened automatically when jumping around or moving the cursor left
+or right.  For example, the "0" command opens the fold under the cursor
+(if 'foldopen' contains "hor", which is the default).  The 'foldopen' option
+can be changed to open folds for specific commands.  If you want the line
+under the cursor always to be open, do this: >
+
+	:set foldopen=all
+
+Warning: You won't be able to move onto a closed fold then.  You might want to
+use this only temporarily and then set it back to the default: >
+
+	:set foldopen&
+
+You can make folds close automatically when you move out of it: >
+
+	:set foldclose=all
+
+This will re-apply 'foldlevel' to all folds that don't contain the cursor.
+You have to try it out if you like how this feels.  Use |zm| to fold more and
+|zr| to fold less (reduce folds).
+
+The folding is local to the window.  This allows you to open two windows on
+the same buffer, one with folds and one without folds.  Or one with all folds
+closed and one with all folds open.
+
+==============================================================================
+*28.4*	Saving and restoring folds
+
+When you abandon a file (starting to edit another one), the state of the folds
+is lost.  If you come back to the same file later, all manually opened and
+closed folds are back to their default.  When folds have been created
+manually, all folds are gone!  To save the folds use the |:mkview| command: >
+
+	:mkview
+
+This will store the settings and other things that influence the view on the
+file.  You can change what is stored with the 'viewoptions' option.
+When you come back to the same file later, you can load the view again: >
+
+	:loadview
+
+You can store up to ten views on one file.  For example, to save the current
+setup as the third view and load the second view: >
+
+	:mkview 3
+	:loadview 2
+
+Note that when you insert or delete lines the views might become invalid.
+Also check out the 'viewdir' option, which specifies where the views are
+stored.  You might want to delete old views now and then.
+
+==============================================================================
+*28.5*	Folding by indent
+
+Defining folds with |zf| is a lot of work.  If your text is structured by
+giving lower level items a larger indent, you can use the indent folding
+method.  This will create folds for every sequence of lines with the same
+indent.  Lines with a larger indent will become nested folds.  This works well
+with many programming languages.
+
+Try this by setting the 'foldmethod' option: >
+
+	:set foldmethod=indent
+
+Then you can use the |zm| and |zr| commands to fold more and reduce folding.
+It's easy to see on this example text:
+
+This line is not indented
+	This line is indented once
+		This line is indented twice
+		This line is indented twice
+	This line is indented once
+This line is not indented
+	This line is indented once
+	This line is indented once
+
+But you cannot manually define folds when 'foldmethod' is "indent", as that
+would conflict with the relation between the indent and the fold level.
+
+More about folding by indent in the reference manual: |fold-indent|
+
+==============================================================================
+*28.6*	Folding with markers
+
+Markers in the text are used to specify the start and end of a fold region.
+This gives precise control over which lines are included in a fold.  The
+disadvantage is that the text needs to be modified.
+
+Try it: >
+
+	:set foldmethod=marker
+Example text, as it could appear in a C program:
+
+	/* foobar () {{{ */
+	int foobar()
+	{
+		/* return a value {{{ */
+		return 42;
+		/* }}} */
+	}
+	/* }}} */
+
+Notice that the folded line will display the text before the marker.  This is
+very useful to tell what the fold contains.
+
+It's quite annoying when the markers don't pair up correctly after moving some
+lines around.  This can be avoided by using numbered markers.  Example:
+
+	/* global variables {{{1 */
+	int varA, varB;
+
+	/* functions {{{1 */
+	/* funcA() {{{2 */
+	void funcA() {}
+
+	/* funcB() {{{2 */
+	void funcB() {}
+	/* }}}1 */
+
+More about folding with markers in the reference manual: |fold-marker|
+
+==============================================================================
+*28.7*	Folding by syntax
+
+For each language Vim uses a different syntax file.  This defines the colors
+for various items in the file.  If you are reading this in Vim, in a terminal
+that supports colors, the colors you see are made with the "help" syntax file.
+   In the syntax files it is possible to add syntax items that have the "fold"
+argument.  These define a fold region.  This requires writing a syntax file
+and adding these items in it.  That's not so easy to do.  But once it's done,
+all folding happens automatically.
+   Here we'll assume you are using an existing syntax file.  Then there is
+nothing more to explain.  You can open and close folds as explained above.
+The folds will be created and deleted automatically when you edit the file.
+
+More about folding by syntax in the reference manual: |fold-syntax|
+
+==============================================================================
+*28.8*	Folding by expression
+
+This is similar to folding by indent, but instead of using the indent of a
+line a user function is called to compute the fold level of a line.  You can
+use this for text where something in the text indicates which lines belong
+together.  An example is an e-mail message where the quoted text is indicated
+by a ">" before the line.  To fold these quotes use this: >
+
+	:set foldmethod=expr
+	:set foldexpr=strlen(substitute(substitute(getline(v:lnum),'\\s','',\"g\"),'[^>].*','',''))
+
+You can try it out on this text:
+
+> quoted text he wrote
+> quoted text he wrote
+> > double quoted text I wrote
+> > double quoted text I wrote
+
+Explanation for the 'foldexpr' used in the example (inside out):
+   getline(v:lnum)			gets the current line
+   substitute(...,'\\s','','g')		removes all white space from the line
+   substitute(...,'[^>].*','','')	removes everything after leading '>'s
+   strlen(...)				counts the length of the string, which
+					is the number of '>'s found
+
+Note that a backslash must be inserted before every space, double quote and
+backslash for the ":set" command.  If this confuses you, do >
+
+	:set foldexpr
+
+to check the actual resulting value.  To correct a complicated expression, use
+the command-line completion: >
+
+	:set foldexpr=<Tab>
+
+==============================================================================
+*28.9*	Folding unchanged lines
+
+This is useful when you set the 'diff' option in the same window.  The
+|vimdiff| command does this for you.  Example: >
+
+	:setlocal diff foldmethod=diff scrollbind nowrap foldlevel=1
+
+==============================================================================
+*28.10* Which fold method to use?
+
+The marker method requires you to change the file.  If you are sharing the
+files with other people or you have to meet company standards, you might not
+be allowed to add them.
+   The main advantage of markers is that you can put them exactly where you
+want them.  That avoids that a few lines are missed when you cut and paste
+folds.  And you can add a comment about what is contained in the fold.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_29.txt|  Moving through programs
+
+The creator of Vim is a computer programmer.  It's no surprise that Vim
+contains many features to aid in writing programs.  Jump around to find where
+identifiers are defined and used.  Preview declarations in a separate window.
+There is more in the next chapter.
+
+|29.1|	Using tags
+|29.2|	The preview window
+|29.3|	Moving through a program
+|29.4|	Finding global identifiers
+|29.5|	Finding local identifiers
+
+==============================================================================
+*29.1*	Using tags
+
+What is a tag?  It is a location where an identifier is defined.  An example
+is a function definition in a C or C++ program.  A list of tags is kept in a
+tags file.  This can be used by Vim to directly jump from any place to the
+tag, the place where an identifier is defined.
+   To generate the tags file for all C files in the current directory, use the
+following command: >
+
+	ctags *.c
+
+"ctags" is a separate program.  Most Unix systems already have it installed.
+If you do not have it yet, you can find Exuberant ctags here:
+
+	http://ctags.sf.net ~
+
+Now when you are in Vim and you want to go to a function definition, you can
+jump to it by using the following command: >
+
+	:tag <tag_name>
+
+This command will find the function "tag_name" even if it is in another file.
+
+   The CTRL-] command jumps to the tag of the word that is under the cursor.
+This makes it easy to explore a tangle of C code.  Suppose, for example, that
+you are in the function "write_block".  You can see that it calls
+"write_line".  But what does "write_line" do?  By placing the cursor on the
+call to "write_line" and pressing CTRL-], you jump to the definition of this
+function.
+   The "write_line" function calls "write_char".  You need to figure out what
+it does.  So you position the cursor over the call to "write_char" and press
+CTRL-].  Now you are at the definition of "write_char".
+
+	+-------------------------------------+
+	|void write_block(char **s; int cnt)  |
+	|{				      |
+	|   int i;			      |
+	|   for (i = 0; i < cnt; ++i)	      |
+	|      write_line(s[i]);	      |
+	|}	    |			      |
+	+-----------|-------------------------+
+		    |
+	     CTRL-] |
+		    |	 +----------------------------+
+		    +--> |void write_line(char *s)    |
+			 |{			      |
+			 |   while (*s != 0)	      |
+			 |	write_char(*s++);     |
+			 |}	  |		      |
+			 +--------|-------------------+
+				  |
+			   CTRL-] |
+				  |    +------------------------------------+
+				  +--> |void write_char(char c)		    |
+				       |{				    |
+				       |    putchar((int)(unsigned char)c); |
+				       |}				    |
+				       +------------------------------------+
+
+The ":tags" command shows the list of tags that you traversed through:
+
+	:tags
+	  # TO tag	   FROM line  in file/text ~
+	  1  1 write_line	   8  write_block.c ~
+	  2  1 write_char	   7  write_line.c ~
+	> ~
+>
+Now to go back.  The CTRL-T command goes to the preceding tag.  In the example
+above you get back to the "write_line" function, in the call to "write_char".
+   This command takes a count argument that indicates how many tags to jump
+back.  You have gone forward, and now back.  Let's go forward again.  The
+following command goes to the tag on top of the list: >
+
+	:tag
+
+You can prefix it with a count and jump forward that many tags.  For example:
+":3tag".  CTRL-T also can be preceded with a count.
+   These commands thus allow you to go down a call tree with CTRL-] and back
+up again with CTRL-T.  Use ":tags" to find out where you are.
+
+SPLIT WINDOWS
+The ":tag" command replaces the file in the current window with the one
+containing the new function.  But suppose you want to see not only the old
+function but also the new one?  You can split the window using the ":split"
+command followed by the ":tag" command.  Vim has a shorthand command that does
+both: >
+	:stag tagname
+
+To split the current window and jump to the tag under the cursor use this
+command: >
+
+	CTRL-W ]
+
+If a count is specified, the new window will be that many lines high.
+
+MORE TAGS FILES
+
+When you have files in many directories, you can create a tags file in each of
+them.  Vim will then only be able to jump to tags within that directory.
+   To find more tags files, set the 'tags' option to include all the relevant
+tags files.  Example: >
+
+	:set tags=./tags,./../tags,./*/tags
+   This is quite a number of tags files, but it may still not be enough.  For
+example, when editing a file in "~/proj/src", you will not find the tags file
+"~/proj/sub/tags".  For this situation Vim offers to search a whole directory
+tree for tags files.  Example: >
+
+	:set tags=~/proj/**/tags
+
+ONE TAGS FILE
+
+When Vim has to search many places for tags files, you can hear the disk
+rattling.  It may get a bit slow.  In that case it's better to spend this
+time while generating one big tags file.  You might do this overnight.
+   This requires the Exuberant ctags program, mentioned above.  It offers an
+argument to search a whole directory tree: >
+
+	cd ~/proj
+	ctags -R .
+
+The nice thing about this is that Exuberant ctags recognizes various file
+types.  Thus this doesn't work just for C and C++ programs, also for Eiffel
+and even Vim scripts.  See the ctags documentation to tune this.
+   Now you only need to tell Vim where your big tags file is: >
+
+	:set tags=~/proj/tags
+
+MULTIPLE MATCHES
+
+When a function is defined multiple times (or a method in several classes),
+the ":tag" command will jump to the first one.  If there is a match in the
+current file, that one is used first.
+   You can now jump to other matches for the same tag with: >
+
+	:tnext
+
+Repeat this to find further matches.  If there are many, you can select which
+one to jump to: >
+
+	:tselect tagname
+
+Vim will present you with a list of choices:
+
+	  # pri kind tag	       file ~
+	  1 F	f    mch_init	       os_amiga.c ~
+		       mch_init() ~
+	  2 F	f    mch_init	       os_mac.c ~
+		       mch_init() ~
+	  3 F	f    mch_init	       os_msdos.c ~
+		       mch_init(void) ~
+	  4 F	f    mch_init	       os_riscos.c ~
+		       mch_init() ~
+	Enter nr of choice (<CR> to abort):  ~
+
+You can now enter the number (in the first column) of the match that you would
+like to jump to.  The information in the other columns give you a good idea of
+where the match is defined.
+
+To move between the matching tags, these commands can be used:
+
+	:tfirst			go to first match
+	:[count]tprevious	go to [count] previous match
+	:[count]tnext		go to [count] next match
+	:tlast			go to last match
+
+If [count] is omitted then one is used.
+
+GUESSING TAG NAMES
+
+Command line completion is a good way to avoid typing a long tag name.  Just
+type the first bit and press <Tab>: >
+
+	:tag write_<Tab>
+
+Suppose you want to jump to a tag that contains "block".  First type
+this: >
+
+	:tag /block
+
+Now use command line completion: press <Tab>.  Vim will find all tags that
+contain "block" and use the first match.
+   The "/" before a tag name tells Vim that what follows is not a literal tag
+name, but a pattern.  You can use all the items for search patterns here.  For
+example, suppose you want to select a tag that starts with "write_": >
+
+	:tselect /^write_
+
+A TAGS BROWSER
+
+Since CTRL-] takes you to the definition of the identifier under the cursor,
+you can use a list of identifier names as a table of contents.  Here is an
+example.
+   First create a list of identifiers (this requires Exuberant ctags): >
+
+	ctags --c-types=f -f functions *.c
+
+Now start Vim without a file, and edit this file in Vim, in a vertically split
+window: >
+
+	vim
+	:vsplit functions
+
+The window contains a list of all the functions.  There is some more stuff,
+but you can ignore that.  Do ":setlocal ts=99" to clean it up a bit.
+   In this window, define a mapping: >
+
+	:nnoremap <buffer> <CR> 0ye<C-W>w:tag <C-R>"<CR>
+
+Move the cursor to the line that contains the function you want to go to.
+Now press <Enter>.  Vim will go to the other window and jump to the selected
+function.
+
+RELATED ITEMS
+
+To make case in tag names be ignored, you can set 'ignorecase' while leaving
+'tagcase' as "followic", or set 'tagcase' to "ignore".
+
+Cscope is a free program.  It does not only find places where an identifier is
+declared, but also where it is used.  See |cscope|.
+
+==============================================================================
+*29.2*	The preview window
+
+When you edit code that contains a function call, you need to use the correct
+arguments.  To know what values to pass you can look at how the function is
+defined.  The tags mechanism works very well for this.  Preferably the
+definition is displayed in another window.  For this the preview window can be
+used.
+   To open a preview window to display the function "write_char": >
+
+	:ptag write_char
+
+Vim will open a window, and jumps to the tag "write_char".  Then it takes you
+back to the original position.  Thus you can continue typing without the need
+to use a CTRL-W command.
+
+   If the name of a function appears in the text, you can get its definition
+in the preview window with: >
+
+	CTRL-W }
+
+To close the preview window use this command: >
+
+	:pclose
+
+To edit a specific file in the preview window, use ":pedit".  This can be
+useful to edit a header file, for example: >
+
+	:pedit defs.h
+
+Finally, ":psearch" can be used to find a word in the current file and any
+included files and display the match in the preview window.  This is
+especially useful when using library functions, for which you do not have a
+tags file.  Example: >
+
+	:psearch popen
+
+==============================================================================
+*29.3*	Moving through a program
+
+Since a program is structured, Vim can recognize items in it.  Specific
+commands can be used to move around.
+   C programs often contain constructs like this:
+
+	#ifdef USE_POPEN ~
+	    fd = popen("ls", "r") ~
+	#else ~
+	    fd = fopen("tmp", "w") ~
+	#endif ~
+
+But then much longer, and possibly nested.  Position the cursor on the
+"#ifdef" and press %.  Vim will jump to the "#else".  Pressing % again takes
+you to the "#endif".  Another % takes you to the "#ifdef" again.
+   When the construct is nested, Vim will find the matching items.  This is a
+good way to check if you didn't forget an "#endif".
+   When you are somewhere inside a "#if" - "#endif", you can jump to the start
+of it with: >
+
+	[#
+
+If you are not after a "#if" or "#ifdef" Vim will beep.  To jump forward to
+the next "#else" or "#endif" use: >
+
+	]#
+
+MOVING IN CODE BLOCKS
+
+In C code blocks are enclosed in {}.  These can get pretty long.  To move to
+the start of the outer block use the "[[" command.  Use "][" to find the end.
+This assumes that the "{" and "}" are in the first column.
+   The "[{" command moves to the start of the current block.  It skips over
+pairs of {} at the same level.  "]}" jumps to the end.
+
+]m:  finds the next start of a method.
+]m:  finds the prev start of a method.
+
+MOVING IN BRACES
+...
+
+MOVING IN COMMENTS
+...
+
+==============================================================================
+*29.4*	Finding global identifiers
+
+You are editing a C program and wonder if a variable is declared as "int" or
+"unsigned".  A quick way to find this is with the "[I" command.
+   Suppose the cursor is on the word "column".  Type: >
+
+	[I
+
+Vim will list the matching lines it can find.  Not only in the current file,
+but also in all included files (and files included in them, etc.).  The result
+looks like this:
+
+	structs.h ~
+	 1:   29     unsigned     column;    /* column number */ ~
+
+LOCATING INCLUDED FILES
+
+   Vim will find included files in the places specified with the 'path'
+option.  If a directory is missing, some include files will not be found.  You
+can discover this with this command: >
+
+	:checkpath
+
+It will list the include files that could not be found.  Also files included
+by the files that could be found.  An example of the output:
+
+	--- Included files not found in path --- ~
+	<io.h> ~
+	vim.h --> ~
+	  <functions.h> ~
+	  <clib/exec_protos.h> ~
+
+To fix the files that could not be found, add a directory to the 'path'
+option.  A good place to find out about this is the Makefile.  Look out for
+lines that contain "-I" items, like "-I/usr/local/X11".  To add this directory
+use: >
+
+	:set path+=/usr/local/X11
+
+When there are many subdirectories, you can use the "*" wildcard.  Example: >
+
+	:set path+=/usr/*/include
+
+When working on a project with a whole nested tree of included files, the "**"
+items is useful.  This will search down in all subdirectories.  Example: >
+
+	:set path+=/projects/invent/**/include
+
+This will find files in the directories:
+
+	/projects/invent/include ~
+	/projects/invent/main/include ~
+	/projects/invent/main/os/include ~
+	etc.
+
+There are even more possibilities.  Check out the 'path' option for info.
+   If you want to see which included files are actually found, use this
+command: >
+
+	:checkpath!
+
+==============================================================================
+*29.5*	Finding local identifiers
+
+The "[I" command searches included files.  To search in the current file only,
+and jump to the first place where the word under the cursor is used: >
+
+	gD
+
+Hint: Goto Definition.  This command is very useful to find a variable or
+function that was declared locally ("static", in C terms).  Example (cursor on
+"counter"):
+
+	   +->   static int counter = 0;
+	   |
+	   |     int get_counter(void)
+	gD |     {
+	   |	     ++counter;
+	   +--	     return counter;
+		 }
+
+To restrict the search even further, and look only in the current function,
+use this command: >
+
+	gd
+
+This will go back to the start of the current function and find the first
+occurrence of the word under the cursor.  Actually, it searches backwards to
+an empty line above a "{" in the first column.  From there it searches forward
+for the identifier.  Example (cursor on "idx"):
+
+		int find_entry(char *name)
+		{
+	   +->	    int idx;
+	   |
+	gd |	    for (idx = 0; idx < table_len; ++idx)
+	   |		if (strcmp(table[idx].name, name) == 0)
+	   +--		    return idx;
+		}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_30.txt|  Editing programs
+#
+Vim has various commands that aid in writing computer programs.  Compile a
+program and directly jump to reported errors.  Automatically set the indent
+for many languages and format comments.
+
+|30.1|	Compiling
+|30.2|	Indenting C files
+|30.3|	Automatic indenting
+|30.4|	Other indenting
+|30.5|	Tabs and spaces
+|30.6|	Formatting comments
+
+==============================================================================
+*30.1*	Compiling
+
+Vim has a set of so called "quickfix" commands.  They enable you to compile a
+program from within Vim and then go through the errors generated and fix them
+(hopefully).  You can then recompile and fix any new errors that are found
+until finally your program compiles without any error.
+
+The following command runs the program "make" (supplying it with any argument
+you give) and captures the results: >
+
+	:make {arguments}
+
+If errors were generated, they are captured and the editor positions you where
+the first error occurred.
+   Take a look at an example ":make" session.  (Typical :make sessions generate
+far more errors and fewer stupid ones.)  After typing ":make" the screen looks
+like this:
+
+	:!make | &tee /tmp/vim215953.err ~
+	gcc -g -Wall -o prog main.c sub.c ~
+	main.c: In function 'main': ~
+	main.c:6: too many arguments to function 'do_sub' ~
+	main.c: At top level: ~
+	main.c:10: parse error before '}' ~
+	make: *** [prog] Error 1 ~
+
+	2 returned ~
+	"main.c" 11L, 111C ~
+	(3 of 6): too many arguments to function 'do_sub' ~
+	Press ENTER or type command to continue ~
+
+From this you can see that you have errors in the file "main.c".  When you
+press <Enter>, Vim displays the file "main.c", with the cursor positioned on
+line 6, the first line with an error.  You did not need to specify the file or
+the line number, Vim knew where to go by looking in the error messages.
+
+		+---------------------------------------------------+
+		|int main()					    |
+		|{						    |
+		|	int i=3;				    |
+      cursor -> |	do_sub("foo");				    |
+		|	++i;					    |
+		|	return (0);				    |
+		|}						    |
+		|}						    |
+		| ~						    |
+		|(3 of 12): too many arguments to function 'do_sub' |
+		+---------------------------------------------------+
+
+The following command goes to where the next error occurs: >
+
+	:cnext
+
+Vim jumps to line 10, the last line in the file, where there is an extra '}'.
+   When there is not enough room, Vim will shorten the error message.  To see
+the whole message use: >
+
+	:cc
+
+You can get an overview of all the error messages with the ":clist" command.
+The output looks like this: >
+
+	:clist
+<	3 main.c: 6:too many arguments to function 'do_sub' ~
+	5 main.c: 10:parse error before '}' ~
+
+Only the lines where Vim recognized a file name and line number are listed
+here.  It assumes those are the interesting lines and the rest is just boring
+messages.  However, sometimes unrecognized lines do contain something you want
+to see.  Output from the linker, for example, about an undefined function.
+To see all the messages add a "!" to the command: >
+
+	:clist!
+<	1 gcc -g -Wall -o prog main.c sub.c ~
+	2 main.c: In function 'main': ~
+	3 main.c:6: too many arguments to function 'do_sub' ~
+	4 main.c: At top level: ~
+	5 main.c:10: parse error before '}' ~
+	6 make: *** [prog] Error 1 ~
+
+Vim will highlight the current error.  To go back to the previous error, use:
+>
+	:cprevious
+
+Other commands to move around in the error list:
+
+	:cfirst		to first error
+	:clast		to last error
+	:cc 3		to error nr 3
+
+USING ANOTHER COMPILER
+
+The name of the program to run when the ":make" command is executed is defined
+by the 'makeprg' option.  Usually this is set to "make", but Visual C++ users
+should set this to "nmake" by executing the following command: >
+
+	:set makeprg=nmake
+
+You can also include arguments in this option.  Special characters need to
+be escaped with a backslash.  Example: >
+
+	:set makeprg=nmake\ -f\ project.mak
+
+You can include special Vim keywords in the command specification.  The %
+character expands to the name of the current file.  So if you execute the
+command: >
+	:set makeprg=make\ %:S
+
+When you are editing main.c, then ":make" executes the following command: >
+
+	make main.c
+
+This is not too useful, so you will refine the command a little and use the :r
+(root) modifier: >
+
+	:set makeprg=make\ %:r:S.o
+
+Now the command executed is as follows: >
+
+	make main.o
+
+More about these modifiers here: |filename-modifiers|.
+
+==============================================================================
+*30.2*	Indenting C style text
+
+A program is much easier to understand when the lines have been properly
+indented.  Vim offers various ways to make this less work.  For C or C style
+programs like Java or C++, set the 'cindent' option.  Vim knows a lot about C
+programs and will try very hard to automatically set the indent for you.  Set
+the 'shiftwidth' option to the amount of spaces you want for a deeper level.
+Four spaces will work fine.  One ":set" command will do it: >
+
+	:set cindent shiftwidth=4
+
+==============================================================================
+*30.3*	Automatic indenting
+
+You don't want to switch on the 'cindent' option manually every time you edit
+a C file.  This is how you make it work automatically: >
+
+	:filetype indent on
+
+   For the {directory} part you need to use your runtime directory.  Look at
+the output of this command: >
+
+	set runtimepath
+
+Now use the first item, the name before the first comma.  Thus if the output
+looks like this:
+
+	runtimepath=~/.vim,/usr/local/share/vim/vim60/runtime,~/.vim/after ~
+
+You use "~/.vim" for {directory}.  Then the resulting file name is:
+
+	~/.vim/indent/help.vim ~
+
+Instead of switching the indenting off, you could write your own indent file.
+How to do that is explained here: |indent-expression|.
+
+==============================================================================
+*30.4*	Other indenting
+...
+
+
+==============================================================================
+*30.5*	Tabs and spaces
+
+
+JUST SPACES
+
+If you want absolutely no tabs in your file, you can set the 'expandtab'
+option: >
+
+	:set expandtab
+
+CHANGING TABS IN SPACES (AND BACK)
+
+Setting 'expandtab' does not affect any existing tabs.  In other words, any
+tabs in the document remain tabs.  If you want to convert tabs to spaces, use
+the ":retab" command.  Use these commands: >
+
+	:set expandtab
+	:%retab
+
+Now Vim will have changed all indents to use spaces instead of tabs.  However,
+all tabs that come after a non-blank character are kept.  If you want these to
+be converted as well, add a !: >
+
+	:%retab!
+
+The other way around works just as well: >
+
+	:set noexpandtab
+	:%retab!
+
+==============================================================================
+*30.6*	Formatting comments
+
+One of the great things about Vim is that it understands comments.  You can
+ask Vim to format a comment and it will do the right thing.
+   Suppose, for example, that you have the following comment:
+
+	/* ~
+	 * This is a test ~
+	 * of the text formatting. ~
+	 */ ~
+
+You then ask Vim to format it by positioning the cursor at the start of the
+comment and type: >
+
+	gq]/
+
+"gq" is the operator to format text.  "]/" is the motion that takes you to the
+end of a comment.  The result is:
+
+	/* ~
+	 * This is a test of the text formatting. ~
+	 */ ~
+
+  An alternative is to select the text that is to be formatted in Visual mode
+and type "gq".
+
+DEFINING A COMMENT
+
+The 'comments' option defines what a comment looks like.  Vim distinguishes
+between a single-line comment and a comment that has a different start, end
+and middle part.
+   Many single-line comments start with a specific character.  In C++ // is
+used, in Makefiles #, in Vim scripts ".  For example, to make Vim understand
+C++ comments: >
+
+	:set comments=://
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_31.txt|  Exploiting the GUI
+
+Vim works well in a terminal, but the GUI has a few extra items.  A file
+browser can be used for commands that use a file.  A dialog to make a choice
+between alternatives.  Use keyboard shortcuts to access menu items quickly.
+
+|31.1|	The file browser
+|31.2|	Confirmation
+|31.3|	Menu shortcuts
+|31.4|	Vim window position and size
+|31.5|	Various
+
+...
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_32.txt|  The undo tree
+
+Vim provides multi-level undo.  If you undo a few changes and then make a new
+change you create a branch in the undo tree.  This text is about moving
+through the branches.
+
+|32.1|	Undo up to a file write
+|32.2|	Numbering changes
+|32.3|	Jumping around the tree
+|32.4|	Time travelling
+
+==============================================================================
+*32.1*	Undo up to a file write
+
+Sometimes you make several changes, and then discover you want to go back to
+when you have last written the file.  You can do that with this command: >
+
+	:earlier 1f
+
+The "f" stands for "file" here.
+
+You can repeat this command to go further back in the past.  Or use a count
+different from 1 to go back faster.
+
+If you go back too far, go forward again with: >
+
+	:later 1f
+
+Note that these commands really work in time sequence.  This matters if you
+made changes after undoing some changes.  It's explained in the next section.
+
+Also note that we are talking about text writes here.  For writing the undo
+information in a file see |undo-persistence|.
+
+==============================================================================
+*32.2*	Numbering changes
+
+		one ~
+		 |
+	      change 1
+		 |
+	      one too ~
+	      /     \
+	 change 2  change 3
+	    |	      |
+	 one two    me too ~
+
+...
+
+==============================================================================
+*32.3*	Jumping around the tree
+
+So how do you get to "one two" now?  You can use this command: >
+
+	:undo 2
+
+Now you change your mind and want to go back to "me too".  Use the |g-|
+command.  This moves back in time.  Thus it doesn't walk the tree upwards or
+downwards, but goes to the change made before.
+
+You can repeat |g-| and you will see the text change:
+	me too ~
+	one two ~
+	one too ~
+	one ~
+
+Using |:undo| is useful if you know what change you want to jump to.  |g-| and
+|g+| are useful if you don't know exactly what the change number is.
+
+You can type a count before |g-| and |g+| to repeat them.
+
+==============================================================================
+*32.4*	Time travelling
+
+To see what branches there are in the undo tree use this command: >
+
+	:undolist
+<	number changes  time ~
+	     3       2  16 seconds ago
+	     4       3  5 seconds ago
+
+Here you can see the number of the leaves in each branch and when the change
+was made.  Assuming we are below change 4, at "not two", you can go back ten
+seconds with this command: >
+
+	:earlier 10s
+
+Depending on how much time you took for the changes you end up at a certain
+position in the tree.  The |:earlier| command argument can be "m" for minutes,
+"h" for hours and "d" for days.  To go all the way back use a big number: >
+
+	:earlier 100d
+
+To travel forward in time again use the |:later| command: >
+
+	:later 1m
+
+The arguments are "s", "m" and "h", just like with |:earlier|.
+
+If you want even more details, or want to manipulate the information, you can
+use the |undotree()| function.  To see what it returns: >
+
+	:echo undotree()

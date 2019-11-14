@@ -1,0 +1,1866 @@
+vim:tw=78:ts=8:ft=help:norl:
+
+VIM - main help file
+====================
+
+Tuning Vim
+----------
+
+Tuning Vim ~
+|usr_40.txt|  Make new commands
+|usr_41.txt|  Write a Vim script
+|usr_42.txt|  Add new menus
+|usr_43.txt|  Using filetypes
+|usr_44.txt|  Your own syntax highlighted
+|usr_45.txt|  Select your language
+
+Making Vim Run ~
+|usr_90.txt|  Installing Vim
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_40.txt|  Make new commands
+
+Vim is an extensible editor.  You can take a sequence of commands you use
+often and turn it into a new command.  Or redefine an existing command.
+Autocommands make it possible to execute commands automatically.
+
+|40.1|	Key mapping
+|40.2|	Defining command-line commands
+|40.3|	Autocommands
+
+==============================================================================
+*40.1*	Key mapping
+
+A simple mapping was explained in section |05.3|.  The principle is that one
+sequence of key strokes is translated into another sequence of key strokes.
+This is a simple, yet powerful mechanism.
+   The simplest form is that one key is mapped to a sequence of keys.  Since
+the function keys, except <F1>, have no predefined meaning in Vim, these are
+good choices to map.  Example: >
+
+	:map <F2> GoDate: <Esc>:read !date<CR>kJ
+
+Date: Wed Nov 13 16:11:40 PST 2019
+
+MAPPING AND MODES
+
+The ":map" command defines remapping for keys in Normal mode.  You can also
+define mappings for other modes.  For example, ":imap" applies to Insert mode.
+You can use it to insert a date below the cursor: >
+
+	:imap <F2> <CR>Date: <Esc>:read !date<CR>kJ
+
+Here is an overview of map commands and in which mode they work:
+
+	:map		Normal, Visual and Operator-pending
+	:vmap		Visual
+	:nmap		Normal
+	:omap		Operator-pending
+	:map!		Insert and Command-line
+	:imap		Insert
+	:cmap		Command-line
+
+LISTING MAPPINGS
+
+To see the currently defined mappings, use ":map" without arguments.  Or one
+of the variants that include the mode in which they work.  The output could
+look like this:
+
+	   _g		 :call MyGrep(1)<CR> ~
+	v  <F2>		 :s/^/> /<CR>:noh<CR>`` ~
+	n  <F2>		 :.,$s/^/> /<CR>:noh<CR>`` ~
+	   <xHome>	 <Home>
+	   <xEnd>	 <End>
+
+The first column of the list shows in which mode the mapping is effective.
+This is "n" for Normal mode, "i" for Insert mode, etc.  A blank is used for a
+mapping defined with ":map", thus effective in both Normal and Visual mode.
+
+REMAPPING
+
+The result of a mapping is inspected for other mappings in it.  For example,
+the mappings for <F2> above could be shortened to: >
+
+	:map <F2> G<F3>
+	:imap <F2> <Esc><F3>
+	:map <F3>  oDate: <Esc>:read !date<CR>kJ
+
+Suppose you hardly ever use Ex mode, and want to use the "Q" command to format
+text (this was so in old versions of Vim).  This mapping will do it: >
+
+	:map Q gq
+
+But, in rare cases you need to use Ex mode anyway.  Let's map "gQ" to Q, so
+that you can still go to Ex mode: >
+
+	:map gQ Q
+
+What happens now is that when you type "gQ" it is mapped to "Q".  So far so
+good.  But then "Q" is mapped to "gq", thus typing "gQ" results in "gq", and
+you don't get to Ex mode at all.
+   To avoid keys to be mapped again, use the ":noremap" command: >
+
+	:noremap gQ Q
+
+Now Vim knows that the "Q" is not to be inspected for mappings that apply to
+it.  There is a similar command for every mode:
+
+	:noremap	Normal, Visual and Operator-pending
+	:vnoremap	Visual
+	:nnoremap	Normal
+	:onoremap	Operator-pending
+	:noremap!	Insert and Command-line
+	:inoremap	Insert
+	:cnoremap	Command-line
+
+RECURSIVE MAPPING
+
+When a mapping triggers itself, it will run forever.  This can be used to
+repeat an action an unlimited number of times.
+   For example, you have a list of files that contain a version number in the
+first line.  You edit these files with "vim *.txt".  You are now editing the
+first file.  Define this mapping: >
+
+	:map ,, :s/5.1/5.2/<CR>:wnext<CR>,,
+
+Now you type ",,".  This triggers the mapping.  It replaces "5.1" with "5.2"
+in the first line.  Then it does a ":wnext" to write the file and edit the
+next one.  The mapping ends in ",,".  This triggers the same mapping again,
+thus doing the substitution, etc.
+
+DELETE A MAPPING
+
+To remove a mapping use the ":unmap" command.  Again, the mode the unmapping
+applies to depends on the command used:
+
+	:unmap		Normal, Visual and Operator-pending
+	:vunmap		Visual
+	:nunmap		Normal
+	:ounmap		Operator-pending
+	:unmap!		Insert and Command-line
+	:iunmap		Insert
+	:cunmap		Command-line
+
+SPECIAL CHARACTERS
+
+The ":map" command can be followed by another command.  A | character
+separates the two commands.  This also means that a | character can't be used
+inside a map command.  To include one, use <Bar> (five characters).  Example:
+>
+	:map <F8> :write <Bar> !checkin %:S<CR>
+
+The same problem applies to the ":unmap" command, with the addition that you
+have to watch out for trailing white space.  These two commands are different:
+>
+	:unmap a | unmap b
+	:unmap a| unmap b
+
+The first command tries to unmap "a ", with a trailing space.
+
+It is not possible to put a comment directly after a mapping, because the "
+character is considered to be part of the mapping.  You can use |", this
+starts a new, empty command with a comment.  Example: >
+
+	:map <Space> W|     " Use spacebar to move forward a word
+
+When using a space inside a mapping, use <Space> (seven characters): >
+
+	:map <Space> W
+
+This makes the spacebar move a blank-separated word forward.
+
+MAPPINGS AND ABBREVIATIONS
+
+Abbreviations are a lot like Insert mode mappings.  The arguments are handled
+in the same way.  The main difference is the way they are triggered.  An
+abbreviation is triggered by typing a non-word character after the word.  A
+mapping is triggered when typing the last character.
+   Another difference is that the characters you type for an abbreviation are
+inserted in the text while you type them.  When the abbreviation is triggered
+these characters are deleted and replaced by what the abbreviation produces.
+When typing the characters for a mapping, nothing is inserted until you type
+the last character that triggers it.  If the 'showcmd' option is set, the
+typed characters are displayed in the last line of the Vim window.
+   An exception is when a mapping is ambiguous.  Suppose you have done two
+mappings: >
+
+	:imap aa foo
+	:imap aaa bar
+
+Now, when you type "aa", Vim doesn't know if it should apply the first or the
+second mapping.  It waits for another character to be typed.  If it is an "a",
+the second mapping is applied and results in "bar".  If it is a space, for
+example, the first mapping is applied, resulting in "foo", and then the space
+is inserted.
+
+ADDITIONALLY...
+
+The <script> keyword can be used to make a mapping local to a script.  See
+|:map-<script>|.
+
+The <buffer> keyword can be used to make a mapping local to a specific buffer.
+See |:map-<buffer>|
+
+The <unique> keyword can be used to make defining a new mapping fail when it
+already exists.  Otherwise a new mapping simply overwrites the old one.  See
+|:map-<unique>|.
+
+To make a key do nothing, map it to <Nop> (five characters).  This will make
+the <F7> key do nothing at all: >
+
+	:map <F7> <Nop>| map! <F7> <Nop>
+
+There must be no space after <Nop>.
+
+==============================================================================
+*40.2*	Defining command-line commands
+
+The Vim editor enables you to define your own commands.  You execute these
+commands just like any other Command-line mode command.
+   To define a command, use the ":command" command, as follows: >
+
+	:command DeleteFirst 1delete
+
+Now when you execute the command ":DeleteFirst" Vim executes ":1delete", which
+deletes the first line.
+
+	Note:
+	User-defined commands must start with a capital letter.  You cannot
+	use ":X", ":Next" and ":Print".  The underscore cannot be used!  You
+	can use digits, but this is discouraged.
+
+To list the user-defined commands, execute the following command: >
+
+	:command
+
+Just like with the builtin commands, the user defined commands can be
+abbreviated.  You need to type just enough to distinguish the command from
+another.  Command line completion can be used to get the full name.
+
+NUMBER OF ARGUMENTS
+
+User-defined commands can take a series of arguments.  The number of arguments
+must be specified by the -nargs option.  For instance, the example
+:DeleteFirst command takes no arguments, so you could have defined it as
+follows: >
+
+	:command -nargs=0 DeleteFirst 1delete
+
+However, because zero arguments is the default, you do not need to add
+"-nargs=0".  The other values of -nargs are as follows:
+
+	-nargs=0	No arguments
+	-nargs=1	One argument
+	-nargs=*	Any number of arguments
+	-nargs=?	Zero or one argument
+	-nargs=+	One or more arguments
+
+LINE RANGE
+...
+
+OTHER OPTIONS
+
+Some of the other options and keywords are as follows:
+
+	-count={number}		The command can take a count whose default is
+				{number}.  The resulting count can be used
+				through the <count> keyword.
+	-bang			You can use a !.  If present, using <bang> will
+				result in a !.
+	-register		You can specify a register.  (The default is
+				the unnamed register.)
+				The register specification is available as
+				<reg> (a.k.a. <register>).
+	-complete={type}	Type of command-line completion used.  See
+				|:command-completion| for the list of possible
+				values.
+	-bar			The command can be followed by | and another
+				command, or " and a comment.
+	-buffer			The command is only available for the current
+				buffer.
+
+Finally, you have the <lt> keyword.  It stands for the character <.  Use this
+to escape the special meaning of the <> items mentioned.
+
+REDEFINING AND DELETING
+
+To redefine the same command use the ! argument: >
+
+	:command -nargs=+ Say :echo "<args>"
+	:command! -nargs=+ Say :echo <q-args>
+
+To delete a user command use ":delcommand".  It takes a single argument, which
+is the name of the command.  Example: >
+
+	:delcommand SaveIt
+
+To delete all the user commands: >
+
+	:comclear
+
+Careful, this can't be undone!
+
+More details about all this in the reference manual: |user-commands|.
+
+==============================================================================
+*40.3*	Autocommands
+
+An autocommand is a command that is executed automatically in response to some
+event, such as a file being read or written or a buffer change.  Through the
+use of autocommands you can train Vim to edit compressed files, for example.
+That is used in the |gzip| plugin.
+   Autocommands are very powerful.  Use them with care and they will help you
+avoid typing many commands.  Use them carelessly and they will cause a lot of
+trouble.
+
+Suppose you want to replace a datestamp on the end of a file every time it is
+written.  First you define a function: >
+
+	:function DateInsert()
+	:  $delete
+	:  read !date
+	:endfunction
+
+You want this function to be called each time, just before a buffer is written
+to a file.  This will make that happen: >
+
+	:autocmd BufWritePre *  call DateInsert()
+
+"BufWritePre" is the event for which this autocommand is triggered: Just
+before (pre) writing a buffer to a file.  The "*" is a pattern to match with
+the file name.  In this case it matches all files.
+   With this command enabled, when you do a ":write", Vim checks for any
+matching BufWritePre autocommands and executes them, and then it
+performs the ":write".
+   The general form of the :autocmd command is as follows: >
+
+	:autocmd [group] {events} {file_pattern} [nested] {command}
+
+The [group] name is optional.  It is used in managing and calling the commands
+(more on this later).  The {events} parameter is a list of events (comma
+separated) that trigger the command.
+   {file_pattern} is a filename, usually with wildcards.  For example, using
+"*.txt" makes the autocommand be used for all files whose name end in ".txt".
+The optional [nested] flag allows for nesting of autocommands (see below), and
+finally, {command} is the command to be executed.
+
+EVENTS
+
+One of the most useful events is BufReadPost.  It is triggered after a new
+file is being edited.  It is commonly used to set option values.  For example,
+you know that "*.gsm" files are GNU assembly language.  To get the syntax file
+right, define this autocommand: >
+
+	:autocmd BufReadPost *.gsm  set filetype=asm
+
+If Vim is able to detect the type of file, it will set the 'filetype' option
+for you.  This triggers the Filetype event.  Use this to do something when a
+certain type of file is edited.  For example, to load a list of abbreviations
+for text files: >
+
+	:autocmd Filetype text  source ~/.vim/abbrevs.vim
+
+When starting to edit a new file, you could make Vim insert a skeleton: >
+
+	:autocmd BufNewFile *.[ch]  0read ~/skeletons/skel.c
+
+See |autocmd-events| for a complete list of events.
+
+PATTERNS
+
+The {file_pattern} argument can actually be a comma-separated list of file
+patterns.  For example: "*.c,*.h" matches files ending in ".c" and ".h".
+   The usual file wildcards can be used.  Here is a summary of the most often
+used ones:
+
+	*		Match any character any number of times
+	?		Match any character once
+	[abc]		Match the character a, b or c
+	.		Matches a dot
+	a{b,c}		Matches "ab" and "ac"
+
+When the pattern includes a slash (/) Vim will compare directory names.
+Without the slash only the last part of a file name is used.  For example,
+"*.txt" matches "/home/biep/readme.txt".  The pattern "/home/biep/*" would
+also match it.  But "home/foo/*.txt" wouldn't.
+   When including a slash, Vim matches the pattern against both the full path
+of the file ("/home/biep/readme.txt") and the relative path (e.g.,
+"biep/readme.txt").
+
+DELETING
+
+To delete an autocommand, use the same command as what it was defined with,
+but leave out the {command} at the end and use a !.  Example: >
+
+	:autocmd! FileWritePre *
+
+This will delete all autocommands for the "FileWritePre" event that use the
+"*" pattern.
+
+LISTING
+
+To list all the currently defined autocommands, use this: >
+
+	:autocmd
+
+The list can be very long, especially when filetype detection is used.  To
+list only part of the commands, specify the group, event and/or pattern.  For
+example, to list all BufNewFile autocommands: >
+
+	:autocmd BufNewFile
+
+To list all autocommands for the pattern "*.c": >
+
+	:autocmd * *.c
+
+Using "*" for the event will list all the events.  To list all autocommands
+for the cprograms group: >
+
+	:autocmd cprograms
+
+GROUPS
+
+The {group} item, used when defining an autocommand, groups related autocommands
+together.  This can be used to delete all the autocommands in a certain group,
+for example.
+   When defining several autocommands for a certain group, use the ":augroup"
+command.  For example, let's define autocommands for C programs: >
+
+	:augroup cprograms
+	:  autocmd BufReadPost *.c,*.h :set sw=4 sts=4
+	:  autocmd BufReadPost *.cpp   :set sw=3 sts=3
+	:augroup END
+
+This will do the same as: >
+
+	:autocmd cprograms BufReadPost *.c,*.h :set sw=4 sts=4
+	:autocmd cprograms BufReadPost *.cpp   :set sw=3 sts=3
+
+To delete all autocommands in the "cprograms" group: >
+
+	:autocmd! cprograms
+
+NESTING
+
+Generally, commands executed as the result of an autocommand event will not
+trigger any new events.  If you read a file in response to a FileChangedShell
+event, it will not trigger the autocommands that would set the syntax, for
+example.  To make the events triggered, add the "nested" argument: >
+
+	:autocmd FileChangedShell * nested  edit
+
+EXECUTING AUTOCOMMANDS
+
+It is possible to trigger an autocommand by pretending an event has occurred.
+This is useful to have one autocommand trigger another one.  Example: >
+
+	:autocmd BufReadPost *.new  execute "doautocmd BufReadPost " . expand("<afile>:r")
+
+This defines an autocommand that is triggered when a new file has been edited.
+The file name must end in ".new".  The ":execute" command uses expression
+evaluation to form a new command and execute it.  When editing the file
+"tryout.c.new" the executed command will be: >
+
+	:doautocmd BufReadPost tryout.c
+
+The expand() function takes the "<afile>" argument, which stands for the file
+name the autocommand was executed for, and takes the root of the file name
+with ":r".
+
+USING NORMAL MODE COMMANDS
+
+The commands executed by an autocommand are Command-line commands.  If you
+want to use a Normal mode command, the ":normal" command can be used.
+Example: >
+
+	:autocmd BufReadPost *.log normal G
+
+This will make the cursor jump to the last line of *.log files when you start
+to edit it.
+   Using the ":normal" command is a bit tricky.  First of all, make sure its
+argument is a complete command, including all the arguments.  When you use "i"
+to go to Insert mode, there must also be a <Esc> to leave Insert mode again.
+If you use a "/" to start a search pattern, there must be a <CR> to execute
+it.
+   The ":normal" command uses all the text after it as commands.  Thus there
+can be no | and another command following.  To work around this, put the
+":normal" command inside an ":execute" command.  This also makes it possible
+to pass unprintable characters in a convenient way.  Example: >
+
+	:autocmd BufReadPost *.chg execute "normal ONew entry:\<Esc>" |
+		\ 1read !date
+
+This also shows the use of a backslash to break a long command into more
+lines.  This can be used in Vim scripts (not at the command line).
+
+When you want the autocommand do something complicated, which involves jumping
+around in the file and then returning to the original position, you may want
+to restore the view on the file.  See |restore-position| for an example.
+
+IGNORING EVENTS
+
+At times, you will not want to trigger an autocommand.  The 'eventignore'
+option contains a list of events that will be totally ignored.  For example,
+the following causes events for entering and leaving a window to be ignored: >
+
+	:set eventignore=WinEnter,WinLeave
+
+To ignore all events, use the following command: >
+
+	:set eventignore=all
+
+To set it back to the normal behavior, make 'eventignore' empty: >
+
+	:set eventignore=
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_41.txt|  Write a Vim script
+
+The Vim script language is used for the startup vimrc file, syntax files, and
+many other things.  This chapter explains the items that can be used in a Vim
+script.  There are a lot of them, thus this is a long chapter.
+
+|41.1|	Introduction
+|41.2|	Variables
+|41.3|	Expressions
+|41.4|	Conditionals
+|41.5|	Executing an expression
+|41.6|	Using functions
+|41.7|	Defining a function
+|41.8|	Lists and Dictionaries
+|41.9|	Exceptions
+|41.10|	Various remarks
+|41.11|	Writing a plugin
+|41.12|	Writing a filetype plugin
+|41.13|	Writing a compiler plugin
+|41.14|	Writing a plugin that loads quickly
+|41.15|	Writing library scripts
+|41.16|	Distributing Vim scripts
+
+==============================================================================
+*41.1*	Introduction				*vim-script-intro* *script*
+
+Your first experience with Vim scripts is the vimrc file.  Vim reads it when
+it starts up and executes the commands.  You can set options to values you
+prefer.  And you can use any colon command in it (commands that start with a
+":"; these are sometimes referred to as Ex commands or command-line commands).
+
+   Syntax files are also Vim scripts.  As are files that set options for a
+specific file type.  A complicated macro can be defined by a separate Vim
+script file.  You can think of other uses yourself.
+
+Let's start with a simple example: >
+
+	:let i = 1
+	:while i < 5
+	:  echo "count is" i
+	:  let i += 1
+	:endwhile
+
+	Note:
+	The ":" characters are not really needed here.  You only need to use
+	them when you type a command.  In a Vim script file they can be left
+	out.  We will use them here anyway to make clear these are colon
+	commands and make them stand out from Normal mode commands.
+
+	Note:
+	You can try out the examples by yanking the lines from the text here
+	and executing them with :@"
+
+The output of the example code is:
+
+	count is 1 ~
+	count is 2 ~
+	count is 3 ~
+	count is 4 ~
+
+In the first line the ":let" command assigns a value to a variable.  The
+generic form is: >
+
+	:let {variable} = {expression}
+
+In this case the variable name is "i" and the expression is a simple value,
+the number one.
+   The ":while" command starts a loop.  The generic form is: >
+
+	:while {condition}
+	:  {statements}
+	:endwhile
+
+The ":echo" command prints its arguments.  In this case the string "count is"
+and the value of the variable i.  Since i is one, this will print:
+
+	count is 1 ~
+
+Then there is the ":let i += 1" command.  This does the same thing as
+":let i = i + 1".  This adds one to the variable i and assigns the new value
+to the same variable.
+
+The example was given to explain the commands, but would you really want to
+make such a loop it can be written much more compact: >
+
+	:for i in range(1, 4)
+	:  echo "count is" i
+	:endfor
+
+We won't explain how |:for| and |range()| work until later.  Follow the links
+if you are impatient.
+
+THREE KINDS OF NUMBERS
+
+Numbers can be decimal, hexadecimal or octal.  A hexadecimal number starts
+with "0x" or "0X".  For example "0x1f" is decimal 31.  An octal number starts
+with a zero.  "017" is decimal 15.  Careful: don't put a zero before a decimal
+number, it will be interpreted as an octal number!
+   The ":echo" command always prints decimal numbers.  Example: >
+
+	:echo 0x7f 036
+<	127 30 ~
+
+A number is made negative with a minus sign.  This also works for hexadecimal
+and octal numbers.   A minus sign is also used for subtraction.  Compare this
+with the previous example: >
+
+	:echo 0x7f -036
+<	97 ~
+
+White space in an expression is ignored.  However, it's recommended to use it
+for separating items, to make the expression easier to read.  For example, to
+avoid the confusion with a negative number above, put a space between the
+minus sign and the following number: >
+
+	:echo 0x7f - 036
+
+==============================================================================
+*41.2*	Variables
+
+A variable name consists of ASCII letters, digits and the underscore.  It
+cannot start with a digit.  Valid variable names are:
+
+	counter
+	_aap3
+	very_long_variable_name_with_underscores
+	FuncLength
+	LENGTH
+
+Invalid names are "foo+bar" and "6var".
+
+   These variables are global.  To see a list of currently defined variables
+use this command: >
+
+	:let
+
+You can use global variables everywhere.  This also means that when the
+variable "count" is used in one script file, it might also be used in another
+file.  This leads to confusion at least, and real problems at worst.  To avoid
+this, you can use a variable local to a script file by prepending "s:".  For
+example, one script contains this code: >
+
+	:let s:count = 1
+	:while s:count < 5
+	:  source other.vim
+	:  let s:count += 1
+	:endwhile
+
+Since "s:count" is local to this script, you can be sure that sourcing the
+"other.vim" script will not change this variable.  If "other.vim" also uses an
+"s:count" variable, it will be a different copy, local to that script.  More
+about script-local variables here: |script-variable|.
+
+There are more kinds of variables, see |internal-variables|.  The most often
+used ones are:
+
+	b:name		variable local to a buffer
+	w:name		variable local to a window
+	g:name		global variable (also in a function)
+	v:name		variable predefined by Vim
+
+DELETING VARIABLES
+
+Variables take up memory and show up in the output of the ":let" command.  To
+delete a variable use the ":unlet" command.  Example: >
+
+	:unlet s:count
+
+This deletes the script-local variable "s:count" to free up the memory it
+uses.  If you are not sure if the variable exists, and don't want an error
+message when it doesn't, append !: >
+
+	:unlet! s:count
+
+When a script finishes, the local variables used there will not be
+automatically freed.  The next time the script executes, it can still use the
+old value.  Example: >
+
+	:if !exists("s:call_count")
+	:  let s:call_count = 0
+	:endif
+	:let s:call_count = s:call_count + 1
+	:echo "called" s:call_count "times"
+
+The "exists()" function checks if a variable has already been defined.  Its
+argument is the name of the variable you want to check.  Not the variable
+itself!  If you would do this: >
+
+	:if !exists(s:call_count)
+
+Then the value of s:call_count will be used as the name of the variable that
+exists() checks.  That's not what you want.
+
+   The exclamation mark ! negates a value.  When the value was true, it
+becomes false.  When it was false, it becomes true.  You can read it as "not".
+Thus "if !exists()" can be read as "if not exists()".
+   What Vim calls true is anything that is not zero.  Zero is false.
+	Note:
+	Vim automatically converts a string to a number when it is looking for
+	a number.  When using a string that doesn't start with a digit the
+	resulting number is zero.  Thus look out for this: >
+		:if "true"
+<	The "true" will be interpreted as a zero, thus as false!
+
+   In double-quote strings it is possible to use special characters.  Here are
+a few useful ones:
+
+	\t		<Tab>
+	\n		<NL>, line break
+	\r		<CR>, <Enter>
+	\e		<Esc>
+	\b		<BS>, backspace
+	\"		"
+	\\		\, backslash
+	\<Esc>		<Esc>
+	\<C-W>		CTRL-W
+
+The last two are just examples.  The  "\<name>" form can be used to include
+the special key "name".
+   See |expr-quote| for the full list of special items in a string.
+
+==============================================================================
+*41.3*	Expressions
+
+Vim has a rich, yet simple way to handle expressions.  You can read the
+definition here: |expression-syntax|.  Here we will show the most common
+items.
+
+   The numbers, strings and variables mentioned above are expressions by
+themselves.  Thus everywhere an expression is expected, you can use a number,
+string or variable.  Other basic items in an expression are:
+
+	$NAME		environment variable
+	&name		option
+	@r		register
+
+Examples: >
+
+	:echo "The value of 'tabstop' is" &ts
+	:echo "Your home directory is" $HOME
+	:if @a > 5
+
+The &name form can be used to save an option value, set it to a new value,
+do something and restore the old value.  Example: >
+
+	:let save_ic = &ic
+	:set noic
+	:/The Start/,$delete
+	:let &ic = save_ic
+
+MATHEMATICS
+
+It becomes more interesting if we combine these basic items.  Let's start with
+mathematics on numbers:
+
+	a + b		add
+	a - b		subtract
+	a * b		multiply
+	a / b		divide
+	a % b		modulo
+
+Grouping is done with parentheses.  No surprises here.  Example: >
+
+	:echo (10 + 5) * 2
+<	30 ~
+
+Strings can be concatenated with ".".  Example: >
+
+	:echo "foo" . "bar"
+<	foobar ~
+
+Borrowed from the C language is the conditional expression:
+
+	a ? b : c
+
+If "a" evaluates to true "b" is used, otherwise "c" is used.  Example: >
+
+	:let i = 4
+	:echo i > 5 ? "i is big" : "i is small"
+<	i is small ~
+
+The three parts of the constructs are always evaluated first, thus you could
+see it work as:
+
+	(a) ? (b) : (c)
+
+==============================================================================
+*41.4*	Conditionals
+
+The ":if" commands executes the following statements, until the matching
+":endif", only when a condition is met.  The generic form is:
+
+	:if {condition}
+	   {statements}
+	:endif
+
+Only when the expression {condition} evaluates to true (non-zero) will the
+{statements} be executed.  These must still be valid commands.  If they
+contain garbage, Vim won't be able to find the ":endif".
+   You can also use ":else".  The generic form for this is:
+
+	:if {condition}
+	   {statements}
+	:else
+	   {statements}
+	:endif
+
+   Finally, there is ":elseif":
+
+	:if {condition}
+	   {statements}
+	:elseif {condition}
+	   {statements}
+	:endif
+
+This works just like using ":else" and then "if", but without the need for an
+extra ":endif".
+
+   A useful example for your vimrc file is checking the 'term' option and
+doing something depending upon its value: >
+
+	:if &term == "xterm"
+	:  " Do stuff for xterm
+	:elseif &term == "vt100"
+	:  " Do stuff for a vt100 terminal
+	:else
+	:  " Do something for other terminals
+	:endif
+
+LOGIC OPERATIONS
+
+We already used some of them in the examples.  These are the most often used
+ones:
+
+	a == b		equal to
+	a != b		not equal to
+	a >  b		greater than
+	a >= b		greater than or equal to
+	a <  b		less than
+	a <= b		less than or equal to
+
+The result is one if the condition is met and zero otherwise.  An example: >
+
+	:if v:version >= 700
+	:  echo "congratulations"
+	:else
+	:  echo "you are using an old version, upgrade!"
+	:endif
+
+For strings there are two more items:
+
+	a =~ b		matches with
+	a !~ b		does not match with
+
+MORE LOOPING
+
+The ":while" command was already mentioned.  Two more statements can be used
+in between the ":while" and the ":endwhile":
+
+	:continue		Jump back to the start of the while loop; the
+				loop continues.
+	:break			Jump forward to the ":endwhile"; the loop is
+				discontinued.
+
+Example: >
+
+	:while counter < 40
+	:  call do_something()
+	:  if skip_flag
+	:    continue
+	:  endif
+	:  if finished_flag
+	:    break
+	:  endif
+	:  sleep 50m
+	:endwhile
+
+The ":sleep" command makes Vim take a nap.  The "50m" specifies fifty
+milliseconds.  Another example is ":sleep 4", which sleeps for four seconds.
+
+Even more looping can be done with the ":for" command, see below in |41.8|.
+
+==============================================================================
+*41.5*	Executing an expression
+
+So far the commands in the script were executed by Vim directly.  The
+":execute" command allows executing the result of an expression.  This is a
+very powerful way to build commands and execute them.
+   An example is to jump to a tag, which is contained in a variable: >
+
+	:execute "tag " . tag_name
+
+The ":execute" command can only execute colon commands.  The ":normal" command
+executes Normal mode commands.  However, its argument is not an expression but
+the literal command characters.  Example: >
+
+	:normal gg=G
+
+If you don't want to execute a string but evaluate it to get its expression
+value, you can use the eval() function: >
+
+	:let optname = "path"
+	:let optval = eval('&' . optname)
+
+A "&" character is prepended to "path", thus the argument to eval() is
+"&path".  The result will then be the value of the 'path' option.
+   The same thing can be done with: >
+	:exe 'let optval = &' . optname
+
+==============================================================================
+*41.6*	Using functions
+
+Vim defines many functions and provides a large amount of functionality that
+way.  A few examples will be given in this section.  You can find the whole
+list here: |functions|.
+
+A function is called with the ":call" command.  The parameters are passed in
+between parentheses separated by commas.  Example: >
+
+	:call search("Date: ", "W")
+
+A function can be called in an expression.  Example: >
+
+	:let line = getline(".")
+	:let repl = substitute(line, '\a', "*", "g")
+	:call setline(".", repl)
+
+FUNCTIONS						*function-list*
+
+There are many functions.  We will mention them here, grouped by what they are
+used for.  You can find an alphabetical list here: |functions|.  Use CTRL-] on
+the function name to jump to detailed help on it.
+
+==============================================================================
+*41.7*	Defining a function
+
+Vim enables you to define your own functions.  The basic function declaration
+begins as follows: >
+
+	:function {name}({var1}, {var2}, ...)
+	:  {body}
+	:endfunction
+<
+	Note:
+	Function names must begin with a capital letter.
+
+The complete function definition is as follows: >
+
+	:function Min(num1, num2)
+	:  if a:num1 < a:num2
+	:    let smaller = a:num1
+	:  else
+	:    let smaller = a:num2
+	:  endif
+	:  return smaller
+	:endfunction
+
+For people who like short functions, this does the same thing: >
+
+	:function Min(num1, num2)
+	:  if a:num1 < a:num2
+	:    return a:num1
+	:  endif
+	:  return a:num2
+	:endfunction
+
+A user defined function is called in exactly the same way as a built-in
+function.  Only the name is different.  The Min function can be used like
+this: >
+
+	:echo Min(5, 8)
+
+To redefine a function that already exists, use the ! for the ":function"
+command: >
+
+	:function!  Min(num1, num2, num3)
+
+USING A RANGE
+
+The ":call" command can be given a line range.  This can have one of two
+meanings.  When a function has been defined with the "range" keyword, it will
+take care of the line range itself.
+  The function will be passed the variables "a:firstline" and "a:lastline".
+These will have the line numbers from the range the function was called with.
+Example: >
+
+	:function Count_words() range
+	:  let lnum = a:firstline
+	:  let n = 0
+	:  while lnum <= a:lastline
+	:    let n = n + len(split(getline(lnum)))
+	:    let lnum = lnum + 1
+	:  endwhile
+	:  echo "found " . n . " words"
+	:endfunction
+
+You can call this function with: >
+
+	:10,30call Count_words()
+
+VARIABLE NUMBER OF ARGUMENTS
+
+Vim enables you to define functions that have a variable number of arguments.
+The following command, for instance, defines a function that must have 1
+argument (start) and can have up to 20 additional arguments: >
+
+	:function Show(start, ...)
+
+VARIABLE NUMBER OF ARGUMENTS
+
+Vim enables you to define functions that have a variable number of arguments.
+The following command, for instance, defines a function that must have 1
+argument (start) and can have up to 20 additional arguments: >
+
+	:function Show(start, ...)
+
+The variable "a:1" contains the first optional argument, "a:2" the second, and
+so on.  The variable "a:0" contains the number of extra arguments.
+   For example: >
+
+	:function Show(start, ...)
+	:  echohl Title
+	:  echo "start is " . a:start
+	:  echohl None
+	:  let index = 1
+	:  while index <= a:0
+	:    echo "  Arg " . index . " is " . a:{index}
+	:    let index = index + 1
+	:  endwhile
+	:  echo ""
+	:endfunction
+
+This uses the ":echohl" command to specify the highlighting used for the
+following ":echo" command.  ":echohl None" stops it again.  The ":echon"
+command works like ":echo", but doesn't output a line break.
+
+You can also use the a:000 variable, it is a List of all the "..." arguments.
+See |a:000|.
+
+LISTING FUNCTIONS
+
+The ":function" command lists the names and arguments of all user-defined
+functions: >
+
+	:function
+<	function Show(start, ...) ~
+	function GetVimIndent() ~
+	function SetSyn(name) ~
+
+To see what a function does, use its name as an argument for ":function": >
+
+	:function SetSyn
+<	1     if &syntax == '' ~
+	2       let &syntax = a:name ~
+	3     endif ~
+	   endfunction ~
+
+DEBUGGING
+
+The line number is useful for when you get an error message or when debugging.
+See |debug-scripts| about debugging mode.
+   You can also set the 'verbose' option to 12 or higher to see all function
+calls.  Set it to 15 or higher to see every executed line.
+
+DELETING A FUNCTION
+
+To delete the Show() function: >
+
+	:delfunction Show
+
+You get an error when the function doesn't exist.
+
+==============================================================================
+*41.8*	Lists and Dictionaries
+
+So far we have used the basic types String and Number.  Vim also supports two
+composite types: List and Dictionary.
+
+A List is an ordered sequence of things.  The things can be any kind of value,
+thus you can make a List of numbers, a List of Lists and even a List of mixed
+items.  To create a List with three strings: >
+
+	:let alist = ['aap', 'mies', 'noot']
+
+The List items are enclosed in square brackets and separated by commas.  To
+create an empty List: >
+
+	:let alist = []
+
+You can add items to a List with the add() function: >
+
+	:let alist = []
+	:call add(alist, 'foo')
+	:call add(alist, 'bar')
+	:echo alist
+<	['foo', 'bar'] ~
+
+List concatenation is done with +: >
+
+	:echo alist + ['foo', 'bar']
+<	['foo', 'bar', 'foo', 'bar'] ~
+
+Or, if you want to extend a List directly: >
+
+	:let alist = ['one']
+	:call extend(alist, ['two', 'three'])
+	:echo alist
+<	['one', 'two', 'three'] ~
+
+Notice that using add() will have a different effect: >
+
+	:let alist = ['one']
+	:call add(alist, ['two', 'three'])
+	:echo alist
+<	['one', ['two', 'three']] ~
+
+The second argument of add() is added as a single item.
+
+FOR LOOP
+
+One of the nice things you can do with a List is iterate over it: >
+
+	:let alist = ['one', 'two', 'three']
+	:for n in alist
+	:  echo n
+	:endfor
+<	one ~
+	two ~
+	three ~
+
+To loop a certain number of times you need a List of a specific length.  The
+range() function creates one for you: >
+
+	:for a in range(3)
+	:  echo a
+	:endfor
+<	0 ~
+	1 ~
+	2 ~
+
+Notice that the first item of the List that range() produces is zero, thus the
+last item is one less than the length of the list.
+   You can also specify the maximum value, the stride and even go backwards: >
+
+	:for a in range(8, 4, -2)
+	:  echo a
+	:endfor
+<	8 ~
+	6 ~
+	4 ~
+
+A more useful example, looping over lines in the buffer: >
+
+	:for line in getline(1, 20)
+	:  if line =~ "Date: "
+	:    echo matchstr(line, 'Date: \zs.*')
+	:  endif
+	:endfor
+
+This looks into lines 1 to 20 (inclusive) and echoes any date found in there.
+
+DICTIONARIES
+
+A Dictionary stores key-value pairs.  You can quickly lookup a value if you
+know the key.  A Dictionary is created with curly braces: >
+
+	:let uk2nl = {'one': 'een', 'two': 'twee', 'three': 'drie'}
+
+Now you can lookup words by putting the key in square brackets: >
+
+	:echo uk2nl['two']
+<	twee ~
+
+The generic form for defining a Dictionary is: >
+
+	{<key> : <value>, ...}
+
+An empty Dictionary is one without any keys: >
+
+	{}
+
+The possibilities with Dictionaries are numerous.  There are various functions
+for them as well.  For example, you can obtain a list of the keys and loop
+over them: >
+
+	:for key in keys(uk2nl)
+	:  echo key
+	:endfor
+<	three ~
+	one ~
+	two ~
+
+You will notice the keys are not ordered.  You can sort the list to get a
+specific order: >
+
+	:for key in sort(keys(uk2nl))
+	:  echo key
+	:endfor
+<	one ~
+	three ~
+	two ~
+
+But you can never get back the order in which items are defined.  For that you
+need to use a List, it stores items in an ordered sequence.
+
+DICTIONARY FUNCTIONS
+
+The items in a Dictionary can normally be obtained with an index in square
+brackets: >
+
+	:echo uk2nl['one']
+<	een ~
+
+A method that does the same, but without so many punctuation characters: >
+
+	:echo uk2nl.one
+<	een ~
+
+This only works for a key that is made of ASCII letters, digits and the
+underscore.  You can also assign a new value this way: >
+
+	:let uk2nl.four = 'vier'
+	:echo uk2nl
+<	{'three': 'drie', 'four': 'vier', 'one': 'een', 'two': 'twee'} ~
+
+And now for something special: you can directly define a function and store a
+reference to it in the dictionary: >
+
+	:function uk2nl.translate(line) dict
+	:  return join(map(split(a:line), 'get(self, v:val, "???")'))
+	:endfunction
+
+Let's first try it out: >
+
+	:echo uk2nl.translate('three two five one')
+<	drie twee ??? een ~
+
+OBJECT ORIENTED PROGRAMMING
+...
+
+For further reading see |Lists| and |Dictionaries|.
+
+==============================================================================
+*41.9*	Exceptions
+
+Let's start with an example: >
+
+	:try
+	:   read ~/templates/pascal.tmpl
+	:catch /E484:/
+	:   echo "Sorry, the Pascal template file cannot be found."
+	:endtry
+
+The ":read" command will fail if the file does not exist.  Instead of
+generating an error message, this code catches the error and gives the user a
+nice message.
+
+For the commands in between ":try" and ":endtry" errors are turned into
+exceptions.  An exception is a string.  In the case of an error the string
+contains the error message.  And every error message has a number.  In this
+case, the error we catch contains "E484:".  This number is guaranteed to stay
+the same (the text may change, e.g., it may be translated).
+
+Another useful mechanism is the ":finally" command: >
+
+	:let tmp = tempname()
+	:try
+	:   exe ".,$write " . tmp
+	:   exe "!filter " . tmp
+	:   .,$delete
+	:   exe "$read " . tmp
+	:finally
+	:   call delete(tmp)
+	:endtry
+
+More information about exception handling can be found in the reference
+manual: |exception-handling|.
+
+==============================================================================
+*41.10*	Various remarks
+
+Here is a summary of items that apply to Vim scripts.  They are also mentioned
+elsewhere, but form a nice checklist.
+
+The end-of-line character depends on the system.  For Unix a single <NL>
+character is used.  For MS-DOS, Windows, OS/2 and the like, <CR><LF> is used.
+This is important when using mappings that end in a <CR>.  See |:source_crnl|.
+
+
+WHITE SPACE
+
+Blank lines are allowed and ignored.
+
+Leading whitespace characters (blanks and TABs) are always ignored.  The
+whitespaces between parameters (e.g. between the 'set' and the 'cpoptions' in
+the example below) are reduced to one blank character and plays the role of a
+separator, the whitespaces after the last (visible) character may or may not
+be ignored depending on the situation, see below.
+
+For a ":set" command involving the "=" (equal) sign, such as in: >
+
+	:set cpoptions    =aABceFst
+
+the whitespace immediately before the "=" sign is ignored.  But there can be
+no whitespace after the "=" sign!
+
+To include a whitespace character in the value of an option, it must be
+escaped by a "\" (backslash)  as in the following example: >
+
+	:set tags=my\ nice\ file
+
+The same example written as: >
+
+	:set tags=my nice file
+
+will issue an error, because it is interpreted as: >
+
+	:set tags=my
+	:set nice
+	:set file
+
+COMMENTS
+
+The character " (the double quote mark) starts a comment.  Everything after
+and including this character until the end-of-line is considered a comment and
+is ignored, except for commands that don't consider comments, as shown in
+examples below.  A comment can start on any character position on the line.
+
+There is a little "catch" with comments for some commands.  Examples: >
+
+	:abbrev dev development		" shorthand
+	:map <F3> o#include		" insert include
+	:execute cmd			" do it
+	:!ls *.c			" list C files
+
+The abbreviation 'dev' will be expanded to 'development     " shorthand'.  The
+mapping of <F3> will actually be the whole line after the 'o# ....' including
+the '" insert include'.  The "execute" command will give an error.  The "!"
+command will send everything after it to the shell, causing an error for an
+unmatched '"' character.
+   There can be no comment after ":map", ":abbreviate", ":execute" and "!"
+commands (there are a few more commands with this restriction).  For the
+":map", ":abbreviate" and ":execute" commands there is a trick: >
+
+	:abbrev dev development|" shorthand
+	:map <F3> o#include|" insert include
+	:execute cmd			|" do it
+
+With the '|' character the command is separated from the next one.  And that
+next command is only a comment.  For the last command you need to do two
+things: |:execute| and use '|': >
+	:exe '!ls *.c'			|" list C files
+
+For Unix there is one special way to comment a line, that allows making a Vim
+script executable: >
+	#!/usr/bin/env vim -S
+	echo "this is a Vim script"
+	quit
+
+The "#" command by itself lists a line with the line number.  Adding an
+exclamation mark changes it into doing nothing, so that you can add the shell
+command to execute the rest of the file. |:#!| |-S|
+
+RESTORING THE VIEW
+
+Sometimes you want to make a change and go back to where the cursor was.
+Restoring the relative position would also be nice, so that the same line
+appears at the top of the window.
+   This example yanks the current line, puts it above the first line in the
+file and then restores the view: >
+
+	map ,p ma"aYHmbgg"aP`bzt`a
+
+What this does: >
+	ma"aYHmbgg"aP`bzt`a
+<	ma			set mark a at cursor position
+	  "aY			yank current line into register a
+	     Hmb		go to top line in window and set mark b there
+		gg		go to first line in file
+		  "aP		put the yanked line above it
+		     `b		go back to top line in display
+		       zt	position the text in the window as before
+			 `a	go back to saved cursor position
+
+To avoid your function names to interfere with functions that you get from
+others, use this scheme:
+- Prepend a unique string before each function name.  I often use an
+  abbreviation.  For example, "OW_" is used for the option window functions.
+- Put the definition of your functions together in a file.  Set a global
+  variable to indicate that the functions have been loaded.  When sourcing the
+  file again, first unload the functions.
+Example: >
+
+	" This is the XXX package
+
+	if exists("XXX_loaded")
+	  delfun XXX_one
+	  delfun XXX_two
+	endif
+
+	function XXX_one(a)
+		... body of function ...
+	endfun
+
+	function XXX_two(b)
+		... body of function ...
+	endfun
+
+	let XXX_loaded = 1
+
+==============================================================================
+*41.11*	Writing a plugin				*write-plugin*
+
+You can write a Vim script in such a way that many people can use it.  This is
+called a plugin.  Vim users can drop your script in their plugin directory and
+use its features right away |add-plugin|.
+
+There are actually two types of plugins:
+
+  global plugins: For all types of files.
+filetype plugins: Only for files of a specific type.
+
+In this section the first type is explained.  Most items are also relevant for
+writing filetype plugins.  The specifics for filetype plugins are in the next
+section |write-filetype-plugin|.
+
+NAME
+
+First of all you must choose a name for your plugin.  The features provided
+by the plugin should be clear from its name.  And it should be unlikely that
+someone else writes a plugin with the same name but which does something
+different.  And please limit the name to 8 characters, to avoid problems on
+old Windows systems.
+
+A script that corrects typing mistakes could be called "typecorr.vim".  We
+will use it here as an example.
+
+For the plugin to work for everybody, it should follow a few guidelines.  This
+will be explained step-by-step.  The complete example plugin is at the end.
+
+HEADER
+
+You will probably add new corrections to the plugin and soon have several
+versions lying around.  And when distributing this file, people will want to
+know who wrote this wonderful plugin and where they can send remarks.
+Therefore, put a header at the top of your plugin: >
+
+  1	" Vim global plugin for correcting typing mistakes
+  2	" Last Change:	2000 Oct 15
+  3	" Maintainer:	Bram Moolenaar <Bram@vim.org>
+
+About copyright and licensing: Since plugins are very useful and it's hardly
+worth restricting their distribution, please consider making your plugin
+either public domain or use the Vim |license|.  A short note about this near
+the top of the plugin should be sufficient.  Example: >
+
+  4	" License:	This file is placed in the public domain.
+
+NOT LOADING
+
+It's possible that a user doesn't always want to load this plugin.  Or the
+system administrator has dropped it in the system-wide plugin directory, but a
+user has his own plugin he wants to use.  Then the user must have a chance to
+disable loading this specific plugin.  This will make it possible: >
+
+  6	if exists("g:loaded_typecorr")
+  7	  finish
+  8	endif
+  9	let g:loaded_typecorr = 1
+
+This also avoids that when the script is loaded twice it would cause error
+messages for redefining functions and cause trouble for autocommands that are
+added twice.
+
+The name is recommended to start with "loaded_" and then the file name of the
+plugin, literally.  The "g:" is prepended just to avoid mistakes when using
+the variable in a function (without "g:" it would be a variable local to the
+function).
+
+Using "finish" stops Vim from reading the rest of the file, it's much quicker
+than using if-endif around the whole file.
+
+SCRIPT VARIABLES
+
+When a variable starts with "s:" it is a script variable.  It can only be used
+inside a script.  Outside the script it's not visible.  This avoids trouble
+with using the same variable name in different scripts.  The variables will be
+kept as long as Vim is running.  And the same variables are used when sourcing
+the same script again. |s:var|
+
+The fun is that these variables can also be used in functions, autocommands
+and user commands that are defined in the script.  In our example we can add
+a few lines to count the number of corrections: >
+
+ 19	let s:count = 4
+ ..
+ 30	function s:Add(from, correct)
+ ..
+ 34	  let s:count = s:count + 1
+ 35	  echo s:count . " corrections now"
+ 36	endfunction
+
+DOCUMENTATION						*write-local-help*
+
+It's a good idea to also write some documentation for your plugin.  Especially
+when its behavior can be changed by the user.  See |add-local-help| for how
+they are installed.
+
+Here is a simple example for a plugin help file, called "typecorr.txt": >
+
+  1	*typecorr.txt*	Plugin for correcting typing mistakes
+  2
+  3	If you make typing mistakes, this plugin will have them corrected
+  4	automatically.
+  5
+  6	There are currently only a few corrections.  Add your own if you like.
+  7
+  8	Mappings:
+  9	<Leader>a   or   <Plug>TypecorrAdd
+ 10		Add a correction for the word under the cursor.
+ 11
+ 12	Commands:
+ 13	:Correct {word}
+ 14		Add a correction for {word}.
+ 15
+ 16							*typecorr-settings*
+ 17	This plugin doesn't have any settings.
+
+FILETYPE DETECTION					*plugin-filetype*
+
+If your filetype is not already detected by Vim, you should create a filetype
+detection snippet in a separate file.  It is usually in the form of an
+autocommand that sets the filetype when the file name matches a pattern.
+Example: >
+
+	au BufNewFile,BufRead *.foo			set filetype=foofoo
+
+Write this single-line file as "ftdetect/foofoo.vim" in the first directory
+that appears in 'runtimepath'.  For Unix that would be
+"~/.vim/ftdetect/foofoo.vim".  The convention is to use the name of the
+filetype for the script name.
+
+You can make more complicated checks if you like, for example to inspect the
+contents of the file to recognize the language.  Also see |new-filetype|.
+
+SUMMARY							*plugin-special*
+
+Summary of special things to use in a plugin:
+
+s:name			Variables local to the script.
+
+<SID>			Script-ID, used for mappings and functions local to
+			the script.
+
+hasmapto()		Function to test if the user already defined a mapping
+			for functionality the script offers.
+
+<Leader>		Value of "mapleader", which the user defines as the
+			keys that plugin mappings start with.
+
+:map <unique>		Give a warning if a mapping already exists.
+
+:noremap <script>	Use only mappings local to the script, not global
+			mappings.
+
+exists(":Cmd")		Check if a user command already exists.
+
+==============================================================================
+*41.12*	Writing a filetype plugin	*write-filetype-plugin* *ftplugin*
+
+A filetype plugin is like a global plugin, except that it sets options and
+defines mappings for the current buffer only.  See |add-filetype-plugin| for
+how this type of plugin is used.
+
+First read the section on global plugins above |41.11|.  All that is said there
+also applies to filetype plugins.  There are a few extras, which are explained
+here.  The essential thing is that a filetype plugin should only have an
+effect on the current buffer.
+
+DISABLING
+
+If you are writing a filetype plugin to be used by many people, they need a
+chance to disable loading it.  Put this at the top of the plugin: >
+
+	" Only do this when not done yet for this buffer
+	if exists("b:did_ftplugin")
+	  finish
+	endif
+	let b:did_ftplugin = 1
+
+Now users can disable loading the default plugin completely by making a
+filetype plugin with only this line: >
+
+	let b:did_ftplugin = 1
+This does require that the filetype plugin directory comes before $VIMRUNTIME
+in 'runtimepath'!
+
+OPTIONS
+
+To make sure the filetype plugin only affects the current buffer use the >
+
+	:setlocal
+
+MAPPINGS
+
+To make sure mappings will only work in the current buffer use the >
+
+	:map <buffer>
+
+command.  This needs to be combined with the two-step mapping explained above.
+An example of how to define functionality in a filetype plugin: >
+
+	if !hasmapto('<Plug>JavaImport')
+	  map <buffer> <unique> <LocalLeader>i <Plug>JavaImport
+	endif
+	noremap <buffer> <unique> <Plug>JavaImport oimport ""<Left><Esc>
+
+USER COMMANDS
+
+To add a user command for a specific file type, so that it can only be used in
+one buffer, use the "-buffer" argument to |:command|.  Example: >
+
+	:command -buffer  Make  make %:r.s
+
+VARIABLES
+
+A filetype plugin will be sourced for each buffer of the type it's for.  Local
+script variables |s:var| will be shared between all invocations.  Use local
+buffer variables |b:var| if you want a variable specifically for one buffer.
+
+FUNCTIONS
+
+When defining a function, this only needs to be done once.  But the filetype
+plugin will be sourced every time a file with this filetype will be opened.
+This construct makes sure the function is only defined once: >
+
+	:if !exists("*s:Func")
+	:  function s:Func(arg)
+	:    ...
+	:  endfunction
+	:endif
+
+UNDO							*undo_ftplugin*
+
+When the user does ":setfiletype xyz" the effect of the previous filetype
+should be undone.  Set the b:undo_ftplugin variable to the commands that will
+undo the settings in your filetype plugin.  Example: >
+
+	let b:undo_ftplugin = "setlocal fo< com< tw< commentstring<"
+		\ . "| unlet b:match_ignorecase b:match_words b:match_skip"
+
+FILE NAME
+
+The filetype must be included in the file name |ftplugin-name|.  Use one of
+these three forms:
+
+	.../ftplugin/stuff.vim
+	.../ftplugin/stuff_foo.vim
+	.../ftplugin/stuff/bar.vim
+
+"stuff" is the filetype, "foo" and "bar" are arbitrary names.
+
+SUMMARY							*ftplugin-special*
+
+Summary of special things to use in a filetype plugin:
+
+<LocalLeader>		Value of "maplocalleader", which the user defines as
+			the keys that filetype plugin mappings start with.
+
+:map <buffer>		Define a mapping local to the buffer.
+
+:noremap <script>	Only remap mappings defined in this script that start
+			with <SID>.
+
+:setlocal		Set an option for the current buffer only.
+
+:command -buffer	Define a user command local to the buffer.
+
+exists("*s:Func")	Check if a function was already defined.
+
+Also see |plugin-special|, the special things used for all plugins.
+
+==============================================================================
+*41.13*	Writing a compiler plugin		*write-compiler-plugin*
+
+A compiler plugin sets options for use with a specific compiler.  The user can
+load it with the |:compiler| command.  The main use is to set the
+'errorformat' and 'makeprg' options.
+
+Easiest is to have a look at examples.  This command will edit all the default
+compiler plugins: >
+
+	:next $VIMRUNTIME/compiler/*.vim
+
+==============================================================================
+*41.14*	Writing a plugin that loads quickly	*write-plugin-quickload*
+
+A plugin may grow and become quite long.  The startup delay may become
+noticeable, while you hardly ever use the plugin.  Then it's time for a
+quickload plugin.
+...
+
+==============================================================================
+*41.15*	Writing library scripts			*write-library-script*
+...
+
+==============================================================================
+*41.16*	Distributing Vim scripts			*distribute-script*
+
+Vim users will look for scripts on the Vim website: http://www.vim.org.
+If you made something that is useful for others, share it!
+...
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_42.txt|  Add new menus
+#
+By now you know that Vim is very flexible.  This includes the menus used in
+the GUI.  You can define your own menu entries to make certain commands easily
+accessible.  This is for mouse-happy users only.
+
+|42.1|	Introduction
+|42.2|	Menu commands
+|42.3|	Various
+|42.4|	Toolbar and popup menus
+
+...
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_43.txt|  Using filetypes
+
+When you are editing a file of a certain type, for example a C program or a
+shell script, you often use the same option settings and mappings.  You
+quickly get tired of manually setting these each time.  This chapter explains
+how to do it automatically.
+
+|43.1|	Plugins for a filetype
+|43.2|	Adding a filetype
+
+==============================================================================
+*43.1*	Plugins for a filetype				*filetype-plugin*
+
+How to start using filetype plugins has already been discussed here:
+|add-filetype-plugin|.  But you probably are not satisfied with the default
+settings, because they have been kept minimal.  Suppose that for C files you
+want to set the 'softtabstop' option to 4 and define a mapping to insert a
+three-line comment.  You do this with only two steps:
+
+							*your-runtime-dir*
+1. Create your own runtime directory.  On Unix this usually is "~/.vim".  In
+   this directory create the "ftplugin" directory: >
+
+	mkdir ~/.vim
+	mkdir ~/.vim/ftplugin
+<
+   When you are not on Unix, check the value of the 'runtimepath' option to
+   see where Vim will look for the "ftplugin" directory: >
+
+	set runtimepath
+
+<  You would normally use the first directory name (before the first comma).
+   You might want to prepend a directory name to the 'runtimepath' option in
+   your |vimrc| file if you don't like the default value.
+
+2. Create the file "~/.vim/ftplugin/c.vim", with the contents: >
+
+	setlocal softtabstop=4
+	noremap <buffer> <LocalLeader>c o/**************<CR><CR>/<Esc>
+	let b:undo_ftplugin = "setl softtabstop< | unmap <buffer> <LocalLeader>c"
+
+Try editing a C file.  You should notice that the 'softtabstop' option is set
+to 4.  But when you edit another file it's reset to the default zero.  That is
+because the ":setlocal" command was used.  This sets the 'softtabstop' option
+only locally to the buffer.  As soon as you edit another buffer, it will be
+set to the value set for that buffer.  For a new buffer it will get the
+default value or the value from the last ":set" command.
+
+You can find examples for filetype plugins in this directory: >
+
+	$VIMRUNTIME/ftplugin/
+
+More details about writing a filetype plugin can be found here:
+|write-plugin|.
+==============================================================================
+*43.2*	Adding a filetype
+
+If you are using a type of file that is not recognized by Vim, this is how to
+get it recognized.  You need a runtime directory of your own.  See
+|your-runtime-dir| above.
+
+Create a file "filetype.vim" which contains an autocommand for your filetype.
+(Autocommands were explained in section |40.3|.)  Example: >
+
+	augroup filetypedetect
+	au BufNewFile,BufRead *.xyz	setf xyz
+	augroup END
+
+This will recognize all files that end in ".xyz" as the "xyz" filetype.  The
+":augroup" commands put this autocommand in the "filetypedetect" group.  This
+allows removing all autocommands for filetype detection when doing ":filetype
+off".  The "setf" command will set the 'filetype' option to its argument,
+unless it was set already.  This will make sure that 'filetype' isn't set
+twice.
+
+You can use many different patterns to match the name of your file.  Directory
+names can also be included.  See |autocmd-patterns|.  For example, the files
+under "/usr/share/scripts/" are all "ruby" files, but don't have the expected
+file name extension.  Adding this to the example above: >
+
+	augroup filetypedetect
+	au BufNewFile,BufRead *.xyz			setf xyz
+	au BufNewFile,BufRead /usr/share/scripts/*	setf ruby
+	augroup END
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_44.txt|  Your own syntax highlighted
+#
+Vim comes with highlighting for a couple of hundred different file types.  If
+the file you are editing isn't included, read this chapter to find out how to
+get this type of file highlighted.  Also see |:syn-define| in the reference
+manual.
+
+|44.1|	Basic syntax commands
+|44.2|	Keywords
+|44.3|	Matches
+|44.4|	Regions
+|44.5|	Nested items
+|44.6|	Following groups
+|44.7|	Other arguments
+|44.8|	Clusters
+|44.9|	Including another syntax file
+|44.10|	Synchronizing
+|44.11|	Installing a syntax file
+|44.12|	Portable syntax file layout
+...
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# |usr_45.txt|  Select your language
+The messages in Vim can be given in several languages.  This chapter explains
+how to change which one is used.  Also, the different ways to work with files
+in various languages is explained.
+
+|45.1|	Language for Messages
+|45.2|	Language for Menus
+|45.3|	Using another encoding
+|45.4|	Editing files with a different encoding
+|45.5|	Entering language text
+...
+
