@@ -1,0 +1,720 @@
+  vim:tw=78:ts=2:sts=2:sw=2:ft=help:norl:
+===============================================================================
+
+# REF: https://github.com/dense-analysis/ale
+
+Asynchronous Lint Engine
+========================
+
+Check syntax in Vim asynchronously and fix files, with Language Server
+Protocol (LSP) support
+
+ALE (Asynchronous Lint Engine) is a plugin providing linting (syntax checking
+and semantic errors) in NeoVim 0.2.0+ and Vim 8 while you edit your text
+files, and acts as a Vim Language Server Protocol client.
+
+
+ALE acts as a "language client" to support a variety of Language Server
+Protocol features, including:
+    - Diagnostics (via Language Server Protocol linters)
+    - Go To Definition (:ALEGoToDefinition)
+    - Completion (Built in completion support, or with Deoplete)
+    - Finding references (:ALEFindReferences)
+    - Hover information (:ALEHover)
+    - Symbol search (:ALESymbolSearch)
+
+If you don't care about Language Server Protocol, ALE won't load any of the
+code for working with it unless needed. One of ALE's general missions is that
+you won't pay for the features that you don't use.
+
+# REF: :help ale
+
+ALE - Asynchronous Lint Engine
+
+===============================================================================
+CONTENTS                                                         *ale-contents*
+
+  1. Introduction.........................|ale-introduction|
+  2. Supported Languages & Tools..........|ale-support|
+  3. Linting..............................|ale-lint|
+    3.1 Adding Language Servers...........|ale-lint-language-servers|
+    3.2 Other Sources.....................|ale-lint-other-sources|
+  4. Fixing Problems......................|ale-fix|
+  5. Language Server Protocol Support.....|ale-lsp|
+    5.1 Completion........................|ale-completion|
+    5.2 Go To Definition..................|ale-go-to-definition|
+    5.3 Go To Type Definition.............|ale-go-to-type-definition|
+    5.4 Find References...................|ale-find-references|
+    5.5 Hovering..........................|ale-hover|
+    5.6 Symbol Search.....................|ale-symbol-search|
+  6. Global Options.......................|ale-options|
+    6.1 Highlights........................|ale-highlights|
+  7. Linter/Fixer Options.................|ale-integration-options|
+    7.1 Options for alex..................|ale-alex-options|
+    7.2 Options for languagetool..........|ale-languagetool-options|
+    7.3 Options for write-good............|ale-write-good-options|
+    7.4 Other Linter/Fixer Options........|ale-other-integration-options|
+  8. Commands/Keybinds....................|ale-commands|
+  9. API..................................|ale-api|
+  10. Special Thanks......................|ale-special-thanks|
+  11. Contact.............................|ale-contact|
+
+===============================================================================
+1. Introduction                                              *ale-introduction*
+
+ALE provides the means to run linters asynchronously in Vim in a variety of
+languages and tools. ALE sends the contents of buffers to linter programs
+using the |job-control| features available in Vim 8 and NeoVim. For Vim 8,
+Vim must be compiled with the |job| and |channel| and |timers| features
+as a minimum.
+
+ALE supports the following key features for linting:
+
+1. Running linters when text is changed.
+2. Running linters when files are opened.
+3. Running linters when files are saved. (When a global flag is set.)
+4. Populating the |loclist| with warning and errors.
+5. Setting |signs| with warnings and errors for error markers.
+6. Using |echo| to show error messages when the cursor moves.
+7. Setting syntax highlights for errors.
+
+ALE can fix problems with files with the |ALEFix| command, using the same job
+control functionality used for checking for problems. Try using the
+|ALEFixSuggest| command for browsing tools that can be used to fix problems
+for the current buffer.
+
+===============================================================================
+2. Supported Languages & Tools                                    *ale-support*
+
+ALE supports a wide variety of languages and tools. See |ale-supported-list|
+for the full list.
+
+The following languages and tools are supported by ALE.
+* C++ (filetype cpp)
+  * `ccls`
+  * `clang`
+  * `clangcheck`!!
+  * `clangd`
+  * `clang-format`
+  * `clangtidy`!!
+  * `clazy`!!
+  * `cppcheck`
+  * `cpplint`!!
+  * `cquery`
+  * `flawfinder`
+  * `gcc`
+  * `uncrustify`
+
+===============================================================================
+3. Linting                                                           *ale-lint*
+
+ALE's primary focus is on checking for problems with your code with various
+programs via some Vim code for integrating with those programs, referred to
+as 'linters.' ALE supports a wide array of programs for linting by default,
+but additional programs can be added easily by defining files in |runtimepath|
+with the filename pattern `ale_linters/<filetype>/<filename>.vim`. For more
+information on defining new linters, see the extensive documentation
+for |ale#linter#Define()|.
+
+Without any configuration, ALE will attempt to check all of the code for every
+file you open in Vim with all available tools by default. To see what ALE
+is doing, and what options have been set, try using the |:ALEInfo| command.
+
+Most of the linters ALE runs will check the Vim buffer you are editing instead
+of the file on disk. This allows you to check your code for errors before you
+have even saved your changes. ALE will check your code in the following
+circumstances, which can be configured with the associated options.
+
+* When you modify a buffer.                - |g:ale_lint_on_text_changed|
+* On leaving insert mode.                  - |g:ale_lint_on_insert_leave|
+* When you open a new or modified buffer.  - |g:ale_lint_on_enter|
+* When you save a buffer.                  - |g:ale_lint_on_save|
+* When the filetype changes for a buffer.  - |g:ale_lint_on_filetype_changed|
+* If ALE is used to check code manually.   - |:ALELint|
+
+                                                 *ale-lint-settings-on-startup*
+
+It is worth reading the documentation for every option. You should configure
+which events ALE will use before ALE is loaded, so it can optimize which
+autocmd commands to run. You can force autocmd commands to be reloaded with
+`:ALEDisable | ALEEnable`
+
+This also applies to the autocmd commands used for |g:ale_echo_cursor|.
+
+                                                        *ale-lint-file-linters*
+
+Some programs must be run against files which have been saved to disk, and
+simply do not support reading temporary files or stdin, either of which are
+required for ALE to be able to check for errors as you type. The programs
+which behave this way are documented in the lists and tables of supported
+programs. ALE will only lint files with these programs in the following
+circumstances.
+
+* When you open a new or modified buffer.  - |g:ale_lint_on_enter|
+* When you save a buffer.                  - |g:ale_lint_on_save|
+* When the filetype changes for a buffer.  - |g:ale_lint_on_filetype_changed|
+* If ALE is used to check code manually.   - |:ALELint|
+
+ALE will report problems with your code in the following ways, listed with
+their relevant options.
+
+* By updating loclist. (On by default)             - |g:ale_set_loclist|
+* By updating quickfix. (Off by default)           - |g:ale_set_quickfix|
+* By setting error highlights.                     - |g:ale_set_highlights|
+* By creating signs in the sign column.            - |g:ale_set_signs|
+* By echoing messages based on your cursor.        - |g:ale_echo_cursor|
+* By inline text based on your cursor.             - |g:ale_virtualtext_cursor|
+* By displaying the preview based on your cursor.  - |g:ale_cursor_detail|
+* By showing balloons for your mouse cursor        - |g:ale_set_balloons|
+
+Please consult the documentation for each option, which can reveal some other
+ways of tweaking the behaviour of each way of displaying problems. You can
+disable or enable whichever options you prefer.
+
+Most settings can be configured for each buffer. (|b:| instead of |g:|),
+including disabling ALE for certain buffers with |b:ale_enabled|. The
+|g:ale_pattern_options| setting can be used to configure files differently
+based on regular expressions for filenames. For configuring entire projects,
+the buffer-local options can be used with external plugins for reading Vim
+project configuration files. Buffer-local settings can also be used in
+ftplugin files for different filetypes.
+
+ALE offers several options for controlling which linters are run.
+
+* Selecting linters to run.            - |g:ale_linters|
+* Aliasing filetypes for linters       - |g:ale_linter_aliases|
+* Only running linters you asked for.  - |g:ale_linters_explicit|
+* Disabling only a subset of linters.  - |g:ale_linters_ignore|
+* Disabling LSP linters and `tsserver`.  - |g:ale_disable_lsp|
+
+-------------------------------------------------------------------------------
+3.1 Adding Language Servers                         *ale-lint-language-servers*
+
+ALE comes with many default configurations for language servers, so they can
+be detected and run automatically. ALE can connect to other language servers
+by defining a new linter for a filetype. New linters can be defined in |vimrc|,
+in plugin files, or `ale_linters` directories in |runtimepath|.
+
+See |ale-linter-loading-behavior| for more information on loading linters.
+
+A minimal configuration for a language server linter might look so. >
+
+  call ale#linter#Define('filetype_here', {
+  \   'name': 'any_name_you_want',
+  \   'lsp': 'stdio',
+  \   'executable': '/path/to/executable',
+  \   'command': '%e run',
+  \   'project_root': '/path/to/root_of_project',
+  \})
+<
+For language servers that use a TCP socket connection, you should define the
+address to connect to instead. >
+
+  call ale#linter#Define('filetype_here', {
+  \   'name': 'any_name_you_want',
+  \   'lsp': 'stdio',
+  \   'address': 'servername:1234',
+  \   'project_root': '/path/to/root_of_project',
+  \})
+<
+<
+  Most of the options for a language server can be replaced with a |Funcref|
+  for a function accepting a buffer number for dynamically computing values
+  such as the executable path, the project path, the server address, etc,
+  most of which can also be determined based on executing some other
+  asynchronous task. See |ale#command#Run()| for computing linter options
+  based on asynchronous results.
+
+  See |ale#linter#Define()| for a detailed explanation of all of the options
+  for configuring linters.
+
+-------------------------------------------------------------------------------
+3.2 Other Sources                                      *ale-lint-other-sources*
+
+Problems for a buffer can be taken from other sources and rendered by ALE.
+This allows ALE to be used in combination with other plugins which also want
+to display any problems they might find with a buffer. ALE's API includes the
+following components for making this possible.
+
+* |ale#other_source#StartChecking()| - Tell ALE that a buffer is being checked.
+* |ale#other_source#ShowResults()|   - Show results from another source.
+* |ALEWantResults|                   - A signal for when ALE wants results.
+
+Other resources can provide results for ALE to display at any time, following
+ALE's loclist format. (See |ale-loclist-format|) For example: >
+
+  " Tell ALE to show some results.
+  " This function can be called at any time.
+  call ale#other_source#ShowResults(bufnr(''), 'some-linter-name', [
+  \ {'text': 'Something went wrong', 'lnum': 13},
+  \])
+
+===============================================================================
+4. Fixing Problems                                                    *ale-fix*
+
+ALE can fix problems with files with the |ALEFix| command. |ALEFix|
+accepts names of fixers to be applied as arguments. Alternatively,
+when no arguments are provided, the variable |g:ale_fixers| will be
+read for getting a |List| of commands for filetypes, split on `.`, and
+the functions named in |g:ale_fixers| will be executed for fixing the
+errors.
+
+The |ALEFixSuggest| command can be used to suggest tools that be used to
+fix problems for the current buffer.
+
+The values for `g:ale_fixers` can be a list of |String|, |Funcref|, or
+|lambda| values. String values must either name a function, or a short name
+for a function set in the ALE fixer registry.
+
+Each function for fixing errors must accept either one argument `(buffer)` or
+two arguments `(buffer, lines)`, representing the buffer being fixed and the
+lines to fix. The functions must return either `0`, for changing nothing, a
+|List| for new lines to set, a |Dictionary| for describing a command to be
+run in the background, or the result of |ale#command#Run()|.
+
+Functions receiving a variable number of arguments will not receive the second
+argument `lines`. Functions should name two arguments if the `lines` argument
+is desired. This is required to avoid unnecessary copying of the lines of
+the buffers being checked.
+
+When a |Dictionary| is returned for an |ALEFix| callback, the following keys
+are supported for running the commands.
+
+  `command`             A |String| for the command to run. This key is required.
+
+                      When `%t` is included in a command string, a temporary
+                      file will be created, containing the lines from the file
+                      after previous adjustment have been done.
+
+  `read_temporary_file` When set to `1`, ALE will read the contents of the
+                      temporary file created for `%t`. This option can be used
+                      for commands which need to modify some file on disk in
+                      order to fix files.
+
+  `process_with`        An optional callback for post-processing.
+
+                      The callback must accept two arguments,
+                      `(buffer, output)`, which can be used for converting
+                      the output from a command into lines to replace the
+                      buffer's contents with.
+
+                      A |List| of |String|s must be returned.
+
+  `read_buffer`         An optional key for disabling reading the buffer.
+
+                      When set to `0`, ALE will not pipe the buffer's data
+                      into the command via stdin. This option is ignored and
+                      the buffer is not read when `read_temporary_file` is
+                      `1`.
+
+                      This option defaults to `1`.
+
+                                                        *ale-fix-configuration*
+
+Synchronous functions and asynchronous jobs will be run in a sequence for
+fixing files, and can be combined. For example:
+>
+  let g:ale_fixers = {
+  \   'javascript': [
+  \       'DoSomething',
+  \       'eslint',
+  \       {buffer, lines -> filter(lines, 'v:val !=~ ''^\s*//''')},
+  \   ],
+  \}
+
+  ALEFix
+
+The above example will call a function called `DoSomething` which could act
+upon some lines immediately, then run `eslint` from the ALE registry, and
+then call a lambda function which will remove every single line comment
+from the file.
+
+For buffer-local settings, such as in |g:ale_pattern_options| or in ftplugin
+files, a |List| may be used for configuring the fixers instead.
+>
+  " Same as the above, only a List can be used instead of a Dictionary.
+  let b:ale_fixers = [
+  \   'DoSomething',
+  \   'eslint',
+  \   {buffer, lines -> filter(lines, 'v:val !=~ ''^\s*//''')},
+  \]
+
+  ALEFix
+<
+For convenience, a plug mapping is defined for |ALEFix|, so you can set up a
+keybind easily for fixing files. >
+
+  " Bind F8 to fixing problems with ALE
+  nmap <F8> <Plug>(ale_fix)
+<
+Files can be fixed automatically with the following options, which are all off
+by default.
+
+|g:ale_fix_on_save| - Fix files when they are saved.
+
+Fixers can be disabled on save with |g:ale_fix_on_save_ignore|. They will
+still be run when you manually run |ALEFix|.
+
+===============================================================================
+5. Language Server Protocol Support                                   *ale-lsp*
+
+ALE offers some support for integrating with Language Server Protocol (LSP)
+servers. LSP linters can be used in combination with any other linter, and
+will automatically connect to LSP servers when needed. ALE also supports
+`tsserver` for TypeScript, which uses a different but very similar protocol.
+
+If you want to use another plugin for LSP features and tsserver, you can use
+the |g:ale_disable_lsp| setting to disable ALE's own LSP integrations, or
+ignore particular linters with |g:ale_linters_ignore|.
+
+-------------------------------------------------------------------------------
+5.1 Completion                                                 *ale-completion*
+
+ALE offers support for automatic completion of code while you type.
+Completion is only supported while at least one LSP linter is enabled. ALE
+will only suggest symbols provided by the LSP servers.
+
+                                                     *ale-deoplete-integration*
+
+ALE integrates with Deoplete for offering automatic completion data. ALE's
+completion source for Deoplete is named `'ale'`, and should enabled
+automatically if Deoplete is enabled and configured correctly. Deoplete
+integration should not be combined with ALE's own implementation.
+
+                                                 *ale-asyncomplete-integration*
+
+ALE additionally integrates with asyncomplete.vim for offering automatic
+completion data. ALE's asyncomplete source requires registration and should
+use the defaults provided by the|asyncomplete#sources#ale#get_source_options| function >
+
+  " Use ALE's function for asyncomplete defaults
+  au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#ale#get_source_options({
+      \ 'priority': 10, " Provide your own overrides here
+      \ }))
+>
+ALE also offers its own completion implementation, which does not require any
+other plugins. Suggestions will be made while you type after completion is
+enabled. ALE's own completion implementation can be enabled by setting
+|g:ale_completion_enabled| to `1`. This setting must be set to `1` before ALE
+is loaded. The delay for completion can be configured with
+|g:ale_completion_delay|. This setting should not be enabled if you wish to
+use ALE as a completion source for other plugins.
+
+ALE provides an 'omnifunc' function |ale#completion#OmniFunc| for triggering
+completion manually with CTRL-X CTRL-O. |i_CTRL-X_CTRL-O| >
+
+  " Use ALE's function for omnicompletion.
+  set omnifunc=ale#completion#OmniFunc
+<
+ALE will only suggest so many possible matches for completion. The maximum
+number of items can be controlled with |g:ale_completion_max_suggestions|.
+
+If you don't like some of the suggestions you see, you can filter them out
+with |g:ale_completion_excluded_words| or |b:ale_completion_excluded_words|.
+
+The |ALEComplete| command can be used to show completion suggestions manually,
+even when |g:ale_completion_enabled| is set to `0`. For manually requesting
+completion information with Deoplete, consult Deoplete's documentation.
+
+When working with TypeScript files, ALE by can support automatic imports
+from external modules. This behavior can be enabled by setting the
+|g:ale_completion_tsserver_autoimport| variable to `1`.
+
+ALE Automatic completion implementation replaces |completeopt| before opening
+the omnicomplete menu with <C-x><C-o>. In some versions of Vim, the value set
+for the option will not be respected. If you experience issues with Vim
+automatically inserting text while you type, set the following option in
+vimrc, and your issues should go away. >
+
+  set completeopt=menu,menuone,preview,noselect,noinsert
+
+-------------------------------------------------------------------------------
+5.2 Go To Definition                                     *ale-go-to-definition*
+
+ALE supports jumping to the files and locations where symbols are defined
+through any enabled LSP linters. The locations ALE will jump to depend on the
+information returned by LSP servers. The following commands are supported:
+
+|ALEGoToDefinition|      - Open the definition of the symbol under the cursor.
+|ALEGoToDefinitionInTab| - The same, but for opening the file in a new tab.
+|ALEGoToDefinitionInSplit| - The same, but in a new split.
+|ALEGoToDefinitionInVSplit| - The same, but in a new vertical split.
+
+ALE will update Vim's |tagstack| automatically unless |g:ale_update_tagstack| is
+set to `0`.
+
+-------------------------------------------------------------------------------
+5.3 Go To Type Definition                           *ale-go-to-type-definition*
+
+ALE supports jumping to the files and locations where symbols' types are
+defined through any enabled LSP linters. The locations ALE will jump to depend
+on the information returned by LSP servers. The following commands are
+supported:
+
+|ALEGoToTypeDefinition|      - Open the definition of the symbol's type under
+                             the cursor.
+|ALEGoToTypeDefinitionInTab| - The same, but for opening the file in a new tab.
+|ALEGoToTypeDefinitionInSplit| - The same, but in a new split.
+|ALEGoToTypeDefinitionInVSplit| - The same, but in a new vertical split.
+
+-------------------------------------------------------------------------------
+5.4 Find References                                       *ale-find-references*
+
+ALE supports finding references for symbols though any enabled LSP linters.
+ALE will display a preview window showing the places where a symbol is
+referenced in a codebase when a command is run. The following commands are
+supported:
+
+|ALEFindReferences| - Find references for the word under the cursor.
+
+Options:
+  `-relative`       Show file paths in the results relative to the working dir
+
+
+-------------------------------------------------------------------------------
+5.5 Hovering                                                        *ale-hover*
+
+ALE supports "hover" information for printing brief information about symbols
+at the cursor taken from LSP linters. The following commands are supported:
+
+|ALEHover| - Print information about the symbol at the cursor.
+
+If |g:ale_set_balloons| is set to `1` and your version of Vim supports the
+|balloon_show()| function, then "hover" information also show up when you move
+the mouse over a symbol in a buffer. Diagnostic information will take priority
+over hover information for balloons. If a line contains a problem, that
+problem will be displayed in a balloon instead of hover information.
+
+For Vim 8.1+ terminals, mouse hovering is disabled by default. Enabling
+|balloonexpr| commands in terminals can cause scrolling issues in terminals,
+so ALE will not attempt to show balloons unless |g:ale_set_balloons| is set to
+`1` before ALE is loaded.
+
+For enabling mouse support in terminals, you may have to change your mouse
+settings. For example: >
+
+  " Example mouse settings.
+  " You will need to try different settings, depending on your terminal.
+  set mouse=a
+  set ttymouse=xterm
+
+-------------------------------------------------------------------------------
+5.6 Symbol Search                                           *ale-symbol-search*
+
+ALE supports searching for workspace symbols via LSP linters. The following
+commands are supported:
+
+|ALESymbolSearch| - Search for symbols in the workspace.
+
+Options:
+  `-relative`     Show file paths in the results relative to the working dir
+
+===============================================================================
+6. Global Options                                                 *ale-options*
+...
+
+===============================================================================
+7. Linter/Fixer Options                               *ale-integration-options*
+
+Linter and fixer options are documented below and in individual help files.
+
+Every option for programs can be set globally, or individually for each
+buffer. For example, `b:ale_python_flake8_executable` will override any
+values set for `g:ale_python_flake8_executable`.
+
+===============================================================================
+8. Commands/Keybinds                                             *ale-commands*
+
+ALEComplete                                                       *ALEComplete*
+
+  Manually trigger LSP autocomplete and show the menu. Works only when called
+  from insert mode. >
+
+    inoremap <silent> <C-Space> <C-\><C-O>:AleComplete<CR>
+<
+  A plug mapping `<Plug>(ale_complete)` is defined for this command. >
+
+    imap <C-Space> <Plug>(ale_complete)
+
+ALEDocumentation                                             *ALEDocumentation*
+
+  Similar to the |ALEHover| command, retrieve documentation information for
+  the symbol at the cursor. Documentation data will always be shown in a
+  preview window, no matter how small the documentation content is.
+
+  NOTE: This command is only available for `tsserver`.
+
+  A plug mapping `<Plug>(ale_documentation)` is defined for this command.
+
+ALEFindReferences                                           *ALEFindReferences*
+
+  Find references in the codebase for the symbol under the cursor using the
+  enabled LSP linters for the buffer. ALE will display a preview window
+  containing the results if some references are found.
+
+  The window can be navigated using the usual Vim navigation commands. The
+  Enter key (`<CR>`) can be used to jump to a referencing location, or the `t`
+  key can be used to jump to the location in a new tab.
+
+  You can jump back to the position you were at before going to a reference of
+  something with jump motions like CTRL-O. See |jump-motions|.
+
+  A plug mapping `<Plug>(ale_find_references)` is defined for this command.
+
+ALEFix                                                                 *ALEFix*
+
+  Fix problems with the current buffer. See |ale-fix| for more information.
+
+  A plug mapping `<Plug>(ale_fix)` is defined for this command.
+
+ALEFixSuggest                                                   *ALEFixSuggest*
+
+  Suggest tools that can be used to fix problems in the current buffer.
+
+  See |ale-fix| for more information.
+
+ALEGoToDefinition                                           *ALEGoToDefinition*
+
+  Jump to the definition of a symbol under the cursor using the enabled LSP
+  linters for the buffer. ALE will jump to a definition if an LSP server
+  provides a location to jump to. Otherwise, ALE will do nothing.
+
+  You can jump back to the position you were at before going to the definition
+  of something with jump motions like CTRL-O. See |jump-motions|.
+
+  A plug mapping `<Plug>(ale_go_to_definition)` is defined for this command.
+
+ALEGoToDefinitionInTab                                 *ALEGoToDefinitionInTab*
+
+  The same as |ALEGoToDefinition|, but opens results in a new tab.
+
+  A plug mapping `<Plug>(ale_go_to_definition_in_tab)` is defined for this
+  command.
+
+
+ALEGoToDefinitionInSplit                             *ALEGoToDefinitionInSplit*
+
+  The same as |ALEGoToDefinition|, but opens results in a new split.
+
+  A plug mapping `<Plug>(ale_go_to_definition_in_split)` is defined for this
+  command.
+
+
+ALEGoToDefinitionInVSplit                           *ALEGoToDefinitionInVSplit*
+
+  The same as |ALEGoToDefinition|, but opens results in a new vertical split.
+
+  A plug mapping `<Plug>(ale_go_to_definition_in_vsplit)` is defined for this
+  command.
+
+
+ALEGoToTypeDefinition                                   *ALEGoToTypeDefinition*
+
+  This works similar to |ALEGoToDefinition| but instead jumps to the
+  definition of a type of a symbol under the cursor. ALE will jump to a
+  definition if an LSP server provides a location to jump to. Otherwise, ALE
+  will do nothing.
+
+  You can jump back to the position you were at before going to the definition
+  of something with jump motions like CTRL-O. See |jump-motions|.
+
+  A plug mapping `<Plug>(ale_go_to_type_definition)` is defined for this
+  command.
+
+
+ALEGoToTypeDefinitionInTab                         *ALEGoToTypeDefinitionInTab*
+
+  The same as |ALEGoToTypeDefinition|, but opens results in a new tab.
+
+  A plug mapping `<Plug>(ale_go_to_type_definition_in_tab)` is defined for
+  this command.
+
+
+ALEGoToTypeDefinitionInSplit                     *ALEGoToTypeDefinitionInSplit*
+
+  The same as |ALEGoToTypeDefinition|, but opens results in a new split.
+
+  A plug mapping `<Plug>(ale_go_to_type_definition_in_split)` is defined for
+  this command.
+
+
+ALEGoToTypeDefinitionInVSplit                   *ALEGoToTypeDefinitionInVSplit*
+
+  The same as |ALEGoToTypeDefinition|, but opens results in a new vertical
+  split.
+
+  A plug mapping `<Plug>(ale_go_to_type_definition_in_vsplit)` is defined for
+  this command.
+
+
+ALEHover                                                             *ALEHover*
+
+  Print brief information about the symbol under the cursor, taken from any
+  available LSP linters. There may be a small non-blocking delay before
+  information is printed.
+
+  NOTE: In Vim 8, long messages will be shown in a preview window, as Vim 8
+  does not support showing a prompt to press enter to continue for long
+  messages from asynchronous callbacks.
+
+  A plug mapping `<Plug>(ale_hover)` is defined for this command.
+
+ALERename                                                           *ALERename*
+
+  Rename a symbol using TypeScript server or Language Server.
+
+  The user will be prompted for a new name.
+
+
+ALESymbolSearch `<query>`                                     *ALESymbolSearch*
+
+  Search for symbols in the workspace, taken from any available LSP linters.
+
+  The arguments provided to this command will be used as a search query for
+  finding symbols in the workspace, such as functions, types, etc.
+
+                                                                     *:ALELint*
+ALELint                                                               *ALELint*
+
+  Run ALE once for the current buffer. This command can be used to run ALE
+  manually, instead of automatically, if desired.
+
+  This command will also run linters where `lint_file` is set to `1`, or in
+  other words linters which check the file instead of the Vim buffer.
+
+  A plug mapping `<Plug>(ale_lint)` is defined for this command.
+
+ALEPrevious                                                       *ALEPrevious*
+ALEPreviousWrap                                               *ALEPreviousWrap*
+ALENext                                                               *ALENext*
+ALENextWrap                                                       *ALENextWrap*
+ALEFirst                                                             *ALEFirst*
+ALELast                                                               *ALELast*
+                                                      *ale-navigation-commands*
+
+  Move between warnings or errors in a buffer. ALE will only navigate between
+  the errors or warnings it generated, even if both |g:ale_set_quickfix|
+  and |g:ale_set_loclist| are set to `0`.
+<
+  For example, these commands could be bound to the keys Ctrl + j
+  and Ctrl + k: >
+
+  " Map movement through errors without wrapping.
+  nmap <silent> <C-k> <Plug>(ale_previous)
+  nmap <silent> <C-j> <Plug>(ale_next)
+  " OR map keys to use wrapping.
+  nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+  nmap <silent> <C-j> <Plug>(ale_next_wrap)
+
+
+ALEStopAllLSPs                                                 *ALEStopAllLSPs*
+
+  `ALEStopAllLSPs` will close and stop all channels and jobs for all LSP-like
+  clients, including tsserver, remove all of the data stored for them, and
+  delete all of the problems found for them, updating every linted buffer.
+
+  This command can be used when LSP clients mess up and need to be restarted.
+
+===============================================================================
+9. API                                                                *ale-api*
+...
