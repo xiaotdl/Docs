@@ -1,0 +1,386 @@
+vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
+===============================================================================
+
+*vim-lsp.txt*  Async Language Server Protocol (LSP) for Vim 8 and Neovim.
+*vim-lsp*
+
+================================================================================
+CONTENTS                                                  *vim-lsp-contents*
+
+    Introduction                          |vim-lsp-introduction|
+    Install                               |vim-lsp-install|
+    Language Servers                      |vim-lsp-language-servers|
+      Configure                             |vim-lsp-configure-source|
+      Wiki                                  |vim-lsp-configure-wiki|
+    Options                               |vim-lsp-options|
+      g:lsp_diagnostics_enabled             |g:lsp_diagnostics_enabled|
+      g:lsp_auto_enable                     |g:lsp_auto_enable|
+      g:lsp_preview_keep_focus              |g:lsp_preview_keep_focus|
+      g:lsp_preview_float		    |g:lsp_preview_float|
+      g:lsp_preview_autoclose		    |g:lsp_preview_autoclose|
+      g:lsp_preview_doubletap		    |g:lsp_preview_doubletap|
+      g:lsp_insert_text_enabled             |g:lsp_insert_text_enabled|
+      g:lsp_text_edit_enabled               |g:lsp_text_edit_enabled|
+      g:lsp_diagnostics_echo_cursor         |g:lsp_diagnostics_echo_cursor|
+      g:lsp_signs_enabled                   |g:lsp_signs_enabled|
+      g:lsp_signs_priority                  |g:lsp_signs_priority|
+      g:lsp_signs_priority_map              |g:lsp_signs_priority_map|
+      g:lsp_virtual_text_enabled            |g:lsp_virtual_text_enabled|
+      g:lsp_highlights_enabled              |g:lsp_highlights_enabled|
+      g:lsp_textprop_enabled                |g:lsp_textprop_enabled|
+      g:lsp_use_event_queue                 |g:lsp_use_event_queue|
+      g:lsp_highlight_references_enabled    |g:lsp_highlight_references_enabled|
+      g:lsp_get_vim_completion_item         |g:lsp_get_vim_completion_item|
+      g:lsp_get_supported_capabilities      |g:lsp_get_supported_capabilities|
+      g:lsp_peek_alignment                  |g:lsp_peek_alignment|
+      g:lsp_preview_max_width               |g:lsp_preview_max_width|
+      g:lsp_preview_max_height		    |g:lsp_preview_max_height|
+      g:lsp_signature_help_enabled          |g:lsp_signature_help_enabled|
+      g:lsp_fold_enabled                    |g:lsp_fold_enabled|
+      g:lsp_hover_conceal                   |g:lsp_hover_conceal|
+    Functions                             |vim-lsp-functions|
+      enable                                |vim-lsp-enable|
+      disable                               |vim-lsp-disable|
+      register_server                       |vim-lsp-register_server|
+      stop_server                           |vim-lsp-stop_server|
+      utils#find_nearest_parent_file_directory
+                              |vim-lsp-utils-find_nearest_parent_file_directory|
+      vim-lsp-get_buffer_diagnostics_counts |vim-lsp-get_buffer_diagnostics_counts|
+      vim-lsp-get_buffer_first_error_line   |vim-lsp-get_buffer_first_error_line|
+    Commands                              |vim-lsp-commands|
+      LspCodeAction                         |LspCodeAction|
+      LspDocumentDiagnostics                |LspDocumentDiagnostics|
+      LspDeclaration                        |LspDeclaration|
+      LspDefinition                         |LspDefinition|
+      LspDocumentFold                       |LspDocumentFold|
+      LspDocumentFoldSync                   |LspDocumentFoldSync|
+      LspDocumentFormat                     |LspDocumentFormat|
+      LspDocumentFormatSync                 |LspDocumentFormatSync|
+      LspDocumentRangeFormat                |LspDocumentRangeFormat|
+      LspDocumentSymbol                     |LspDocumentSymbol|
+      LspHover                              |LspHover|
+      LspNextError                          |LspNextError|
+      LspNextReference                      |LspNextReference|
+      LspPeekDeclaration                    |LspPeekDeclaration|
+      LspPeekDefinition                     |LspPeekDefinition|
+      LspPeekImplementation                 |LspPeekImplementation|
+      LspPeekTypeDefinition                 |LspPeekTypeDefinition|
+      LspPreviousError                      |LspPreviousError|
+      LspPreviousReference                  |LspPreviousReference|
+      LspImplementation                     |LspImplementation|
+      LspReferences                         |LspReferences|
+      LspRename                             |LspRename|
+      LspTypeDefinition                     |LspTypeDefinition|
+      LspWorkspaceSymbol                    |LspWorkspaceSymbol|
+    Autocommands                          |vim-lsp-autocommands|
+      lsp_complete_done                     |lsp_complete_done|
+    Mappings                              |vim-lsp-mappings|
+       <plug>(lsp-preview-close)            |<plug>(lsp-preview-close)|
+       <plug>(lsp-preview-focus)            |<plug>(lsp-preview-focus)|
+
+    Autocomplete                          |vim-lsp-autocomplete|
+      omnifunc                              |vim-lsp-omnifunc|
+      asyncomplete.vim                      |vim-lsp-asyncomplete|
+    Snippets                              |vim-lsp-snippets|
+    Folding                               |vim-lsp-folding|
+    License                               |vim-lsp-license|
+
+================================================================================
+INTRODUCTION                                          *vim-lsp-introduction*
+
+Async Language Server Protocol (LSP) for Vim 8 and Neovim.
+
+For more information on LSP refer to the official website at
+https://microsoft.github.io/language-server-protocol/
+
+================================================================================
+INSTALL                                                    *vim-lsp-install*
+
+Install the async.vim and vim-lsp plugins. Below is a sample using plug.vim
+
+    Plug 'prabirshrestha/async.vim'
+    Plug 'prabirshrestha/vim-lsp'
+
+Note:  async.vim (https://github.com/prabirshrestha/async.vim) is required to
+use vim-lsp. It is used to normalize the jobs api between Vim 8 and Neovim.
+
+===============================================================================
+LANGUAGE SERVERS                                 *vim-lsp-language-servers*
+
+CONFIGURE                                               *vim-lsp-configure*
+vim-lsp doesn't ship with any language servers. The user is responsible for
+configuring the language servers correctly.
+
+Here is an example of configuring the python language server protocol based
+on pyls (https://github.com/palantir/python-language-server)
+
+1. Make sure the language server is available locally in the machine.
+   For python, pip package manager can be used to install the language server.
+
+	pip install python-language-server
+
+2. Register the language server in your .vimrc
+
+	if (executable('pyls'))
+	    au User lsp_setup call lsp#register_server({
+		\ 'name': 'pyls',
+		\ 'cmd': {server_info->['pyls']},
+		\ 'whitelist': ['python']
+		\ })
+	endif
+
+    For more details refer to |vim-lsp-register_server|.
+
+WIKI                                               *vim-lsp-configure-wiki*
+For documentation on how to configure other language servers refer
+to https://github.com/prabirshrestha/vim-lsp/wiki/Servers
+
+===============================================================================
+Options                                                   *vim-lsp-options*
+...
+
+===============================================================================
+FUNCTIONS	                                        *vim-lsp-functions*
+
+lsp#enable                                                 *vim-lsp-enable*
+
+Enables vim-lsp plugin.
+
+    Example:
+	:call lsp#enable()
+
+lsp#disable                                               *vim-lsp-disable*
+
+Disables vim-lsp plugin.
+
+    Example:
+	:call lsp#disable()
+
+lsp#register_server                               *vim-lsp-register_server*
+
+Used to register the language server with vim-lsp. This method takes
+one parameter which is a vim |dict| and is refered to as |vim-lsp-server-info|
+
+    Example:
+	if (executable('pyls'))
+	    au User lsp_setup call lsp#register_server({
+		\ 'name': 'name-of-server',
+		\ 'cmd': {server_info->['server-exectuable']},
+		\ 'whitelist': ['filetype to whitelist'],
+		\ 'blacklist': ['filetype to blacklist'],
+		\ 'config': {},
+		\ 'workspace_config': {'param': {'enabled': v:true}},
+		\ })
+	endif
+
+    Note:
+	* checking for executable is optional but can be used to avoid
+	  unnecessary server registration.
+	* au User lsp_setup is optional and used to delay registering the
+	  language server after .vimrc has been loaded. It is recommended
+	  to use it if possible.
+
+Find the nearest parent directory which contains the specific files or
+diretories. The method has two parameters. The first is the path where
+searching starts. The second is the files or directories names which
+you want to find. The return value is the directory path which is found
+the most times.
+This method is mainly used to generate 'root_uri' when registering server.
+
+    Example:
+	if executable('ccls')
+	    au User lsp_setup call lsp#register_server({
+		\ 'name': 'ccls',
+		\ 'cmd': {server_info->['ccls']},
+		\ 'root_uri':{server_info->lsp#utils#path_to_uri(
+		\	lsp#utils#find_nearest_parent_file_directory(
+		\		lsp#utils#get_buffer_path(),
+		\		['.ccls', 'compile_commands.json', '.git/']
+		\	))},
+		\ 'initialization_options': {},
+		\ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
+		\ })
+	endif
+    Note:
+	* The second parameter can be a |String| or a string |List|.
+	* For the second parameter, the string ends with '/' or '\' will
+	  be regarded as a directory name, otherwise as a file name.
+	* If there is not directory with the specific files or diretories
+	  found, the method will return an empty string.
+
+
+===============================================================================
+Commands	                                          *vim-lsp-commands*
+
+LspCodeAction                                                *LspCodeAction*
+
+Gets a list of possible commands that can be applied to a file so it can be
+fixed (quick fix).
+
+LspDocumentDiagnostics                              *LspDocumentDiagnostics*
+
+Gets the current document diagnostics.
+
+
+LspDeclaration						    *LspDeclaration*
+
+Go to declaration. Useful for languages such as C/C++ where there is a clear
+distinction between declaration and definition.
+
+Also see |LspPeekDeclaration|.
+
+LspDefinition						     *LspDefinition*
+
+Go to definition.
+
+LspReferences						     *LspReferences*
+
+Find all references.
+
+LspRename						         *LspRename*
+
+Rename the symbol.
+
+LspTypeDefinition				  	 *LspTypeDefinition*
+
+Go to the type definition.
+
+===============================================================================
+Autocommands                                          *vim-lsp-autocommands*
+
+lsp_complete_done                                        *lsp_complete_done*
+
+This autocommand is run after Insert mode completion is done, similar to
+|CompleteDone|. However, the difference is that |lsp_complete_done| is run
+only after vim-lsp has finished executing its internal |CompleteDone|
+autocommands (e.g. applying text edits). It is thus ideal to use for snippet
+expansion, or custom post processing of completed items. Just like
+|CompleteDone|, the Vim variable |v:completed_item| contains information about
+the completed item. It is guaranteed that vim-lsp does not change the content
+of this variable during its |CompleteDone| autocommands.
+
+===============================================================================
+Mappings	                                          *vim-lsp-mappings*
+
+To map keys to the feature of vim-lsp, use <plug> mappings:
+>
+  autocmd FileType python,go nmap gd <plug>(lsp-definition)
+<
+Available plug mappings are following:
+
+  nnoremap <plug>(lsp-code-action)
+  nnoremap <plug>(lsp-declaration)
+  nnoremap <plug>(lsp-peek-declaration)
+  nnoremap <plug>(lsp-definition)
+  nnoremap <plug>(lsp-peek-definition)
+  nnoremap <plug>(lsp-document-symbol)
+  nnoremap <plug>(lsp-document-diagnostics)
+  nnoremap <plug>(lsp-hover)
+  nnoremap <plug>(lsp-next-error)
+  nnoremap <plug>(lsp-next-reference)
+  nnoremap <plug>(lsp-preview-close)
+  nnoremap <plug>(lsp-preview-focus)
+  nnoremap <plug>(lsp-previous-error)
+  nnoremap <plug>(lsp-previous-reference)
+  nnoremap <plug>(lsp-references)
+  nnoremap <plug>(lsp-rename)
+  nnoremap <plug>(lsp-workspace-symbol)
+  nnoremap <plug>(lsp-document-format)
+  vnoremap <plug>(lsp-document-format)
+  nnoremap <plug>(lsp-document-range-format)
+  xnoremap <plug>(lsp-document-range-format)
+  nnoremap <plug>(lsp-implementation)
+  nnoremap <plug>(lsp-peek-implementation)
+  nnoremap <plug>(lsp-type-definition)
+  nnoremap <plug>(lsp-peek-type-definition)
+  nnoremap <plug>(lsp-status)
+  nnoremap <plug>(lsp-signature-help)
+
+See also |vim-lsp-commands|
+
+<plug>(lsp-preview-close)	         	     *<plug>(lsp-preview-close)*
+
+Closes an opened preview window
+
+<plug>(lsp-preview-focus)	         	     *<plug>(lsp-preview-focus)*
+
+Transfers focus to an opened preview window or back to the previous window if
+focus is already on the preview window.
+
+===============================================================================
+Autocomplete                                          *vim-lsp-autocomplete*
+
+omnifunc				                  *vim-lsp-omnifunc*
+
+vim-lsp by default only provides basic omnifunc support for autocomplete.
+
+Completion can be made asynchronous by setting g:lsp_async_completion.
+Note that this may cause unexpected behavior in some plugins such as MUcomplete.
+
+If you would like to have more advanced features please use asyncomplete.vim as
+described below.
+
+    Example:
+	autocmd FileType typescript setlocal omnifunc=lsp#complete
+
+asyncomplete.vim                                      *vim-lsp-asyncomplete*
+
+asyncomplete.vim is a async auto complete plugin for vim8 and neovim written
+in pure vim script. https://github.com/prabirshrestha/asyncomplete.vim
+
+Example:
+    Plug 'prabirshrestha/async.vim'
+    Plug 'prabirshrestha/vim-lsp'
+    Plug 'prabirshrestha/asyncomplete.vim'
+    Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
+For additional configuration refer to asyncomplete.vim docs.
+
+===============================================================================
+Snippets                                                  *vim-lsp-snippets*
+
+To integrate snippets in vim-lsp, you will first have to install a third-party
+snippet plugin, and a plugin that integrates it in vim-lsp. At the moment,
+you have two options:
+
+1. UltiSnips and vim-lsp-ultisnips
+https://github.com/SirVer/ultisnips
+https://github.com/thomasfaingnaert/vim-lsp-ultisnips
+
+2. neosnippet.vim and vim-lsp-neosnippet
+https://github.com/Shougo/neosnippet.vim
+https://github.com/thomasfaingnaert/vim-lsp-neosnippet
+
+Refer to the readme and docs of vim-lsp-ultisnips and vim-lsp-neosnippet for
+more information and configuration options.
+
+===============================================================================
+Folding                                                    *vim-lsp-folding*
+
+You can also let the language server handle folding for you. To enable this
+feature, you will have to set |'foldmethod'|, |'foldexpr'| and |'foldtext'| (the
+latter is optional) correctly:
+
+    set foldmethod=expr
+      \ foldexpr=lsp#ui#vim#folding#foldexpr()
+      \ foldtext=lsp#ui#vim#folding#foldtext()
+
+Also, make sure you have not disabled folding globally, see
+|g:lsp_fold_enabled|.
+
+You may want to enable this only for certain filetypes, e.g. for Javascript
+only:
+
+    augroup lsp_folding
+	autocmd!
+	autocmd FileType javascript setlocal
+	    \ foldmethod=expr
+	    \ foldexpr=lsp#ui#vim#folding#foldexpr()
+	    \ foldtext=lsp#ui#vim#folding#foldtext()
+    augroup end
+
+To display open and closed folds at the side of the window, see
+|'foldcolumn'|.
+If you want to remove the dashes at the end of the folds, you can change
+the fold item of |'fillchars'|.
+

@@ -1,0 +1,264 @@
+vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
+===============================================================================
+REF: https://github.com/prabirshrestha/asyncomplete.vim
+
+prabirshrestha/asyncomplete.vim
+===============================
+
+async completion in pure vim script for vim8 and neovim
+
+This is inspired by nvim-complete-manager but written in pure Vim Script.
+
+## Installing
+```
+Plug 'prabirshrestha/asyncomplete.vim'
+```
+
+### Tab completion
+```
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+```
+
+### Force refresh completion
+```
+imap <c-space> <Plug>(asyncomplete_force_refresh)
+```
+
+## Auto popup
+
+By default asyncomplete will automatically show the autocomplete popup menu as you start typing. If you would like to disable the default behavior set g:asyncomplete_auto_popup to 0.
+
+```
+let g:asyncomplete_auto_popup = 0
+```
+
+You can use the above <Plug>(asyncomplete_force_refresh) to show the popup or can you tab to show the autocomplete.
+
+```
+let g:asyncomplete_auto_popup = 0
+
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+inoremap <silent><expr> <TAB>
+  \ pumvisible() ? "\<C-n>" :
+  \ <SID>check_back_space() ? "\<TAB>" :
+  \ asyncomplete#force_refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+```
+
+## Preview Window
+To disable preview window:
+
+```
+set completeopt-=preview
+```
+
+To enable preview window:
+
+```
+set completeopt+=preview
+```
+
+To auto close preview window when completion is done.
+
+```
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+```
+
+
+## Sources
+asyncomplete.vim deliberately does not contain any sources. Please use one of the following sources or create your own.
+
+### Language Server Protocol (LSP)
+Language Server Protocol via vim-lsp and asyncomplete-lsp.vim
+
+```
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
+if executable('pyls')
+    " pip install python-language-server
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pyls',
+        \ 'cmd': {server_info->['pyls']},
+        \ 'whitelist': ['python'],
+        \ })
+endif
+```
+
+Refer to vim-lsp wiki for configuring other language servers. Besides
+auto-complete language server support other features such as go to definition,
+find references, renaming symbols, document symbols, find workspace symbols,
+formatting and so on.
+
+### Using existing vim plugin sources
+Rather than writing your own completion source from scratch you could also
+suggests other plugin authors to provide a async completion api that works for
+asyncomplete.vim or any other async autocomplete libraries without taking a
+dependency on asyncomplete.vim. The plugin can provide a function that takes a
+callback which returns the list of candidates and the startcol from where it
+must show the popup. Candidates can be list of words or vim's complete-items.
+
+function s:completor(opt, ctx)
+  call mylanguage#get_async_completions({candidates, startcol ->
+asyncomplete#complete(a:opt['name'], a:ctx, startcol, candidates) })
+endfunction
+
+```
+au User asyncomplete_setup call asyncomplete#register_source({
+    \ 'name': 'mylanguage',
+    \ 'whitelist': [*],
+    \ 'completor': function('s:completor'),
+    \ })
+```
+
+### Example
+```
+function! s:js_completor(opt, ctx) abort
+    let l:col = a:ctx['col']
+    let l:typed = a:ctx['typed']
+
+    let l:kw = matchstr(l:typed, '\v\S+$')
+    let l:kwlen = len(l:kw)
+
+    let l:startcol = l:col - l:kwlen
+
+    let l:matches = [
+        \ "do", "if", "in", "for", "let", "new", "try", "var", "case", "else",
+"enum", "eval", "null", "this", "true",
+        \ "void", "with", "await", "break", "catch", "class", "const",
+"false", "super", "throw", "while", "yield",
+        \ "delete", "export", "import", "public", "return", "static",
+"switch", "typeof", "default", "extends",
+        \ "finally", "package", "private", "continue", "debugger", "function",
+"arguments", "interface", "protected",
+        \ "implements", "instanceof"
+        \ ]
+
+    call asyncomplete#complete(a:opt['name'], a:ctx, l:startcol, l:matches)
+endfunction
+
+au User asyncomplete_setup call asyncomplete#register_source({
+    \ 'name': 'javascript',
+    \ 'whitelist': ['javascript'],
+    \ 'completor': function('s:js_completor'),
+    \ })
+```
+
+The above sample shows synchronous completion. If you would like to make it
+async just call asyncomplete#complete whenever you have the results ready.
+
+```
+call timer_start(2000, {timer-> asyncomplete#complete(a:opt['name'], a:ctx,
+l:startcol, l:matches)})
+```
+
+If you are returning incomplete results and would like to trigger completion
+on the next keypress pass 1 as the fifth parameter to asyncomplete#complete
+which signifies the result is incomplete.
+
+```
+call asyncomplete#complete(a:opt['name'], a:ctx, l:startcol, l:matches, 1)
+```
+
+
+===============================================================================
+REF: :help asyncomplete.vim
+
+*asyncomplete.vim.txt*  Async autocompletion for Vim 8 and Neovim.
+*asyncomplete*
+
+
+===============================================================================
+CONTENTS                                                *asyncomplete-contents*
+
+    1. Introduction              |asyncomplete-introduction|
+    2. Options                   |asyncomplete-options|
+    3. Functions                 |asyncomplete-functions|
+    4. Global vim configuration  |asyncomplete-global-config|
+    5. Known Issues              |asyncomplete-known-issues|
+
+===============================================================================
+1. Introduction                                     *asyncomplete-introduction*
+
+Async autocompletion for Vim 8 and Neovim with |timers|.
+
+This is inspired by https://github.com/roxma/nvim-complete-manager but written
+in pure Vim Script.
+
+===============================================================================
+2. Options                                               *asyncomplete-options*
+
+
+g:asyncomplete_auto_popup                           *g:asyncomplete_auto_popup*
+
+    Type: |Number|
+    Default: `1`
+
+    Automatically show the autocomplete popup menu as you start typing.
+
+g:asyncomplete_log_file                               *g:asyncomplete_log_file*
+
+    Type: |String|
+    Default: null
+
+    Path to log file.
+
+g:asyncomplete_popup_delay                         *g:asyncomplete_popup_delay*
+
+    Type: |Number|
+    Default: 30
+
+    Milliseconds to wait before opening the popup menu
+
+g:asyncomplete_auto_completeopt               *g:asyncomplete_auto_completeopt*
+
+    Type: |Number|
+    Default: 1
+
+    Set default `completeopt` options. These are `menuone,noinsert,noselect`.
+    This effectively overwrites what ever the user has in their config file.
+
+    Set to 0 to disable.
+
+===============================================================================
+3. Functions                                            *asyncomplete-functions*
+
+asyncomplete#close_popup()                         *asyncomplete#close_popup()*
+
+    Insert selected candidate and close popup menu.
+    Following example prevents popup menu from re-opening after insertion.
+>
+    inoremap <expr> <C-y> pumvisible() ? asyncomplete#close_popup() : "\<C-y>"
+<
+asyncomplete#cancel_popup()                       *asyncomplete#cancel_popup()*
+
+    Cancel completion and close popup menu.
+    Following example prevents popup menu from re-opening after cancellation.
+>
+    inoremap <expr> <C-e> pumvisible() ? asyncomplete#cancel_popup() : "\<C-e>"
+
+===============================================================================
+4. Global vim configuration                          *asyncomplete-global-config*
+
+If you notice messages like 'Pattern not found' or 'Match 1 of <N>' printed in
+red colour in vim command line and in `:messages` history and you are annoyed
+with them, try setting `shortmess` vim option in your `.vimrc` like so:
+>
+    set shortmess+=c
+<
+See `:help shortmess` for details and description.
+
+===============================================================================
+5. Known Issues                                       *asyncomplete-known-issues*
+
+Builtin complete such as omni func, file func flickers and closes.
+    You need vim with patch v8.1.1068.
+    https://github.com/vim/vim/commit/fd133323d4e1cc9c0e61c0ce357df4d36ea148e3
