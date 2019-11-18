@@ -269,9 +269,11 @@ endfunction
 autocmd FileType vim        call VIMSET()
 autocmd FileType c,cpp      call CPPSET()
 
+
 " ==============================================================================
 " CTAGS:
 " Build: ctags -R *
+" $ ctags -R --c++-kinds=+p --fields=+iaS --extra=+q fbsource/fbcode/admarket/adindexer
 " Usage:
 "   Ctrl-]          - Jump to the tag underneath the cursor
 "   :ts <tag> <RET> - Search for a particular tag
@@ -279,11 +281,12 @@ autocmd FileType c,cpp      call CPPSET()
 "   :tp             - Go to the previous definition for the last tag
 "   :ts             - List all of the definitions of the last tag
 "   :tags           - Show the contents of the tag stack, it's like showing stack trace
+"   g]	            - Like CTRL-], but use ":tselect" instead of ":tag".
+"   g CTRL-]        - Like CTRL-], but use ":tjump" instead of ":tag".
 "   Ctrl-t          - Jump back up in the tag stack
 "   echo tagfiles() - show all tags files
 " Config:
-set tags=./tags;/ " recursively search tags file from current dir
-" }}}
+set tags+=./tags,tags;  " recursively search tags file from current dir
 
 " ==============================================================================
 " Plugin: 'VundleVim/Vundle.vim' {{{
@@ -653,3 +656,4 @@ set path=.,,** " used by tabfind etc.
 "     e.g. 'indexer->query' jump to admarket/adal ==> rebuild ctags for specific folders
 "   * Ctrl-] search a word with cursor at last few chars will redirect to wrong locations
 
+vim:tw=78:ts=8:ft=help:norl:foldmethod=marker:syntax=vim
