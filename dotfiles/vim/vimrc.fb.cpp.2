@@ -1,0 +1,519 @@
+" ==============================================================================
+" Plugin 'VundleVim/Vundle.vim' {{{
+" Usage:
+"   :PluginList       - lists configured plugins
+"   :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+"   :PluginSearch foo - searches for foo; append `!` to refresh local cache
+"   :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" tags:
+"   usage:  [view], [navigation], [edit]
+"     view: [color]
+"     edit: [autocomplete]
+"   target: [file][filetree][tags][svn][quickfix]
+"   lsp:    [lsp-linter], [lsp-autocomplete], [lsp-goto]
+"   lang:   [cpp]
+
+" [view][color][file] color scheme for vim
+Plugin 'tomasr/molokai'
+
+" [view][color][file] better whitespace highlighting for vim
+Plugin 'ntpeters/vim-better-whitespace'
+
+" [view][color][file] show parentheses in diff color
+Plugin 'luochen1990/rainbow'
+
+" [view][color][file][cpp] cpp syntax highlighting
+Plugin 'octol/vim-cpp-enhanced-highlight'
+
+" [view][svn] show diff using the sign column
+Plugin 'mhinz/vim-signify'
+
+" [view][filetree] a file system tree explorer
+Plugin 'scrooloose/nerdtree'
+
+" [view][tags] show class blueprints
+" prerequisite:
+"   install exuberant-ctags
+"   https://docs.ctags.io/en/latest/autotools.html
+Plugin 'majutsushi/tagbar'
+
+" [navigation][file][cpp] toggle between .h and .cpp
+Plugin 'micbou/a.vim'
+
+" [navigation][quickfix] vsplit quickfix link
+Plugin 'yssl/QFEnter'
+
+" [navigation][file] fuzzy search files and buffers
+Plugin 'ctrlpvim/ctrlp.vim'
+
+" [edit][autocomplete] insert or delete brackets, parens, quotes in pair.
+Plugin 'jiangmiao/auto-pairs'
+
+" " [lsp-linter][file] asynchronous linting/fixing for Vim
+" Plugin 'dense-analysis/ale' " requires vim version > vim8
+
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" }}}
+
+" ==============================================================================
+" UI Layout {{{
+" view
+syntax enable
+set ttyfast             " faster redraw
+set lazyredraw          " redraw only when we need to
+" set colorcolumn=80      " display vertical line
+" line number
+set number              " show line numbers
+set relativenumber      " show relative line numbers
+" cursor
+set cursorline          " highlight/underscore cursorline
+" parenthesis highlighting
+set showmatch           " highlight matching [{()}]
+set matchtime=15        " defaults to 5, tenths of a second to show the matching paren
+" statusline
+set laststatus=2        " make statusline always visible
+set ruler               " show line, column, relative position
+set fillchars+=stl:\ ,stlnc:\\ " fill the statuslines of curr win and non-curr win
+set showcmd             " show command, e.g. yiw
+" menu
+set wildmenu            " visual autocomplete for command menu, e.g. run :e ~/.vim<TAB>?
+set wildmode=list:longest,full
+" }}}
+
+" ==============================================================================
+" UI Color {{{
+highlight StatusLine   ctermbg=White ctermfg=DarkRed| " statusline of curr window
+highlight StatusLineNC ctermbg=White ctermfg=Black|   " statusline of other window
+" }}}
+
+" ==============================================================================
+" Searching {{{
+set ignorecase          " ignore case when searching
+set smartcase           " override "ignorecase" if search with upper case
+set incsearch           " search as characters are entered
+set hlsearch            " highlight matches
+set redrawtime=1000     " time in milliseconds for redarwing display for hlsearch
+set nowrapscan          " disable search wrap around the eof
+
+nnoremap <silent> * :call SearchWithoutMovingCursor()<CR>
+" }}}
+
+" ==============================================================================
+" Spaces & Tabs {{{
+set tabstop=2           " number of visual spaces per TABs
+set shiftwidth=2        " when using the >> or << commands, shift lines
+set softtabstop=2       " number of visual spaces in tab when editing
+set expandtab           " expand tabs into spaces, e.g. :set ts=4 sw=4 expandtab; :retab
+set autoindent          " indent when moving to the next line while writing code
+set smartindent
+" }}}
+
+" ==============================================================================
+" Leader Shortcuts && Key Mappings {{{
+let mapleader=","       " leader is comma, defaults to \
+
+nnoremap <leader>v      :e ~/.vimrc<CR>
+nnoremap <leader>s      :source ~/.vimrc<CR>
+
+nnoremap <leader>,      :w<CR>
+nnoremap <leader>e      :e %<CR>
+
+" toggle paste mode
+nnoremap <leader>p      :set invpaste paste?<CR>
+
+nnoremap <silent> gl    :call GoToLastActiveTab()<CR>
+" }}}
+
+" ==============================================================================
+" Miscellaneous {{{
+set encoding=utf-8
+set t_Co=256
+
+" disable recording
+" https://stackoverflow.com/questions/1527784/what-is-vim-recording-and-how-can-it-be-disabled
+nnoremap q <Nop>
+
+" disable entering Ex mode
+nnoremap Q <Nop>
+
+" disable mouse to avoid unintended insert
+set mouse=
+set ttymouse=
+
+" " scrolling faster with cursor
+" set scrolljump=20  " scroll vertically
+" set sidescroll=20  " scroll horizontally
+
+" change cwd when open a file, switch/delete buffer, open/close window.
+" With this, it's handy to :edit file via relative file path.
+set autochdir
+
+" automatically read/write files when files are changes outside vim
+set autoread
+set autowrite
+
+" no bells in terminal
+set noerrorbells
+" }}}
+
+" " ==============================================================================
+" :help file-searching {{{
+" gf will search the following path
+set path+=/data/users/xiaotianli/fbsource/fbcode
+set path+=/data/users/xiaotianli/fbsource/fbcode/admarket/adindexer/**
+set path+=/data/users/xiaotianli/fbsource/fbcode/buck-out/opt/gen/admarket/adindexer/if/**
+" }}}
+
+" ==============================================================================
+" autocmd {{{
+
+" Enable syntax for file types
+" List All Vim supported filetypes
+"   :echo getcompletion('', 'filetype')
+autocmd BufRead,BufNewFile *.md             set filetype=markdown
+autocmd BufRead,BufNewFile *.thrift         set filetype=cpp
+autocmd BufRead,BufNewFile *.cinc,*.cconf   set filetype=python
+
+" Customize vim cfg for different languages
+function! CPPCFG()
+  setlocal foldexpr=FoldIncludes(v:lnum) foldmethod=expr| " fold includes
+	nnoremap <leader>r       :w!<CR>:!g++ -std=c++11 -Wall % && ./a.out<CR>
+endfunction
+
+autocmd FileType cpp      call CPPCFG()
+" }}}
+
+" ==============================================================================
+" CTAGS {{{
+" Build:
+"   $ ctags -R *
+"   $ ctags -R --c++-kinds=+p --fields=+iaS --extra=+q
+"       fbsource/fbcode/admarket/adfinder
+"       fbsource/fbcode/admarket/adindexer
+"   $ run_ctags.sh
+" Usage:
+"   Ctrl-]          - Jump to the first tag under the cursor
+"   Ctrl-w + Ctrl-] - Jump to the first tag under the cursor in a horizontal split window
+"                     (:help window-tag)
+"   :ts <tag> <RET> - Search for a particular tag
+"   :tn             - Go to the next definition for the last tag
+"   :tp             - Go to the previous definition for the last tag
+"   :ts             - List all of the definitions of the last tag
+"   :tags           - Show the contents of the tag stack, it's like showing stack trace
+"   g]	            - Like CTRL-], but use ":tselect" instead of ":tag".
+"   g CTRL-]        - Like CTRL-], but use ":tjump" instead of ":tag".
+"   Ctrl-t          - Jump back up in the tag stack
+"   echo tagfiles() - show all tags files
+" Config:
+set tags+=./tags,tags;  " recursively search tags file from current dir
+" Key Mappings:
+" open ctag in vertical/tab split
+map <C-\>         :vertical split<CR>
+                \ :exec("tag ".expand("<cword>"))<CR>
+map <leader><C-\> :tab split<CR>
+                \ :exec("tag ".expand("<cword>"))<CR>
+" }}}
+
+" ==============================================================================
+" Plugin: 'VundleVim/Vundle.vim' {{{
+" Ref: https://github.com/VundleVim/Vundle.vim#quick-start
+" Usage:
+"   :PluginInstall - install plugins
+"   :PluginClean   - delete plugins
+" }}}
+
+" ==============================================================================
+" Plugin: 'tomasr/molokai' {{{
+" Ref: https://github.com/tomasr/molokai
+" Tuning:
+"   :runtime syntax/colortest.vim " check supported colors
+"   256 colors - xterm number <-> display mapping, https://jonasjacek.github.io/colors/
+" Overwrite: ~/.vim/bundle/molokai/colors/molokai.vim
+"   if exists("g:rehash256") && g:rehash256 == 1
+"     hi Normal       ctermfg=15  ctermbg=235
+"     hi CursorLine               ctermbg=242   cterm=none
+" Config:
+
+function! EnableMolokaiColorscheme() " {{{
+  let g:molokai_original = 1
+  let g:rehash256 = 1
+  syntax enable
+  colorscheme molokai
+  set background=dark
+endfunction
+" }}}
+
+" call EnableMolokaiColorscheme()
+" }}}
+
+" ==============================================================================
+" Plugin: 'ntpeters/vim-better-whitespace' {{{
+" Ref: https://github.com/ntpeters/vim-better-whitespace
+" Config:
+let g:better_whitespace_enabled=1
+let g:better_whitespace_ctermcolor='red'
+let g:strip_whitespace_on_save=0
+" }}}
+
+" ==============================================================================
+" Plugin: 'luochen1990/rainbow' {{{
+" Ref: https://github.com/luochen1990/rainbow
+" Usage:
+"   :RainbowToggle - toggle
+" Config:
+" let g:rainbow_active = 1
+" RainbowToggleOff
+" }}}
+
+" ==============================================================================
+" Plugin: 'octol/vim-cpp-enhanced-highlight' {{{
+" Ref: https://github.com/octol/vim-cpp-enhanced-highlight
+" Config:
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
+let g:cpp_posix_standard = 1
+" let g:cpp_experimental_template_highlight = 1
+" }}}
+
+" ==============================================================================
+" Plugin: 'mhinz/vim-signify' {{{
+" Ref: https://github.com/mhinz/vim-signify
+" Usage:
+"   :SignifyToggle - toggle
+"   :SignifyDiff   - open a new split win to show diff
+"   :SignifyFold   - only show changed lines with their surrounding context
+" Diff Hunk Jumping:
+"     ]c   Jump to the next diff hunk.
+"     [c   Jump to the previous diff hunk.
+"     ]C   Jump to the last diff hunk.
+"     [C   Jump to the first diff hunk.
+" Config:
+" let g:signify_disable_by_default = 1 " 0: enable, 1: disable
+let g:signify_vcs_list = ['git', 'hg']
+" enable line highlighting in addition to using signs by default.
+let g:signify_line_highlight = 1
+" Key Mappings:
+command Diff SignifyDiff
+" }}}
+
+" ==============================================================================
+" Plugin: 'scrooloose/nerdtree' {{{
+" Ref: https://github.com/scrooloose/nerdtree
+" Usage:
+"   :NERDTreeToggle - toggle
+"   :NERDTreeFind   - find and select current active buffer in filetree
+" Config:
+" autocmd vimenter * NERDTree " uncomment to auto open on vim start-up
+" let loaded_nerd_tree=0 .   " disable NERDTree
+
+" close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType")) | q | endif
+let NERDTreeIgnore = ['\.pyc$']
+
+" Open NERDTree in the directory of the current file (or /home if no file is open)
+function! NERDTreeToggleAndFind() " {{{
+  " If NERDTree is open in the current buffer
+  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
+    exe ":NERDTreeClose"
+  else
+    exe ":NERDTreeFind"
+  endif
+endfunction
+" }}}
+" Key Mappings:
+command Tree :call NERDTreeToggleAndFind()
+" }}}
+
+" ==============================================================================
+" Plugin: 'majutsushi/tagbar' {{{
+" Ref: https://github.com/majutsushi/tagbar
+" Usage:
+"   :TagbarToggle - toggle
+" Config:
+" autocmd VimEnter * nested :TagbarOpen " uncomment to auto open on vim start-up
+" let g:tagbar_width=150
+let g:tagbar_sort = 0 " 0: sort by order, 1: by name
+" Key Mappings:
+command T :TagbarToggle
+" }}}
+
+" ==============================================================================
+" Plugin: 'micbou/a.vim' {{{
+" Ref: https://github.com/micbou/a.vim
+" Usage:
+"   :A  - go to .h header/.cpp file in a new buffer
+"   :AV - vertical splits and jumps
+" }}}
+
+" ==============================================================================
+" Plugin: 'yssl/QFEnter' {{{
+" Ref: https://github.com/yssl/QFEnter
+" Config:
+let g:qfenter_keymap = {}
+let g:qfenter_keymap.vopen = ['<C-v>']
+let g:qfenter_keymap.topen = ['<C-t>']
+" }}}
+
+" ==============================================================================
+" Plugin 'ctrlpvim/ctrlp.vim' {{{
+" Usage:
+"   <c-p>   - start search file name
+"   <c-j/k> - move down/up in result list
+"   <c-v>   - open file in new vertical split
+"   <c-t>   - open file in new tab
+"   <c-u>   - clear prompt line
+"   :CtrlPClearAllCaches  - clean up cache
+" Config:
+" let g:loaded_ctrlp = 0 " 0: disable ctrlp
+let g:ctrlp_by_filename = 1 " 1: search by filename, 0: full path
+let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20,results:20'
+let g:ctrlp_working_path_mode = 'ra' " r: root dir, a: dir of current file
+let g:ctrlp_root_markers = ['.buckconfig']
+" persist the cache in the configured location (g:ctrlp_cache_dir)
+let g:ctrlp_use_caching = 1
+let g:ctrlp_cache_dir = $HOME.'/.cache/ctrlp'
+let g:ctrlp_lazy_update = 100 " 0: none, 1: 250ms, 1000: 1000ms
+let g:ctrlp_types = ['fil']
+" When this is set to 1, the <bs> on empty prompt exit CtrlP.
+let g:ctrlp_brief_prompt = 1
+
+" speed up file indexing through ripgrep
+" https://vi.stackexchange.com/a/20447
+if executable('rg')
+  " https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md
+  let g:ctrlp_user_command =
+    \ 'rg %s --files --color=never --type cpp
+      \ --glob "folly/**"
+      \ --glob "common/**"
+      \ --glob "admarket/adindexer/**"
+      \ --glob "admarket/adfinder/**"
+      \ --glob "admarket/adpublisher/**"
+      \ '
+else
+  let g:ctrlp_max_files = 10000
+  let g:ctrlp_max_depth = 40
+endif
+" }}}
+
+" ==============================================================================
+" Plugin: 'jiangmiao/auto-pairs' {{{
+" Ref: https://github.com/jiangmiao/auto-pairs
+" }}}
+
+" ==============================================================================
+" Plugin: 'dense-analysis/ale' {{{
+" Ref: https://github.com/dense-analysis/ale
+" Usage:
+"   :ALEToggle - toggle
+"   :help ale-cpp-options - check cpp related options
+" Config:
+let g:ale_enabled = 0
+
+" linter
+" let b:ale_linters = ['cquery_buck']
+let g:ale_sign_error = '!'
+let g:ale_sign_warning = '?'
+
+" auto complete
+let g:ale_completion_enabled = 0
+" set omnifunc=ale#completion#OmniFunc
+" }}}
+
+" ==============================================================================
+" Script 'biggrep.vim' {{{
+" Ref:
+"   https://our.internmc.facebook.com/intern/wiki/Development_Environment/Vim/#tbgs
+" Config:
+source $ADMIN_SCRIPTS/vim/biggrep.vim
+" Usage:
+"   :FBGW  " :FBGS <cword> in fbcode repo
+"   :CBGW  " :CBGS <cword> in configerator repo
+" Key Mappings:
+command F let g:cword = expand('<cword>') |
+\ exe 'FBGW' |
+\ call SearchWordWithoutMovingCursor(g:cword)
+
+command C let g:cword = expand('<cword>')
+  \| exe 'CBGW'
+  \| call SearchWordWithoutMovingCursor(g:cword)
+" }}}
+
+
+" ==============================================================================
+" Functions:
+
+" Highlight matches without moving to the next word.
+" Assign the given pattern to the search register (@/).
+" http://vim.wikia.com/wiki/Highlight_all_search_pattern_matches#Highlight_matches_without_moving
+function! SearchWithoutMovingCursor() " {{{
+  let @/='\<'.expand("<cword>").'\>'
+endfunction
+" }}}
+
+function! SearchWordWithoutMovingCursor(word) " {{{
+  let @/=a:word
+endfunction
+" }}}
+
+
+" Go to last active tab
+" https://superuser.com/a/675119
+au TabLeave * let g:lasttab = tabpagenr()
+function! GoToLastActiveTab() " {{{
+  exe "tabn ".g:lasttab
+endfunction
+" }}}
+
+
+" Fold Cpp includes statements
+" https://our.internmc.facebook.com/intern/wiki/Development_Environment/Vim/#c-fold-includes-and-name
+function! FoldIncludes(ln) " {{{
+  let cur_line = getline(a:ln)
+  let prev_line = getline(a:ln - 1)
+
+  " skip empty lines
+  let empty_regex = '^\s*$'
+  if cur_line =~ empty_regex
+    return -1
+  endif
+
+  if cur_line[:8] == '#include '
+    return (prev_line[:8] == '#include ' ||
+          \ prev_line =~ empty_regex) ? 1 : '>1'
+  endif
+
+  return 0
+endfunction
+" }}}
+
+" ==============================================================================
+" Source:
+" https://our.internmc.facebook.com/intern/wiki/Development_Environment/Vim/#configerator
+" if getcwd() =~ 'configerator'
+"     let prefix = 'source/'
+"
+"     if getcwd() =~ 'source\/\?$'
+"         let prefix = ''
+"     endif
+"
+"     setlocal includeexpr=prefix.substitute(substitute(v:fname,'\\.','/','g'),'\\(.*\\)\\/','\\1.','')
+" endif
+
+" vim:tw=78:ts=2:sw=2:expandtab:ft=help:norl:syntax=vim:foldmethod=marker:
