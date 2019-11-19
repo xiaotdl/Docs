@@ -3,3 +3,14 @@ https://github.com/VundleVim/Vundle.vim
 
 * config git
 https://our.internmc.facebook.com/intern/wiki/Development_Environment/Internet_Proxy/#git
+
+* install ag
+https://github.com/ggreer/the_silver_searcher
+```
+$ sudo yum install the_silver_searcher
+```
+* install ripgrep
+https://github.com/BurntSushi/ripgrep
+```
+sudo yum install ripgrep
+```
