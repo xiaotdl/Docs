@@ -22,7 +22,7 @@ Plugin 'VundleVim/Vundle.vim'
 "   usage:  [view], [navigation], [edit]
 "     view: [color]
 "     edit: [autocomplete]
-"   target: [file][filetree][tags][svn][quickfix]
+"   target: [file][filetree][tags][svn][quickfix][comment]
 "   lsp:    [lsp-linter], [lsp-autocomplete], [lsp-goto]
 "   lang:   [cpp]
 
@@ -61,6 +61,9 @@ Plugin 'ctrlpvim/ctrlp.vim'
 
 " [edit][autocomplete] insert or delete brackets, parens, quotes in pair.
 Plugin 'jiangmiao/auto-pairs'
+
+" [edit][comment] comment multiple lines in visual mode
+Plugin 'scrooloose/nerdcommenter'
 
 " " [lsp-linter][file] asynchronous linting/fixing for Vim
 " Plugin 'dense-analysis/ale' " requires vim version > vim8
@@ -415,6 +418,34 @@ endif
 " ==============================================================================
 " Plugin: 'jiangmiao/auto-pairs' {{{
 " Ref: https://github.com/jiangmiao/auto-pairs
+" }}}
+
+" ==============================================================================
+" Plugin: 'scrooloose/nerdcommenter' {{{
+" Ref: https://github.com/scrooloose/nerdcommenter/blob/master/doc/NERD_commenter.txt
+" Usage:
+"   first select lines with shift+v
+"   :<Leader>cc - comment with // comment
+"   :<Leader>cs - comment with /*
+"                               * sexy comment
+"                               */
+"   :<Leader>cu - undo comment
+" Config:
+let g:NERDDefaultAlign = 'left'
+" Key Mappings:
+map <leader>c <plug>NERDCommenterToggle
+
+" ==============================================================================
+" Plugin: 'scrooloose/nerdcommenter' {{{
+" Ref: https://github.com/scrooloose/nerdcommenter/blob/master/doc/NERD_commenter.txt
+" Usage:
+"   first select lines with shift+v
+"   :<Leader>cc - comment with //
+"   :<Leader>cs - comment with /*
+"                               * comment
+"                               */
+"   :<Leader>cu - uncomment
+" }}}
 " }}}
 
 " ==============================================================================
