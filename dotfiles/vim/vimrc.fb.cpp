@@ -138,7 +138,7 @@ filetype plugin on      " ?
 " ==============================================================================
 " Leader Shortcuts && Key Mappings {{{
 let mapleader=","       " leader is comma, defaults to \
-noremap <leader>s       :source ~/.vimrc<CR>
+nnoremap <leader>s       :source ~/.vimrc<CR>
 nnoremap <leader>,      :w<CR>
 nnoremap <leader>p      :set invpaste paste?<CR>
 
@@ -204,11 +204,6 @@ nnoremap <C-[>           <C-T>
 
 " Plugin: 'jlanzarotta/bufexplorer' {{{
 nnoremap <leader>B      :BufExplorer<CR>
-" }}}
-"
-" Plugin: 'majutsushi/tagbar' {{{
-" nnoremap <leader>T      :TagbarToggle<CR>
-nnoremap <leader>T      :TagbarOpenAutoClose<CR>
 " }}}
 
 " ==============================================================================
@@ -303,8 +298,9 @@ set tags+=./tags,tags;  " recursively search tags file from current dir
 "   :runtime syntax/colortest.vim " check supported colors
 "   256 colors - xterm number <-> display mapping, https://jonasjacek.github.io/colors/
 " Overwrite: ~/.vim/bundle/molokai/colors/molokai.vim
-"   hi Normal       ctermfg=15  ctermbg=235
-"   hi CursorLine               ctermbg=242   cterm=none
+"   if exists("g:rehash256") && g:rehash256 == 1
+"     hi Normal       ctermfg=15  ctermbg=235
+"     hi CursorLine               ctermbg=242   cterm=none
 " Config:
 let g:molokai_original = 1
 let g:rehash256 = 1
@@ -430,11 +426,13 @@ let g:airline_theme='dark' " powerline alike tabline and statusline
 
 " ==============================================================================
 " Plugin: 'majutsushi/tagbar' {{{
-" Ref: https://github.com/majutsushi/tagbar/blob/master/doc/tagbar.txt
+" Ref: https://github.com/majutsushi/tagbark
 " Usage:
 "   :TagbarToggle - toggle
 " Config:
 " autocmd VimEnter * nested :TagbarOpen " uncomment to auto open upon vim start-up
+" nnoremap <leader>T      :TagbarToggle<CR>
+nnoremap <leader>T      :TagbarOpenAutoClose<CR>
 let g:tagbar_width=150
 " }}}
 
@@ -650,10 +648,4 @@ set path=.,,** " used by tabfind etc.
 " LESSION:
 " * Accidentally press Ctrl-s will lock the screen. Press Ctrl-q to unlock.
 
-" ==============================================================================
-" TODO:
-"   * Ctrl-] not working correctly sometimes, ctags prompt is overwriten
-"     e.g. 'indexer->query' jump to admarket/adal ==> rebuild ctags for specific folders
-"   * Ctrl-] search a word with cursor at last few chars will redirect to wrong locations
-
-vim:tw=78:ts=8:ft=help:norl:foldmethod=marker:syntax=vim
+" vim:tw=78:ts=2:sw=2:expandtab:ft=help:norl:syntax=vim:foldmethod=marker:
