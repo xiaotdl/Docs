@@ -1,15 +1,46 @@
-* install vim vundle
+* install vim8
+```
+sudo feature install fb-vim
+```
+
+* Setting vim as your default
+Many command-line utilities check the $EDITOR and $VISUAL environment variables to determine how to open files for editing or display.
+Add to ~/.bashrc or ~/.bash_profile and source it:
+```
+export EDITOR=/usr/bin/vim
+export VISUAL=/usr/bin/vim
+
+```
+
+To use vim for git, add to ~/.gitconfig:
+```
+[core]
+  editor=vim
+```
+
+* ctags for goto tag
+```
+ctags -R
+```
+Universal-ctags support better tagging for modern C++
+https://github.com/universal-ctags/ctags/blob/master/docs/autotools.rst
+
+* cquery for goto cross-reference
+```
+cquery -R
+```
+
+* install vim plugin manager - vundle
 https://github.com/VundleVim/Vundle.vim
 
-* config git
+* config git proxy for downloading vim plugins
 https://our.internmc.facebook.com/intern/wiki/Development_Environment/Internet_Proxy/#git
 
-* install ag
+* install ag/ripgrep for faster file searching through ctrlp
 https://github.com/ggreer/the_silver_searcher
 ```
-$ sudo yum install the_silver_searcher
+sudo yum install the_silver_searcher
 ```
-* install ripgrep
 https://github.com/BurntSushi/ripgrep
 ```
 sudo yum install ripgrep
