@@ -131,7 +131,8 @@ set smartindent
 " Leader Shortcuts && Key Mappings {{{
 let mapleader=","       " leader is comma, defaults to \
 
-nnoremap <leader>v      :e ~/.vimrc<CR>
+" nnoremap <leader>v      :e ~/.vimrc<CR>
+command Vimrc           :edit ~/.vimrc
 nnoremap <leader>s      :source ~/.vimrc<CR>
 
 nnoremap <leader>,      :w<CR>
@@ -353,6 +354,7 @@ command Tree :call NERDTreeToggleAndFind()
 " autocmd VimEnter * nested :TagbarOpen " uncomment to auto open on vim start-up
 " let g:tagbar_width=150
 let g:tagbar_sort = 0 " 0: sort by order, 1: by name
+let g:tagbar_autoclose = 1 " auto close tagbar when jump to a tag
 " Key Mappings:
 command T :TagbarToggle
 " }}}
@@ -389,26 +391,32 @@ let g:ctrlp_by_filename = 1 " 1: search by filename, 0: full path
 let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20,results:20'
 let g:ctrlp_working_path_mode = 'ra' " r: root dir, a: dir of current file
 let g:ctrlp_root_markers = ['.buckconfig']
-" persist the cache in the configured location (g:ctrlp_cache_dir)
-let g:ctrlp_use_caching = 1
-let g:ctrlp_cache_dir = $HOME.'/.cache/ctrlp'
-let g:ctrlp_lazy_update = 100 " 0: none, 1: 250ms, 1000: 1000ms
+let g:ctrlp_lazy_update = 500 " 0: none, 1: 250ms, 1000: 1000ms
 let g:ctrlp_types = ['fil']
 " When this is set to 1, the <bs> on empty prompt exit CtrlP.
 let g:ctrlp_brief_prompt = 1
+" persist the cache in the configured location (g:ctrlp_cache_dir)
+let g:ctrlp_use_caching = 1
+let g:ctrlp_clear_cache_on_exit = 1
+let g:ctrlp_cache_dir = $HOME.'/.cache/ctrlp'
 
 " speed up file indexing through ripgrep
 " https://vi.stackexchange.com/a/20447
 if executable('rg')
   " https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md
+  " --max-filesize:
+  "   $ find folly/ common/ admarket/adfinder/ admarket/adindexer/ admarket/adpublisher/ -type f -printf "%s\t%p\n" | sort -n
   let g:ctrlp_user_command =
     \ 'rg %s --files --color=never --type cpp
-      \ --glob "folly/**"
+      \ --maxdepth 10
+      \ --max-filesize 300K
       \ --glob "common/**"
+      \ --glob "folly/**"
       \ --glob "admarket/adindexer/**"
       \ --glob "admarket/adfinder/**"
       \ --glob "admarket/adpublisher/**"
       \ '
+  let g:ctrlp_user_command_async = 1
 else
   let g:ctrlp_max_files = 10000
   let g:ctrlp_max_depth = 40
@@ -434,6 +442,7 @@ endif
 let g:NERDDefaultAlign = 'left'
 " Key Mappings:
 map <leader>c <plug>NERDCommenterToggle
+" }}}
 
 " ==============================================================================
 " Plugin: 'dense-analysis/ale' {{{
@@ -533,5 +542,9 @@ endfunction
 "
 "     setlocal includeexpr=prefix.substitute(substitute(v:fname,'\\.','/','g'),'\\(.*\\)\\/','\\1.','')
 " endif
+
+" ==============================================================================
+" TODO:
+" https://our.internmc.facebook.com/intern/wiki/Development_Environment/Vim/#interaction-with-tmux
 
 " vim:tw=78:ts=2:sw=2:expandtab:ft=help:norl:syntax=vim:foldmethod=marker:
