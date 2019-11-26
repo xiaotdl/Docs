@@ -22,7 +22,8 @@ Plugin 'VundleVim/Vundle.vim'
 "   usage:  [view], [navigation], [edit]
 "     view: [color]
 "     edit: [autocomplete]
-"   target: [file][filetree][tags][svn][quickfix][comment]
+"   target: [file][filetree][tags][versioning][quickfix][comment]
+"     versioning: [hg]
 "   lsp:    [lsp-linter], [lsp-autocomplete], [lsp-goto]
 "   lang:   [cpp]
 
@@ -38,7 +39,7 @@ Plugin 'luochen1990/rainbow'
 " [view][color][file][cpp] cpp syntax highlighting
 Plugin 'octol/vim-cpp-enhanced-highlight'
 
-" [view][svn] show diff using the sign column
+" [view][versioning] show diff using the sign column
 Plugin 'mhinz/vim-signify'
 
 " [view][filetree] a file system tree explorer
@@ -49,6 +50,9 @@ Plugin 'scrooloose/nerdtree'
 "   install exuberant-ctags
 "   https://docs.ctags.io/en/latest/autotools.html
 Plugin 'majutsushi/tagbar'
+
+" [view][versioning][hg] vim-fugitive hg alternative
+Plugin 'jlfwong/vim-mercenary'
 
 " [navigation][file][cpp] toggle between .h and .cpp
 Plugin 'micbou/a.vim'
@@ -114,7 +118,7 @@ set hlsearch            " highlight matches
 set redrawtime=1000     " time in milliseconds for redarwing display for hlsearch
 set nowrapscan          " disable search wrap around the eof
 
-nnoremap <silent> * :call SearchWithoutMovingCursor()<CR>
+nnoremap <silent> * :call SearchWithoutMovingCursor()<CR>:set hls<CR>
 " }}}
 
 " ==============================================================================
@@ -196,7 +200,7 @@ autocmd BufRead,BufNewFile *.cinc,*.cconf   set filetype=python
 
 " Customize vim cfg for different languages
 function! CPPCFG()
-  setlocal foldexpr=FoldIncludes(v:lnum) foldmethod=expr| " fold includes
+  " setlocal foldexpr=FoldIncludes(v:lnum) foldmethod=expr| " fold includes
 	nnoremap <leader>r       :w!<CR>:!g++ -std=c++11 -Wall % && ./a.out<CR>
 endfunction
 
@@ -352,11 +356,24 @@ command Tree :call NERDTreeToggleAndFind()
 "   :TagbarToggle - toggle
 " Config:
 " autocmd VimEnter * nested :TagbarOpen " uncomment to auto open on vim start-up
-" let g:tagbar_width=150
+let g:tagbar_width=150
 let g:tagbar_sort = 0 " 0: sort by order, 1: by name
 let g:tagbar_autoclose = 1 " auto close tagbar when jump to a tag
 " Key Mappings:
 command T :TagbarToggle
+" }}}
+
+" ==============================================================================
+" Plugin: 'jlfwong/vim-mercenary' {{{
+" Ref: https://github.com/jlfwong/vim-mercenary
+" Usage:
+"   :HGblame - show hg blame on curr file in a vsplit
+" Config:
+"   Source:
+"     Remove: HGPLAIN=1, so that phabdiff is shown.
+"     Change: let hg_args = ['annotate', '--user', '--date', '-q', '--phabdiff']
+" Key Mappings:
+command HG :HGblame
 " }}}
 
 " ==============================================================================
@@ -391,7 +408,7 @@ let g:ctrlp_by_filename = 1 " 1: search by filename, 0: full path
 let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:20,results:20'
 let g:ctrlp_working_path_mode = 'ra' " r: root dir, a: dir of current file
 let g:ctrlp_root_markers = ['.buckconfig']
-let g:ctrlp_lazy_update = 500 " 0: none, 1: 250ms, 1000: 1000ms
+let g:ctrlp_lazy_update = 0 " 0: none, 1: 250ms, 1000: 1000ms
 let g:ctrlp_types = ['fil']
 " When this is set to 1, the <bs> on empty prompt exit CtrlP.
 let g:ctrlp_brief_prompt = 1
