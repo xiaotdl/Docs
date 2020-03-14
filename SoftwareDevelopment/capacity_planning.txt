@@ -1,0 +1,22 @@
+REF:
+https://blog.newrelic.com/engineering/capacity-planning/
+
+max qps: any likely increase in workload, peak hours, special events etc.
+avg qps: normal workload
+
+
+Methodologies:
+* Service-starvation analysis
+  * scale down service until a failure
+
+* Load-generation analysis
+  * scale up traffic until a failure
+
+* Static-resource analysis
+This approach involves identifying the most constrained system resource for a given service tier (typically, CPU, memory, disk space, or network I/O) and determining what percentage of that resource is available to the service as its currently deployed.
+
+
+Planning:
+* calculate each service’s free capacity, say(20%)
+* the safest minimum amount of free capacity, say(10%)
+ * Free capacity is your buffer against unexpected workload spikes, server outages, or performance regressions in your code.
