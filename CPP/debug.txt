@@ -180,3 +180,11 @@ https://cgdb.github.io/docs/cgdb.html#Switching-Windows
 * switch between windows
 ESC - switch into CGDB, navigation using vi keys
 i   - switch back to GDB
+
+----
+scrolling
+(gdb) set trace-commands on
+(gdb) set logging on
+
+cd where/gdb/is/running
+tail -f gdb.txt
