@@ -1,0 +1,108 @@
+# LLDB Tutorial
+
+* GDB to LLDB command map
+  * https://lldb.llvm.org/use/map.html#
+* LLDB Tutorial
+  * https://lldb.llvm.org/use/tutorial.html#
+* [video] Debugging C/C++ with LLDB Tutorial
+  * https://www.youtube.com/watch?v=2GV0K9Y2MKA
+
+
+## Start LLDB
+
+$ lldb a.out
+
+W/ args:
+
+$ lldb -- a.out <argument1>
+
+Running:
+(lldb) run
+(lldb) r
+
+
+ ## Setting Breakpoints
+
+// break on file:line#
+(lldb) break set -f demo.cpp -l #
+(lldb) br s -f demo.cpp -l #
+(lldb) b demo.cpp : #
+
+// break on function
+(lldb) b func(int)
+(lldb) b main
+
+
+// break on class method
+(lldb) b Myclass::func()
+
+// break on a namespace
+(lldb) b namespace::add(int, int) 
+
+// list all breakpoints
+(llbd) br list
+
+// delete breakpoints
+(lldb) br del 4
+(lldb) br del
+
+
+## Stepping Around/Navigation
+
+// Step Over (Go to the next line)
+(lldb) next
+(lldb) n
+
+// Step Into (Go into the function)
+(lldb) step
+(lldb) s
+
+// Continue
+(lldb) continue
+(lldb) c
+
+
+## Inspecting Variables
+
+// Print Variable Contents
+(lldb) p <varname>
+
+// Print Frame Variables
+(lldb) frame variable
+(lldb) fr v
+
+// Print Current Line (Source Code)
+(lldb) frame select
+(lldb) fr s
+
+
+## Backtrace and Frames
+
+// Backtrace
+(lldb) bt
+
+// Switching Frames
+(lldb) frame select 0
+(lldb) f 2  
+
+
+## Using Watchpoints
+
+// Global Variable
+(lldb) watchpoint set variable globalVariable
+(lldb) watchpoint set variable -w read | write | read_write globalVariable
+
+// Member Variable
+(lldb) b main
+(lldb) r
+(lldb) w s v <d.memberVar>
+
+
+## Terminating
+
+// Kill Process
+(lldb) kill
+
+// Exiting
+(lldb) quit
+CTRL-D
